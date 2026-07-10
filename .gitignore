@@ -13,3 +13,8 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+
+# personal photos
+bg-hero-01.jpg
+bg-hero-02.jpg
+bg-hero-03.jpg
