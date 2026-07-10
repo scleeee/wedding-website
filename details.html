@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Details — Shawn &amp; Lizzy, January 5, 2027</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =============================================
+       ROOT & RESET
+    ============================================= */
+    :root {
+      --ivory:      #faf7f2;
+      --ivory-dark: #f0ebe0;
+      --rose:       #c9a0a0;
+      --rose-light: #e8d0d0;
+      --rose-dark:  #a07070;
+      --sage:       #8a9e8a;
+      --sage-light: #c5d4c5;
+      --gold:       #b8922a;
+      --gold-light: #e8d5a0;
+      --text:       #3a3030;
+      --text-light: #6a5a5a;
+      --white:      #ffffff;
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-sans:  'Lato', system-ui, sans-serif;
+      --section-pad: clamp(3rem,8vw,6rem);
+      --content-max: 1100px;
+      --radius:     12px;
+      --shadow:     0 4px 24px rgba(58,48,48,0.10);
+      --shadow-sm:  0 2px 10px rgba(58,48,48,0.08);
+      --nav-h:      64px;
+      --tr:         0.3s ease;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-sans); background: var(--ivory); color: var(--text); line-height: 1.7; font-size: 16px; padding-top: var(--nav-h); }
+    img { max-width: 100%; display: block; }
+    a { color: var(--rose-dark); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1,h2,h3,h4 { font-family: var(--font-serif); line-height: 1.25; color: var(--text); }
+
+    /* =============================================
+       UTILITY
+    ============================================= */
+    .container { max-width: var(--content-max); margin: 0 auto; padding: 0 clamp(1.25rem,5vw,2.5rem); }
+    .section { padding: var(--section-pad) 0; }
+    .section--alt { background: var(--ivory-dark); }
+    .section-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--rose-dark); margin-bottom: 0.5rem; }
+    .section-title { font-size: clamp(1.75rem,4vw,2.75rem); font-weight: 600; margin-bottom: 1rem; }
+    .section-subtitle { font-size: 1.1rem; color: var(--text-light); max-width: 560px; }
+    .section-header { margin-bottom: clamp(2rem,5vw,3.5rem); }
+    .divider { width: 60px; height: 2px; background: var(--rose); margin: 1rem 0 1.5rem; }
+    .placeholder-note { display: inline-block; margin-top: 1.5rem; background: var(--gold-light); color: var(--gold); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.4rem 1rem; border-radius: 100px; border: 1px dashed var(--gold); }
+
+    /* =============================================
+       NAVIGATION
+    ============================================= */
+    #nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--nav-h); background: rgba(250,247,242,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--rose-light); transition: box-shadow var(--tr); }
+    #nav.scrolled { box-shadow: var(--shadow-sm); }
+    .nav-inner { display: flex; align-items: center; gap: 1.5rem; height: var(--nav-h); }
+    .nav-logo { font-family: var(--font-serif); font-style: italic; font-size: 1.2rem; color: var(--text); white-space: nowrap; flex-shrink: 0; }
+    .nav-logo:hover { text-decoration: none; }
+    .nav-links { display: flex; list-style: none; gap: 0.1rem; align-items: center; }
+    .nav-links > li > a, .nav-dropdown-btn { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); padding: 0.4rem 0.6rem; border-radius: 6px; transition: color var(--tr), background var(--tr); display: flex; align-items: center; gap: 0.3rem; background: transparent; border: none; cursor: pointer; font-family: var(--font-sans); }
+    .nav-links > li > a:hover, .nav-dropdown-btn:hover { color: var(--rose-dark); background: var(--rose-light); text-decoration: none; }
+    .nav-links > li > a.active, .nav-dropdown-btn.active { color: var(--rose-dark); }
+    .nav-dropdown { position: relative; }
+    .nav-caret { font-size: 0.6rem; transition: transform var(--tr); display: inline-block; }
+    .nav-dropdown.open .nav-caret { transform: rotate(180deg); }
+    .nav-dropdown-menu { display: none; position: absolute; top: calc(100% + 6px); left: 0; background: var(--white); border: 1px solid var(--rose-light); border-radius: 10px; box-shadow: var(--shadow); padding: 0.5rem; list-style: none; min-width: 180px; z-index: 100; }
+    .nav-dropdown.open .nav-dropdown-menu { display: block; }
+    .nav-dropdown-menu a { display: block; padding: 0.55rem 0.85rem; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-light); border-radius: 7px; transition: background var(--tr), color var(--tr); white-space: nowrap; }
+    .nav-dropdown-menu a:hover { background: var(--rose-light); color: var(--rose-dark); text-decoration: none; }
+    .nav-hamburger-wrap { margin-left: auto; }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; border: none; background: transparent; }
+    .hamburger span { display: block; width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: all var(--tr); }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .mobile-menu { display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; background: var(--ivory); border-bottom: 1px solid var(--rose-light); padding: 1rem; z-index: 999; box-shadow: var(--shadow); }
+    .mobile-menu.open { display: block; }
+    .mobile-menu a { display: block; padding: 0.75rem 1rem; font-size: 0.9rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); border-radius: 8px; transition: background var(--tr), color var(--tr); }
+    .mobile-menu a:hover { background: var(--rose-light); color: var(--rose-dark); text-decoration: none; }
+    .mobile-menu-sep { height: 1px; background: var(--rose-light); margin: 0.5rem 0; }
+    .mobile-menu-sub a { padding-left: 1.75rem; font-size: 0.8rem; }
+
+    /* =============================================
+       DRESS CODE
+    ============================================= */
+    #dress-code {
+      position: relative;
+      overflow: hidden;
+    }
+    .dress-code-bg {
+      position: absolute; inset: 0;
+      background-image: url('bg-details-02.jpg');
+      background-size: cover;
+      background-position: center 30%;
+      opacity: 0.1;
+      pointer-events: none;
+    }
+    .dress-code-inner { position: relative; z-index: 1; }
+
+    .dress-code-attire {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(1.25rem,3vw,2rem);
+      max-width: 820px;
+      margin-bottom: 3rem;
+      align-items: stretch;
+    }
+    .attire-card {
+      background: rgba(255,255,255,0.93);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-direction: column;
+    }
+    .attire-img-wrap {
+      flex: 1;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .attire-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+      background: var(--ivory-dark);
+    }
+    /* Ladies card: let the image display at its natural height — no cropping */
+    .attire-img-wrap--ladies {
+      flex: 0 0 auto;
+    }
+    .attire-img--ladies {
+      height: auto;
+      object-fit: initial;
+      object-position: initial;
+    }
+    .attire-img-placeholder {
+      width: 100%;
+      aspect-ratio: 3/4;
+      background: var(--ivory-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: var(--text-light);
+      font-style: italic;
+    }
+    .attire-body {
+      padding: 1.25rem 1.5rem 1.5rem;
+      text-align: center;
+      border-top: 1px solid var(--ivory-dark);
+    }
+    .attire-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--rose-dark); margin-bottom: 0.35rem; }
+    .attire-card h3 { font-family: var(--font-serif); font-size: 1.15rem; font-weight: 600; color: var(--text); margin-bottom: 0.5rem; }
+    .attire-card p { font-size: 0.875rem; color: var(--text-light); }
+
+    /* Color Palette */
+    .color-palette-section { max-width: 820px; }
+    .color-palette-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-light); margin-bottom: 1rem; }
+    .color-swatches { display: flex; flex-wrap: wrap; gap: 1rem; }
+    .color-swatch {
+      display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+      position: relative;
+      cursor: default;
+    }
+    .swatch-circle {
+      width: 56px; height: 56px; border-radius: 50%;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+      border: 3px solid rgba(255,255,255,0.85);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .color-swatch:hover .swatch-circle { transform: scale(1.12); box-shadow: 0 4px 16px rgba(0,0,0,0.22); }
+    .swatch-name { font-size: 0.65rem; color: var(--text-light); letter-spacing: 0.05em; }
+    .swatch-tooltip {
+      position: absolute;
+      bottom: calc(100% - 8px);
+      left: 50%;
+      transform: translateX(-50%) translateY(-6px);
+      background: #2a1a1a;
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 4px 9px;
+      border-radius: 5px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+    .swatch-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #2a1a1a;
+    }
+    .color-swatch:hover .swatch-tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-10px);
+    }
+
+    /* =============================================
+       SCHEDULE / TIMELINE
+    ============================================= */
+    .timeline { position: relative; max-width: 700px; margin: 0 auto; }
+    .timeline::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--rose-light); transform: translateX(-50%); }
+    .timeline-item { display: flex; justify-content: flex-end; padding-right: calc(50% + 2rem); margin-bottom: 2.5rem; position: relative; }
+    .timeline-item:nth-child(even) { justify-content: flex-start; padding-right: 0; padding-left: calc(50% + 2rem); }
+    .timeline-dot { position: absolute; left: 50%; top: 1.25rem; width: 14px; height: 14px; background: var(--rose-dark); border: 3px solid var(--ivory); border-radius: 50%; transform: translateX(-50%); box-shadow: 0 0 0 2px var(--rose); }
+    .timeline-content { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 1.25rem 1.5rem; max-width: 280px; width: 100%; }
+    .timeline-time { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rose-dark); margin-bottom: 0.3rem; }
+    .timeline-event { font-family: var(--font-serif); font-size: 1.05rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .timeline-desc { font-size: 0.85rem; color: var(--text-light); }
+
+    /* =============================================
+       FAQ
+    ============================================= */
+    .faq-list { max-width: 780px; margin: 0 auto; display: flex; flex-direction: column; gap: 0.75rem; }
+    .faq-item { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden; border: 1px solid var(--ivory-dark); }
+    .faq-question { width: 100%; background: transparent; border: none; text-align: left; padding: 1.25rem 1.5rem; font-family: var(--font-serif); font-size: 1rem; font-weight: 600; color: var(--text); cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem; transition: background var(--tr); }
+    .faq-question:hover, .faq-question.open { background: var(--ivory); }
+    .faq-icon { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--rose-light); color: var(--rose-dark); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; transition: transform var(--tr), background var(--tr); }
+    .faq-question.open .faq-icon { transform: rotate(45deg); background: var(--rose-dark); color: var(--white); }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+    .faq-answer.open { max-height: 400px; }
+    .faq-answer-inner { padding: 0 1.5rem 1.25rem; font-size: 0.95rem; color: var(--text-light); line-height: 1.75; }
+
+    /* =============================================
+       MANILA GUIDE
+    ============================================= */
+    .guide-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px,1fr)); gap: clamp(1rem,2.5vw,1.75rem); }
+    .guide-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 1.75rem; border-top: 3px solid var(--sage); display: flex; flex-direction: column; gap: 0.75rem; }
+    .guide-card-icon { font-size: 2rem; }
+    .guide-card h3 { font-family: var(--font-serif); font-size: 1.1rem; font-weight: 600; }
+    .guide-card p, .guide-card li { font-size: 0.9rem; color: var(--text-light); }
+    .guide-card ul { padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.35rem; }
+    .guide-highlight { display: flex; align-items: flex-start; gap: 0.6rem; background: var(--ivory-dark); border-radius: 8px; padding: 0.75rem; font-size: 0.875rem; color: var(--text); }
+    .guide-highlight-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+    /* =============================================
+       GIFT REGISTRY
+    ============================================= */
+    .registry-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 1.5rem; max-width: 680px; }
+    .registry-card { border: 2px dashed var(--rose-light); border-radius: var(--radius); padding: 2.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+    .registry-card-icon { font-size: 2.5rem; color: var(--rose-light); }
+    .registry-card h3 { font-family: var(--font-serif); font-size: 1.1rem; color: var(--text-light); }
+    .registry-card p { font-size: 0.85rem; color: var(--text-light); font-style: italic; }
+    .registry-note { margin-top: 2rem; max-width: 500px; font-size: 0.9rem; color: var(--text-light); font-style: italic; }
+
+    /* =============================================
+       CONTACT
+    ============================================= */
+    .contact-card { max-width: 580px; margin: 0 auto; text-align: center; }
+    .contact-avatar { width: 80px; height: 80px; background: var(--rose-light); border-radius: 50%; margin: 0 auto 1.25rem; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+    .contact-name { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .contact-role { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-light); margin-bottom: 1.5rem; }
+    .contact-methods { display: flex; flex-direction: column; gap: 0.75rem; align-items: center; }
+    .contact-method { display: flex; align-items: center; gap: 0.75rem; background: var(--white); border: 1px solid var(--ivory-dark); border-radius: 10px; padding: 0.75rem 1.5rem; min-width: 280px; justify-content: center; box-shadow: var(--shadow-sm); }
+    .contact-method svg { color: var(--rose-dark); }
+    .contact-method a { font-weight: 700; color: var(--rose-dark); }
+
+    /* =============================================
+       FOOTER
+    ============================================= */
+    footer { background: var(--text); color: rgba(255,255,255,0.6); text-align: center; padding: 2.5rem 1.5rem; font-size: 0.85rem; line-height: 1.8; }
+    footer strong { display: block; font-family: var(--font-serif); font-style: italic; font-size: 1.2rem; color: var(--rose-light); margin-bottom: 0.35rem; }
+
+    /* =============================================
+       RESPONSIVE
+    ============================================= */
+    /* Photo banner */
+    .photo-banner {
+      position: relative;
+      height: clamp(260px, 40vw, 440px);
+      overflow: hidden;
+    }
+    .photo-banner img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+      display: block;
+    }
+    .photo-banner-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(15,8,8,0.25) 0%, rgba(15,8,8,0.55) 100%);
+      display: flex; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+    .photo-banner-text {
+      color: var(--white);
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-weight: 400;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.4);
+      line-height: 1.3;
+    }
+    .photo-banner-sub {
+      margin-top: 0.75rem;
+      font-family: var(--font-sans);
+      font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+    }
+
+    @media (max-width: 900px) { .nav-links { display: none; } .hamburger { display: flex; } }
+    @media (max-width: 768px) {
+      .dress-code-attire { grid-template-columns: 1fr; }
+      .timeline::before { left: 20px; }
+      .timeline-item, .timeline-item:nth-child(even) { justify-content: flex-start; padding-right: 0; padding-left: 52px; }
+      .timeline-dot { left: 20px; top: 1.25rem; }
+      .timeline-content { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================
+       NAVIGATION
+  ============================================= -->
+  <nav id="nav" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <div class="nav-inner">
+        <a href="index.html" class="nav-logo">Shawn &amp; Lizzy</a>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li class="nav-dropdown" id="nav-details-drop">
+            <button class="nav-dropdown-btn active" onclick="toggleDropdown()" aria-expanded="false" aria-haspopup="true">
+              Details <span class="nav-caret">▾</span>
+            </button>
+            <ul class="nav-dropdown-menu" role="menu">
+              <li><a href="#schedule">Schedule</a></li>
+              <li><a href="#dress-code">Dress Code</a></li>
+              <li><a href="#faq">FAQ</a></li>
+              <li><a href="#manila-guide">Manila Guide</a></li>
+              <li><a href="#registry">Registry</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+          </li>
+          <li><a href="gallery.html">Gallery</a></li>
+        </ul>
+        <div class="nav-hamburger-wrap">
+          <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="index.html" onclick="closeMobileMenu()">Home</a>
+    <div class="mobile-menu-sep"></div>
+    <div class="mobile-menu-sub">
+      <a href="#schedule"     onclick="closeMobileMenu()">↳ Schedule</a>
+      <a href="#dress-code"   onclick="closeMobileMenu()">↳ Dress Code</a>
+      <a href="#faq"          onclick="closeMobileMenu()">↳ FAQ</a>
+      <a href="#manila-guide" onclick="closeMobileMenu()">↳ Manila Guide</a>
+      <a href="#registry"     onclick="closeMobileMenu()">↳ Registry</a>
+      <a href="#contact"      onclick="closeMobileMenu()">↳ Contact</a>
+    </div>
+    <div class="mobile-menu-sep"></div>
+    <a href="gallery.html" onclick="closeMobileMenu()">Gallery</a>
+  </div>
+
+
+  <!-- ============================================
+       1. SCHEDULE
+  ============================================= -->
+  <section id="schedule" class="section" aria-label="Schedule">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">The Day</p>
+        <h2 class="section-title">Schedule of Events</h2>
+        <div class="divider"></div>
+        <p class="section-subtitle">Here's the plan for January 5, 2027. Allow extra travel time between venues — Manila traffic can be spirited!</p>
+      </div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-content">
+            <p class="timeline-time">1:30 PM</p>
+            <h3 class="timeline-event">Guest Arrival</h3>
+            <p class="timeline-desc">Doors open at St. Andrew the Apostle Parish. Please be seated before the ceremony begins.</p>
+          </div>
+          <div class="timeline-dot"></div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-content">
+            <p class="timeline-time">2:00 PM</p>
+            <h3 class="timeline-event">Wedding Ceremony</h3>
+            <p class="timeline-desc">St. Andrew the Apostle Parish, Makati</p>
+          </div>
+          <div class="timeline-dot"></div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-content">
+            <p class="timeline-time">5:00 PM</p>
+            <h3 class="timeline-event">Cocktail Hour</h3>
+            <p class="timeline-desc">Welcome drinks and canapés at Blue Leaf Events Pavilion while we take photos.</p>
+          </div>
+          <div class="timeline-dot"></div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-content">
+            <p class="timeline-time">7:00 PM</p>
+            <h3 class="timeline-event">Reception Dinner</h3>
+            <p class="timeline-desc">Banyan Hall, Blue Leaf Events Pavilion, McKinley Road, Taguig</p>
+          </div>
+          <div class="timeline-dot"></div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-content">
+            <p class="timeline-time">11:00 PM</p>
+            <h3 class="timeline-event">After Party</h3>
+            <p class="timeline-desc">Keep the celebration going — dancing and festivities into the night!</p>
+          </div>
+          <div class="timeline-dot"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================
+       2. DRESS CODE
+  ============================================= -->
+  <section id="dress-code" class="section section--alt" aria-label="Dress Code">
+    <div class="dress-code-bg" aria-hidden="true"></div>
+    <div class="container dress-code-inner">
+      <div class="section-header">
+        <p class="section-label">What to Wear</p>
+        <h2 class="section-title">Dress Code</h2>
+        <div class="divider"></div>
+        <p class="section-subtitle">We'd love for our guests to dress in celebration of the occasion. Here's what we have in mind.</p>
+      </div>
+
+      <div class="dress-code-attire">
+        <!-- Men -->
+        <div class="attire-card">
+          <div class="attire-img-wrap">
+            <img class="attire-img" src="bg-barong-01.jpg" alt="Barong Tagalog — traditional Filipino formal wear for men" />
+          </div>
+          <div class="attire-body">
+            <p class="attire-label">For the Gentlemen</p>
+            <h3>Barong Tagalog</h3>
+            <p>Traditional Filipino formal wear. Long-sleeved barong required.</p>
+          </div>
+        </div>
+        <!-- Women -->
+        <div class="attire-card">
+          <div class="attire-img-wrap attire-img-wrap--ladies">
+            <img class="attire-img attire-img--ladies" src="bg-dress-01.jpg" alt="Formal floor-length gowns for women" />
+          </div>
+          <div class="attire-body">
+            <p class="attire-label">For the Ladies</p>
+            <h3>Formal Long Gown</h3>
+            <p>Full-length formal gown. We encourage colors from our palette below — but any elegant color is welcome!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Color Palette -->
+      <div class="color-palette-section">
+        <p class="color-palette-label">Our Color Palette — hover a swatch to see its hex code</p>
+        <div class="color-swatches">
+          <div class="color-swatch">
+            <div class="swatch-circle" style="background:#D95F72;"></div>
+            <span class="swatch-name">Rose</span>
+            <span class="swatch-tooltip">#D95F72</span>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch-circle" style="background:#F5A84B;"></div>
+            <span class="swatch-name">Amber</span>
+            <span class="swatch-tooltip">#F5A84B</span>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch-circle" style="background:#A8B85C;"></div>
+            <span class="swatch-name">Sage</span>
+            <span class="swatch-tooltip">#A8B85C</span>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch-circle" style="background:#C9A8E0;"></div>
+            <span class="swatch-name">Lavender</span>
+            <span class="swatch-tooltip">#C9A8E0</span>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch-circle" style="background:#F07560;"></div>
+            <span class="swatch-name">Coral</span>
+            <span class="swatch-tooltip">#F07560</span>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch-circle" style="background:#EDE08A;"></div>
+            <span class="swatch-name">Champagne</span>
+            <span class="swatch-tooltip">#EDE08A</span>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch-circle" style="background:#A8C8E8;"></div>
+            <span class="swatch-name">Sky</span>
+            <span class="swatch-tooltip">#A8C8E8</span>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch-circle" style="background:#C8A8D8;"></div>
+            <span class="swatch-name">Lilac</span>
+            <span class="swatch-tooltip">#C8A8D8</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ============================================
+       3. FAQ
+  ============================================= -->
+  <section id="faq" class="section" aria-label="Frequently Asked Questions">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">Need to Know</p>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <div class="divider"></div>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+            Is there parking at the venues?
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer"><div class="faq-answer-inner">
+            [Parking details to be added.] In the meantime, we recommend using Grab — Manila's rideshare app — for convenient, stress-free travel between venues. It's widely available, affordable, and removes any parking worries on the day.
+          </div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+            What should I do if I arrive late to the ceremony?
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer"><div class="faq-answer-inner">
+            If you arrive after the ceremony has started, please wait quietly at the entrance and a coordinator will seat you during an appropriate pause. We recommend arriving at least 15 minutes before the 2:00 PM start time.
+          </div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+            Can I bring a plus-one?
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer"><div class="faq-answer-inner">
+            Due to venue capacity, we are only able to accommodate guests named on the invitation. The number of seats reserved for your party is shown in your RSVP. If you have questions, please reach out via the Contact section below.
+          </div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+            Are children welcome?
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer"><div class="faq-answer-inner">
+            [Children policy to be added.] Please check your invitation — it will indicate if children are included in your party's seats.
+          </div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+            What is the dress code?
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer"><div class="faq-answer-inner">
+            Barong Tagalog for gentlemen, and formal long gown for ladies. See the Dress Code section above for full details.
+          </div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+            Where should I send a gift?
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer"><div class="faq-answer-inner">
+            Registry links are coming soon — check the Registry section of this page. Your presence is truly our greatest gift, but if you'd like to give something we'll have options ready for you.
+          </div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+            Will there be food options for dietary restrictions?
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer"><div class="faq-answer-inner">
+            Yes! When you fill in your RSVP, there is a field for each guest's dietary requirements. Please let us know about any allergies, intolerances, or preferences (vegetarian, vegan, halal, etc.) and we will do our best to accommodate everyone.
+          </div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+            I have another question — how can I reach you?
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer"><div class="faq-answer-inner">
+            Please scroll down to the Contact section and reach out to our wedding coordinator Thea Ocana. She's happy to help with anything!
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Photo Banner — bg-hero-02 -->
+  <div class="photo-banner" aria-hidden="true">
+    <img src="bg-hero-02.jpg" alt="Shawn and Lizzy" />
+    <div class="photo-banner-overlay">
+      <div>
+        <p class="photo-banner-text">We can't wait to celebrate with you</p>
+        <p class="photo-banner-sub">January 5, 2027 &nbsp;·&nbsp; Manila, Philippines</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       4. MANILA GUIDE
+  ============================================= -->
+  <section id="manila-guide" class="section section--alt" aria-label="Guide to Manila">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">International Guests</p>
+        <h2 class="section-title">Your Guide to Manila</h2>
+        <div class="divider"></div>
+        <p class="section-subtitle">
+          Flying in from abroad? We've put together some tips to help you make the most of your time in the Philippines. Manila is a vibrant, welcoming city — we hope you love it as much as we do!
+        </p>
+      </div>
+      <div class="guide-grid">
+        <div class="guide-card">
+          <div class="guide-card-icon">✈️</div>
+          <h3>Getting to Manila</h3>
+          <p>Most international flights arrive at <strong>Ninoy Aquino International Airport (NAIA)</strong>. There are four terminals — check which one your airline uses when booking.</p>
+          <div class="guide-highlight">
+            <span class="guide-highlight-icon">💡</span>
+            <span>Use <strong>Grab</strong> (the local rideshare app) from the airport. Avoid unlicensed taxis — always use metered cabs or Grab for safety.</span>
+          </div>
+          <ul>
+            <li>Terminal 1: Most international carriers</li>
+            <li>Terminal 2: Philippine Airlines (some intl)</li>
+            <li>Terminal 3: Cebu Pacific, AirAsia, others</li>
+            <li>Terminal 4: Smaller domestic operators</li>
+          </ul>
+        </div>
+        <div class="guide-card">
+          <div class="guide-card-icon">🚗</div>
+          <h3>Getting Around</h3>
+          <p>Manila traffic can be heavy, especially during rush hours. Plan extra travel time!</p>
+          <ul>
+            <li><strong>Grab</strong> — like Uber, widely available, cashless, reliable. Download before you arrive.</li>
+            <li><strong>Hotel transfers</strong> — many hotels offer airport pickup.</li>
+            <li><strong>Taxis</strong> — use metered taxis only.</li>
+          </ul>
+          <div class="guide-highlight">
+            <span class="guide-highlight-icon">⏰</span>
+            <span>Allow plenty of time on the wedding day — traffic in Makati/Taguig can be unpredictable. Leave your hotel earlier than you think you need to.</span>
+          </div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-card-icon">🏨</div>
+          <h3>Recommended Hotels</h3>
+          <p>Conveniently located near Makati and Taguig, close to both venues:</p>
+          <ul>
+            <li><strong>Raffles Makati</strong> — Luxury, Makati CBD</li>
+            <li><strong>Shangri-La BGC</strong> — Upscale, Bonifacio Global City</li>
+            <li><strong>Seda BGC</strong> — Modern, mid-range, excellent value</li>
+            <li><strong>Makati Shangri-La</strong> — Classic, central Makati</li>
+          </ul>
+          <p style="margin-top:0.5rem;font-style:italic;">Book early — January is peak season!</p>
+        </div>
+        <div class="guide-card">
+          <div class="guide-card-icon">💳</div>
+          <h3>Currency &amp; Practical Tips</h3>
+          <ul>
+            <li><strong>Currency:</strong> Philippine Peso (PHP). ATMs widely available.</li>
+            <li><strong>SIM cards:</strong> Pick up a local SIM at the airport (Globe or Smart).</li>
+            <li><strong>GCash:</strong> Digital wallet widely used in the Philippines.</li>
+            <li><strong>Grab:</strong> Download and set up before or right after landing.</li>
+            <li><strong>Power:</strong> Type A/B plugs (same as US), 220V.</li>
+            <li><strong>Language:</strong> English is widely spoken.</li>
+          </ul>
+        </div>
+        <div class="guide-card">
+          <div class="guide-card-icon">☀️</div>
+          <h3>Weather in January</h3>
+          <p>Great news — you've picked the perfect time to visit!</p>
+          <div class="guide-highlight" style="background:#e8f5e9;border:1px solid #c8e6c9;">
+            <span class="guide-highlight-icon">🌤️</span>
+            <span><strong>January is dry season in the Philippines.</strong> Expect warm, sunny days (~27°C / 80°F) with low humidity and minimal rain.</span>
+          </div>
+          <ul style="margin-top:0.5rem;">
+            <li>Average temperature: 24–29°C (75–84°F)</li>
+            <li>Very low chance of rain</li>
+            <li>Light, breathable clothing recommended</li>
+            <li>Evenings can be slightly cooler — bring a light layer for air-conditioned venues</li>
+          </ul>
+        </div>
+        <div class="guide-card">
+          <div class="guide-card-icon">🌺</div>
+          <h3>While You're Here</h3>
+          <p>Make the most of your visit to the Philippines!</p>
+          <ul>
+            <li><strong>Intramuros</strong> — Manila's historic walled city</li>
+            <li><strong>BGC (Bonifacio Global City)</strong> — Modern dining, art, and shopping</li>
+            <li><strong>Greenbelt &amp; Glorietta</strong> — Iconic Makati malls and restaurants</li>
+            <li><strong>Tagaytay</strong> — Scenic volcano views, 1.5 hrs from Manila</li>
+            <li><strong>Palawan or Boracay</strong> — World-class beaches for those extending their stay</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================
+       5. GIFT REGISTRY
+  ============================================= -->
+  <section id="registry" class="section" aria-label="Gift Registry">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">Gift Registry</p>
+        <h2 class="section-title">Registry</h2>
+        <div class="divider"></div>
+        <p class="section-subtitle">
+          Your presence at our wedding is the greatest gift of all. If you'd like to celebrate with a gift, our registry links are coming soon.
+        </p>
+      </div>
+      <div class="registry-grid">
+        <div class="registry-card">
+          <div class="registry-card-icon">🎁</div>
+          <h3>Registry One</h3>
+          <p>Coming soon — check back closer to the wedding</p>
+          <span class="placeholder-note">Link to be added</span>
+        </div>
+        <div class="registry-card">
+          <div class="registry-card-icon">🎀</div>
+          <h3>Registry Two</h3>
+          <p>Coming soon — check back closer to the wedding</p>
+          <span class="placeholder-note">Link to be added</span>
+        </div>
+      </div>
+      <p class="registry-note">We also warmly welcome contributions to our honeymoon fund. Details coming soon.</p>
+    </div>
+  </section>
+
+
+  <!-- ============================================
+       6. CONTACT
+  ============================================= -->
+  <section id="contact" class="section section--alt" aria-label="Contact">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">Get in Touch</p>
+        <h2 class="section-title">Contact</h2>
+        <div class="divider"></div>
+        <p class="section-subtitle">Have a question? Please reach out to our wedding coordinator.</p>
+      </div>
+      <div class="contact-card">
+        <div class="contact-avatar">💐</div>
+        <h3 class="contact-name">Thea Ocana</h3>
+        <p class="contact-role">Wedding Coordinator · My Big Event Management</p>
+        <div class="contact-methods">
+          <div class="contact-method">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <span>Email: <a href="mailto:mbeeventmanagement@gmail.com">mbeeventmanagement@gmail.com</a></span>
+          </div>
+          <div class="contact-method">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 11a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.59 0H6.6a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 7.91a16 16 0 0 0 6.12 6.12l.95-.95a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 15.32v1.6z"></path></svg>
+            <span>
+              <a href="tel:+639052641688">(0905) 264-1688</a>
+              &nbsp;/&nbsp;
+              <a href="tel:+639176572836">(0917) 657-2836</a>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================
+       FOOTER
+  ============================================= -->
+  <footer>
+    <strong>Shawn &amp; Lizzy — January 5, 2027</strong>
+    St. Andrew the Apostle Parish, Makati &nbsp;·&nbsp; Blue Leaf Events Pavilion, Banyan Hall<br>
+    Made with love ♥ for our family and friends around the world
+  </footer>
+
+
+  <script>
+    'use strict';
+
+    // NAV scroll shadow
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    }, { passive: true });
+
+    // Details dropdown
+    function toggleDropdown() {
+      const drop = document.getElementById('nav-details-drop');
+      const btn  = drop.querySelector('.nav-dropdown-btn');
+      const open = drop.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open);
+    }
+    document.addEventListener('click', e => {
+      const drop = document.getElementById('nav-details-drop');
+      if (drop && !drop.contains(e.target)) {
+        drop.classList.remove('open');
+        drop.querySelector('.nav-dropdown-btn').setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Hamburger
+    const hamburger  = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    hamburger.addEventListener('click', () => {
+      const open = mobileMenu.classList.toggle('open');
+      hamburger.classList.toggle('open', open);
+      hamburger.setAttribute('aria-expanded', open);
+    });
+    function closeMobileMenu() {
+      mobileMenu.classList.remove('open');
+      hamburger.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+    }
+
+    // FAQ accordion
+    function toggleFaq(btn) {
+      const answer = btn.nextElementSibling;
+      const isOpen = answer.classList.contains('open');
+      document.querySelectorAll('.faq-answer.open').forEach(el => {
+        el.classList.remove('open');
+        el.previousElementSibling.classList.remove('open');
+        el.previousElementSibling.setAttribute('aria-expanded', 'false');
+      });
+      if (!isOpen) {
+        answer.classList.add('open');
+        btn.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    }
+  </script>
+</body>
+</html>

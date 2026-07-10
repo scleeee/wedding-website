@@ -1,0 +1,10 @@
+# Dev artifacts not part of the live site
+email.json
+claude_logs.txt
+prompt_notes.txt
+index_old.html
+.claude/
+
+# OS files
+.DS_Store
+Thumbs.db

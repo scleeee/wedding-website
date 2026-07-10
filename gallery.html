@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gallery — Shawn &amp; Lizzy, January 5, 2027</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --ivory:      #faf7f2;
+      --ivory-dark: #f0ebe0;
+      --rose:       #c9a0a0;
+      --rose-light: #e8d0d0;
+      --rose-dark:  #a07070;
+      --sage:       #8a9e8a;
+      --text:       #3a3030;
+      --text-light: #6a5a5a;
+      --white:      #ffffff;
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-sans:  'Lato', system-ui, sans-serif;
+      --shadow:     0 4px 24px rgba(58,48,48,0.10);
+      --shadow-sm:  0 2px 10px rgba(58,48,48,0.08);
+      --nav-h:      64px;
+      --tr:         0.3s ease;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-sans); background: var(--ivory); color: var(--text); line-height: 1.7; padding-top: var(--nav-h); min-height: 100vh; display: flex; flex-direction: column; }
+    a { color: var(--rose-dark); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1,h2,h3 { font-family: var(--font-serif); line-height: 1.25; color: var(--text); }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1.25rem,5vw,2.5rem); }
+
+    /* NAV */
+    #nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--nav-h); background: rgba(250,247,242,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--rose-light); transition: box-shadow var(--tr); }
+    #nav.scrolled { box-shadow: var(--shadow-sm); }
+    .nav-inner { display: flex; align-items: center; gap: 1.5rem; height: var(--nav-h); }
+    .nav-logo { font-family: var(--font-serif); font-style: italic; font-size: 1.2rem; color: var(--text); white-space: nowrap; flex-shrink: 0; }
+    .nav-logo:hover { text-decoration: none; }
+    .nav-links { display: flex; list-style: none; gap: 0.1rem; align-items: center; }
+    .nav-links > li > a, .nav-dropdown-btn { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); padding: 0.4rem 0.6rem; border-radius: 6px; transition: color var(--tr), background var(--tr); display: flex; align-items: center; gap: 0.3rem; background: transparent; border: none; cursor: pointer; font-family: var(--font-sans); }
+    .nav-links > li > a:hover, .nav-dropdown-btn:hover { color: var(--rose-dark); background: var(--rose-light); text-decoration: none; }
+    .nav-links > li > a.active, .nav-dropdown-btn.active { color: var(--rose-dark); }
+    .nav-dropdown { position: relative; }
+    .nav-caret { font-size: 0.6rem; transition: transform var(--tr); display: inline-block; }
+    .nav-dropdown.open .nav-caret { transform: rotate(180deg); }
+    .nav-dropdown-menu { display: none; position: absolute; top: calc(100% + 6px); left: 0; background: var(--white); border: 1px solid var(--rose-light); border-radius: 10px; box-shadow: var(--shadow); padding: 0.5rem; list-style: none; min-width: 180px; z-index: 100; }
+    .nav-dropdown.open .nav-dropdown-menu { display: block; }
+    .nav-dropdown-menu a { display: block; padding: 0.55rem 0.85rem; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-light); border-radius: 7px; transition: background var(--tr), color var(--tr); white-space: nowrap; }
+    .nav-dropdown-menu a:hover { background: var(--rose-light); color: var(--rose-dark); text-decoration: none; }
+    .nav-hamburger-wrap { margin-left: auto; }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; border: none; background: transparent; }
+    .hamburger span { display: block; width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: all var(--tr); }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .mobile-menu { display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; background: var(--ivory); border-bottom: 1px solid var(--rose-light); padding: 1rem; z-index: 999; box-shadow: var(--shadow); }
+    .mobile-menu.open { display: block; }
+    .mobile-menu a { display: block; padding: 0.75rem 1rem; font-size: 0.9rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); border-radius: 8px; transition: background var(--tr), color var(--tr); }
+    .mobile-menu a:hover { background: var(--rose-light); color: var(--rose-dark); text-decoration: none; }
+    .mobile-menu-sep { height: 1px; background: var(--rose-light); margin: 0.5rem 0; }
+    .mobile-menu-sub a { padding-left: 1.75rem; font-size: 0.8rem; }
+
+    /* MAIN CONTENT */
+    main { flex: 1; display: flex; align-items: center; justify-content: center; padding: clamp(3rem,8vw,6rem) 1.5rem; }
+
+    .under-construction {
+      max-width: 640px;
+      text-align: center;
+    }
+
+    .uc-frame {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 3rem;
+    }
+
+    /* Decorative corner ornaments */
+    .uc-frame::before, .uc-frame::after {
+      content: '';
+      position: absolute;
+      width: 50px; height: 50px;
+      border-color: var(--rose-light);
+      border-style: solid;
+    }
+    .uc-frame::before { top: -12px; left: -12px; border-width: 2px 0 0 2px; }
+    .uc-frame::after  { bottom: -12px; right: -12px; border-width: 0 2px 2px 0; }
+
+    .uc-photo-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      width: clamp(280px, 70vw, 480px);
+    }
+
+    .uc-photo {
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .uc-photo img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      object-position: top;
+      display: block;
+    }
+    .uc-photo:first-child { border-radius: 8px 8px 8px 40px; }
+    .uc-photo:last-child  { border-radius: 8px 8px 40px 8px; }
+
+    .uc-ornament {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--rose);
+      letter-spacing: 0.3em;
+      margin-bottom: 1rem;
+    }
+
+    .uc-title {
+      font-family: var(--font-serif);
+      font-size: clamp(1.8rem, 5vw, 2.75rem);
+      font-weight: 400;
+      font-style: italic;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+
+    .uc-subtitle {
+      font-size: 1rem;
+      color: var(--text-light);
+      max-width: 420px;
+      margin: 0 auto 2rem;
+      line-height: 1.75;
+    }
+
+    .uc-divider {
+      width: 50px; height: 2px;
+      background: var(--rose);
+      margin: 1.25rem auto;
+    }
+
+    .uc-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--ivory-dark);
+      border: 1px dashed var(--rose);
+      border-radius: 100px;
+      padding: 0.5rem 1.25rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--rose-dark);
+    }
+
+    /* FOOTER */
+    footer { background: var(--text); color: rgba(255,255,255,0.6); text-align: center; padding: 2.5rem 1.5rem; font-size: 0.85rem; line-height: 1.8; }
+    footer strong { display: block; font-family: var(--font-serif); font-style: italic; font-size: 1.2rem; color: var(--rose-light); margin-bottom: 0.35rem; }
+
+    @media (max-width: 900px) { .nav-links { display: none; } .hamburger { display: flex; } }
+    @media (max-width: 480px) {
+      .uc-photo-pair { grid-template-columns: 1fr; }
+      .uc-photo img { height: 200px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================
+       NAVIGATION
+  ============================================= -->
+  <nav id="nav" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <div class="nav-inner">
+        <a href="index.html" class="nav-logo">Shawn &amp; Lizzy</a>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li class="nav-dropdown" id="nav-details-drop">
+            <button class="nav-dropdown-btn" onclick="toggleDropdown()" aria-expanded="false" aria-haspopup="true">
+              Details <span class="nav-caret">▾</span>
+            </button>
+            <ul class="nav-dropdown-menu" role="menu">
+              <li><a href="details.html#schedule">Schedule</a></li>
+              <li><a href="details.html#dress-code">Dress Code</a></li>
+              <li><a href="details.html#faq">FAQ</a></li>
+              <li><a href="details.html#manila-guide">Manila Guide</a></li>
+              <li><a href="details.html#registry">Registry</a></li>
+              <li><a href="details.html#contact">Contact</a></li>
+            </ul>
+          </li>
+          <li><a href="gallery.html" class="active">Gallery</a></li>
+        </ul>
+        <div class="nav-hamburger-wrap">
+          <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="index.html">Home</a>
+    <div class="mobile-menu-sep"></div>
+    <div class="mobile-menu-sub">
+      <a href="details.html#schedule">↳ Schedule</a>
+      <a href="details.html#dress-code">↳ Dress Code</a>
+      <a href="details.html#faq">↳ FAQ</a>
+      <a href="details.html#manila-guide">↳ Manila Guide</a>
+      <a href="details.html#registry">↳ Registry</a>
+      <a href="details.html#contact">↳ Contact</a>
+    </div>
+    <div class="mobile-menu-sep"></div>
+    <a href="gallery.html">Gallery</a>
+  </div>
+
+
+  <!-- ============================================
+       UNDER CONSTRUCTION
+  ============================================= -->
+  <main>
+    <div class="under-construction">
+      <div class="uc-frame">
+        <div class="uc-photo-pair">
+          <div class="uc-photo">
+            <img src="bg-hero-01.jpg" alt="Shawn and Lizzy" />
+          </div>
+          <div class="uc-photo">
+            <img src="bg-hero-02.jpg" alt="Shawn and Lizzy" />
+          </div>
+        </div>
+      </div>
+
+      <p class="uc-ornament">— ✦ —</p>
+      <h1 class="uc-title">Photo Gallery</h1>
+      <div class="uc-divider"></div>
+      <p class="uc-subtitle">
+        We're saving this space for something beautiful. Our photos will be shared here after the wedding — check back after January 5, 2027!
+      </p>
+      <span class="uc-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        Coming January 2027
+      </span>
+    </div>
+  </main>
+
+
+  <!-- ============================================
+       FOOTER
+  ============================================= -->
+  <footer>
+    <strong>Shawn &amp; Lizzy — January 5, 2027</strong>
+    St. Andrew the Apostle Parish, Makati &nbsp;·&nbsp; Blue Leaf Events Pavilion, Banyan Hall<br>
+    Made with love ♥ for our family and friends around the world
+  </footer>
+
+
+  <script>
+    'use strict';
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    }, { passive: true });
+    function toggleDropdown() {
+      const drop = document.getElementById('nav-details-drop');
+      const btn  = drop.querySelector('.nav-dropdown-btn');
+      const open = drop.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open);
+    }
+    document.addEventListener('click', e => {
+      const drop = document.getElementById('nav-details-drop');
+      if (drop && !drop.contains(e.target)) {
+        drop.classList.remove('open');
+        drop.querySelector('.nav-dropdown-btn').setAttribute('aria-expanded', 'false');
+      }
+    });
+    const hamburger  = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    hamburger.addEventListener('click', () => {
+      const open = mobileMenu.classList.toggle('open');
+      hamburger.classList.toggle('open', open);
+      hamburger.setAttribute('aria-expanded', open);
+    });
+  </script>
+</body>
+</html>
