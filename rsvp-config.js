@@ -1,6 +1,5 @@
-// These values are public browser configuration, not service-role credentials.
-// Never put a Supabase service-role key in this file.
+// This is a public browser endpoint. All privileged credentials and rate-limit
+// credentials belong in Supabase Edge Function secrets, never in this file.
 window.WEDDING_CONFIG = Object.freeze({
-  supabaseUrl: 'https://ehyoweasqwahqpdzftgt.supabase.co',
-  supabasePublishableKey: 'sb_publishable_Ir6usX3PfxF-RRsLwRhemA_gKOeokEE'
+  rsvpEndpoint: 'https://ehyoweasqwahqpdzftgt.supabase.co/functions/v1/rsvp'
 });

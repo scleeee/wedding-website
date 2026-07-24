@@ -34,14 +34,15 @@
   const defaultDeadlineText = elements.deadlineHeading.textContent;
 
   class RsvpApiError extends Error {
-    constructor(message, code) {
+    constructor(message, code, retryAfterSeconds) {
       super(message);
       this.code = code;
+      this.retryAfterSeconds = retryAfterSeconds || 0;
     }
   }
 
-  async function callRpc(name, payload) {
-    if (!config.supabaseUrl || !config.supabasePublishableKey) {
+  async function callRsvpApi(action, payload) {
+    if (!config.rsvpEndpoint) {
       throw new RsvpApiError('RSVP configuration is missing.', 'CONFIG');
     }
 
@@ -49,22 +50,27 @@
     const timeout = window.setTimeout(() => controller.abort(), 15000);
 
     try {
-      const response = await fetch(
-        `${config.supabaseUrl.replace(/\/$/, '')}/rest/v1/rpc/${name}`,
-        {
-          method: 'POST',
-          headers: {
-            apikey: config.supabasePublishableKey,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload),
-          signal: controller.signal
-        }
-      );
+      const response = await fetch(config.rsvpEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ action, ...payload }),
+        signal: controller.signal
+      });
 
       const body = await response.json().catch(() => null);
       if (!response.ok) {
-        throw new RsvpApiError(body && body.message ? body.message : 'Request failed.', body && body.code);
+        const retryAfter = Number(
+          body && body.retry_after_seconds
+            ? body.retry_after_seconds
+            : response.headers.get('Retry-After')
+        );
+        throw new RsvpApiError(
+          body && body.message ? body.message : 'Request failed.',
+          body && body.code,
+          Number.isFinite(retryAfter) ? retryAfter : 0
+        );
       }
       return body;
     } catch (error) {
@@ -76,6 +82,12 @@
     } finally {
       window.clearTimeout(timeout);
     }
+  }
+
+  function retryWaitText(seconds) {
+    if (!seconds || seconds < 60) return 'a minute';
+    const minutes = Math.ceil(seconds / 60);
+    return `${minutes} minute${minutes === 1 ? '' : 's'}`;
   }
 
   function showError(element, message) {
@@ -98,18 +110,18 @@
     if (error.code === 'CONFIG') {
       return 'Online RSVP is not configured yet. Please use the phone numbers below for help.';
     }
+    if (error.code === 'RATE_LIMITED') {
+      return `For everyoneâ€™s privacy, too many invitation codes have been tried from this connection. Please wait ${retryWaitText(error.retryAfterSeconds)} and try again.`;
+    }
     return 'We could not check that code right now. Check your connection and try again, or use the phone numbers below for help.';
   }
 
   function submitErrorMessage(error) {
-    if (error.message === 'RSVP_CLOSED') {
-      return 'Online RSVPs are now closed. Please use the phone numbers below if you need to make a change.';
+    if (error.code === 'RATE_LIMITED') {
+      return `For everyoneâ€™s privacy, RSVP saving is temporarily limited from this connection. Please wait ${retryWaitText(error.retryAfterSeconds)} and try again; your responses are still shown here.`;
     }
-    if (error.message === 'INVALID_RSVP_CODE') {
-      return 'This invitation code is no longer valid. Please return and enter the code again.';
-    }
-    if (error.message === 'INVALID_RSVP_RESPONSES') {
-      return 'One or more responses could not be saved. Please review every reserved seat and try again.';
+    if (error.code === 'RSVP_NOT_SAVED') {
+      return 'We could not save this RSVP. Please review every reserved seat and try again, or return and re-enter the invitation code.';
     }
     return 'We could not save your RSVP. Check your connection and try again; your responses are still shown here.';
   }
@@ -358,9 +370,9 @@
     setButtonBusy(elements.submitButton, true, 'Saving…', 'Submit RSVP ✓');
 
     try {
-      const invitation = await callRpc('submit_rsvp', {
-        p_code: state.code,
-        p_responses: state.pendingResponses
+      const invitation = await callRsvpApi('submit', {
+        code: state.code,
+        responses: state.pendingResponses
       });
       state.invitation = invitation;
       elements.review.hidden = true;
@@ -401,7 +413,7 @@
 
     setButtonBusy(elements.lookupButton, true, 'Checking…', 'Continue →');
     try {
-      const invitation = await callRpc('lookup_rsvp', { p_code: code });
+      const invitation = await callRsvpApi('lookup', { code });
       if (!invitation) {
         showError(elements.lookupError, 'That code does not match our records. Double-check the invitation and try again.');
         elements.codeInput.focus();
