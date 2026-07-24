@@ -1,0 +1,13 @@
+[shell_environment_policy]
+inherit = "core"
+
+[shell_environment_policy.set]
+MAX_THINKING_TOKENS = "10000"
+CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = "50"
+CLAUDE_CODE_SUBAGENT_MODEL = "haiku"
+
+# Project-scoped Supabase MCP connection. Authentication happens through the
+# Supabase browser flow when Codex next loads this server.
+[mcp_servers.supabase]
+url = "https://mcp.supabase.com/mcp?project_ref=ehyoweasqwahqpdzftgt"
+

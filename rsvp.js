@@ -1,0 +1,443 @@
+(function () {
+  'use strict';
+
+  const config = window.WEDDING_CONFIG || {};
+  const state = { code: '', invitation: null, pendingResponses: null };
+
+  const elements = {
+    login: document.getElementById('rsvp-login'),
+    codeInput: document.getElementById('rsvp-password'),
+    lookupButton: document.getElementById('rsvp-lookup-button'),
+    lookupError: document.getElementById('rsvp-error'),
+    form: document.getElementById('rsvp-form'),
+    submittedBanner: document.getElementById('rsvp-submitted-banner'),
+    welcome: document.getElementById('rsvp-welcome'),
+    closed: document.getElementById('rsvp-closed'),
+    partyAttendance: document.getElementById('party-attendance'),
+    guestRows: document.getElementById('guest-rows'),
+    formError: document.getElementById('rsvp-form-error'),
+    reviewButton: document.getElementById('rsvp-review-button'),
+    useAnother: document.getElementById('rsvp-use-another'),
+    review: document.getElementById('rsvp-review'),
+    reviewHeading: document.getElementById('rsvp-review-heading'),
+    reviewList: document.getElementById('rsvp-review-list'),
+    submitError: document.getElementById('rsvp-submit-error'),
+    backButton: document.getElementById('rsvp-back-button'),
+    submitButton: document.getElementById('rsvp-submit-button'),
+    success: document.getElementById('rsvp-success'),
+    successMessage: document.getElementById('rsvp-success-message'),
+    editButton: document.getElementById('rsvp-edit-button'),
+    successAnother: document.getElementById('rsvp-success-another'),
+    deadlineHeading: document.getElementById('rsvp-deadline-heading'),
+    deadlineCopy: document.getElementById('rsvp-deadline-copy')
+  };
+  const defaultDeadlineText = elements.deadlineHeading.textContent;
+
+  class RsvpApiError extends Error {
+    constructor(message, code) {
+      super(message);
+      this.code = code;
+    }
+  }
+
+  async function callRpc(name, payload) {
+    if (!config.supabaseUrl || !config.supabasePublishableKey) {
+      throw new RsvpApiError('RSVP configuration is missing.', 'CONFIG');
+    }
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 15000);
+
+    try {
+      const response = await fetch(
+        `${config.supabaseUrl.replace(/\/$/, '')}/rest/v1/rpc/${name}`,
+        {
+          method: 'POST',
+          headers: {
+            apikey: config.supabasePublishableKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        }
+      );
+
+      const body = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new RsvpApiError(body && body.message ? body.message : 'Request failed.', body && body.code);
+      }
+      return body;
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        throw new RsvpApiError('The request timed out.', 'NETWORK');
+      }
+      if (error instanceof RsvpApiError) throw error;
+      throw new RsvpApiError('Could not reach the RSVP service.', 'NETWORK');
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  }
+
+  function showError(element, message) {
+    element.textContent = message;
+    element.classList.add('visible');
+  }
+
+  function clearError(element) {
+    element.textContent = '';
+    element.classList.remove('visible');
+  }
+
+  function setButtonBusy(button, busy, busyText, normalText) {
+    button.disabled = busy;
+    button.textContent = busy ? busyText : normalText;
+    button.setAttribute('aria-busy', busy ? 'true' : 'false');
+  }
+
+  function lookupErrorMessage(error) {
+    if (error.code === 'CONFIG') {
+      return 'Online RSVP is not configured yet. Please use the phone numbers below for help.';
+    }
+    return 'We could not check that code right now. Check your connection and try again, or use the phone numbers below for help.';
+  }
+
+  function submitErrorMessage(error) {
+    if (error.message === 'RSVP_CLOSED') {
+      return 'Online RSVPs are now closed. Please use the phone numbers below if you need to make a change.';
+    }
+    if (error.message === 'INVALID_RSVP_CODE') {
+      return 'This invitation code is no longer valid. Please return and enter the code again.';
+    }
+    if (error.message === 'INVALID_RSVP_RESPONSES') {
+      return 'One or more responses could not be saved. Please review every reserved seat and try again.';
+    }
+    return 'We could not save your RSVP. Check your connection and try again; your responses are still shown here.';
+  }
+
+  function formatDeadline(value) {
+    if (!value) return null;
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return null;
+    return new Intl.DateTimeFormat(undefined, {
+      dateStyle: 'long',
+      timeStyle: 'short'
+    }).format(date);
+  }
+
+  function updateDeadline(invitation) {
+    const deadline = formatDeadline(invitation.deadline);
+    elements.deadlineCopy.replaceChildren();
+    const strong = document.createElement('strong');
+    strong.textContent = 'Deadline: ';
+    elements.deadlineHeading.textContent = deadline || defaultDeadlineText;
+    elements.deadlineCopy.append(strong, document.createTextNode(deadline || defaultDeadlineText));
+  }
+
+  function confirmationText(invitation) {
+    const seatWord = invitation.reserved_seats === 1 ? 'seat' : 'seats';
+    return `This invitation reserves ${invitation.reserved_seats} ${seatWord} for the ${invitation.party_label}.`;
+  }
+
+  function renderInvitation(invitation) {
+    state.invitation = invitation;
+    state.pendingResponses = null;
+
+    elements.login.hidden = true;
+    elements.review.hidden = true;
+    elements.success.hidden = true;
+    elements.form.hidden = false;
+    elements.submittedBanner.hidden = !invitation.submitted;
+    elements.closed.hidden = !invitation.closed;
+    elements.partyAttendance.hidden = invitation.reserved_seats < 2 || invitation.closed;
+    elements.reviewButton.hidden = invitation.closed;
+    elements.welcome.textContent = confirmationText(invitation);
+    clearError(elements.formError);
+    updateDeadline(invitation);
+    renderGuests(invitation);
+
+    if (invitation.closed) {
+      elements.guestRows.querySelectorAll('input').forEach((input) => { input.disabled = true; });
+    }
+
+    elements.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    elements.welcome.setAttribute('tabindex', '-1');
+    elements.welcome.focus({ preventScroll: true });
+  }
+
+  function makeLabel(text, input) {
+    const label = document.createElement('label');
+    label.className = 'attendance-choice';
+    label.append(input, document.createTextNode(text));
+    return label;
+  }
+
+  function renderGuests(invitation) {
+    elements.guestRows.replaceChildren();
+
+    invitation.guests.forEach((guest, index) => {
+      const card = document.createElement('fieldset');
+      card.className = 'guest-row';
+      card.dataset.seatNumber = String(guest.seat_number);
+
+      const legend = document.createElement('legend');
+      legend.className = 'guest-row-header';
+      legend.textContent = guest.expected_name || `Reserved seat ${index + 1}`;
+
+      const nameGroup = document.createElement('div');
+      nameGroup.className = 'form-group';
+      const nameLabel = document.createElement('label');
+      nameLabel.className = 'form-label';
+      nameLabel.htmlFor = `guest-name-${guest.seat_number}`;
+      nameLabel.textContent = guest.name_editable ? 'Guest name' : 'Name on invitation';
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.id = `guest-name-${guest.seat_number}`;
+      nameInput.className = 'form-input guest-name';
+      nameInput.value = guest.name || '';
+      nameInput.placeholder = guest.name_editable ? 'Partner or guest name' : '';
+      nameInput.maxLength = 200;
+      nameInput.autocomplete = 'name';
+      nameInput.readOnly = !guest.name_editable;
+      nameGroup.append(nameLabel, nameInput);
+
+      const attendance = document.createElement('fieldset');
+      attendance.className = 'attendance-group';
+      const attendanceLegend = document.createElement('legend');
+      attendanceLegend.className = 'form-label';
+      attendanceLegend.textContent = 'Will this guest attend?';
+      const options = document.createElement('div');
+      options.className = 'attendance-options';
+
+      const yes = document.createElement('input');
+      yes.type = 'radio';
+      yes.name = `guest-attending-${guest.seat_number}`;
+      yes.value = 'true';
+      yes.checked = guest.attending === true;
+      yes.setAttribute('aria-label', 'Attending');
+
+      const no = document.createElement('input');
+      no.type = 'radio';
+      no.name = `guest-attending-${guest.seat_number}`;
+      no.value = 'false';
+      no.checked = guest.attending === false;
+      no.setAttribute('aria-label', 'Not attending');
+
+      options.append(makeLabel('Attending', yes), makeLabel('Not attending', no));
+      attendance.append(attendanceLegend, options);
+
+      const dietaryGroup = document.createElement('div');
+      dietaryGroup.className = 'guest-dietary';
+      dietaryGroup.hidden = guest.attending !== true;
+      const dietaryLabel = document.createElement('label');
+      dietaryLabel.className = 'form-label';
+      dietaryLabel.htmlFor = `guest-diet-${guest.seat_number}`;
+      dietaryLabel.textContent = 'Dietary requirements';
+      const dietaryInput = document.createElement('input');
+      dietaryInput.type = 'text';
+      dietaryInput.id = `guest-diet-${guest.seat_number}`;
+      dietaryInput.className = 'form-input guest-diet';
+      dietaryInput.value = guest.dietary_requirements || '';
+      dietaryInput.placeholder = 'Allergies, preferences, or none';
+      dietaryInput.maxLength = 1000;
+      dietaryInput.disabled = guest.attending !== true;
+      dietaryGroup.append(dietaryLabel, dietaryInput);
+
+      options.addEventListener('change', () => {
+        const attending = yes.checked;
+        dietaryGroup.hidden = !attending;
+        dietaryInput.disabled = !attending;
+        if (!attending) dietaryInput.value = '';
+        card.classList.remove('has-error');
+        updatePartyAttendanceChoice();
+      });
+      nameInput.addEventListener('input', () => card.classList.remove('has-error'));
+
+      card.append(legend, nameGroup, attendance, dietaryGroup);
+      elements.guestRows.append(card);
+    });
+
+    updatePartyAttendanceChoice();
+  }
+
+  function guestCards() {
+    return Array.from(elements.guestRows.querySelectorAll('.guest-row'));
+  }
+
+  function setAllAttendance(attending) {
+    guestCards().forEach((card) => {
+      const input = card.querySelector(`input[type="radio"][value="${attending}"]`);
+      if (input && !input.disabled) {
+        input.checked = true;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+  }
+
+  function updatePartyAttendanceChoice() {
+    const choices = guestCards().map((card) => {
+      const selected = card.querySelector('input[type="radio"]:checked');
+      return selected ? selected.value : null;
+    });
+    const value = choices.length && choices.every((choice) => choice === 'true')
+      ? 'all'
+      : choices.length && choices.every((choice) => choice === 'false')
+        ? 'none'
+        : 'individual';
+    const input = elements.partyAttendance.querySelector(`input[value="${value}"]`);
+    if (input) input.checked = true;
+  }
+
+  function collectResponses() {
+    let firstInvalid = null;
+    const responses = guestCards().map((card) => {
+      card.classList.remove('has-error');
+      const selected = card.querySelector('input[type="radio"]:checked');
+      const nameInput = card.querySelector('.guest-name');
+      const dietaryInput = card.querySelector('.guest-diet');
+      const attending = selected ? selected.value === 'true' : null;
+      const name = nameInput.value.trim();
+
+      if (attending === null || (attending && !name)) {
+        card.classList.add('has-error');
+        if (!firstInvalid) firstInvalid = attending === null ? card.querySelector('input[type="radio"]') : nameInput;
+      }
+
+      return {
+        seat_number: Number(card.dataset.seatNumber),
+        name,
+        attending,
+        dietary_requirements: attending ? dietaryInput.value.trim() : ''
+      };
+    });
+
+    if (firstInvalid) {
+      showError(elements.formError, 'Please choose attending or not attending for every seat, and add a name for each attending guest.');
+      firstInvalid.focus();
+      return null;
+    }
+
+    clearError(elements.formError);
+    return responses;
+  }
+
+  function showReview() {
+    const responses = collectResponses();
+    if (!responses) return;
+
+    state.pendingResponses = responses;
+    elements.reviewHeading.textContent = `Review the response for the ${state.invitation.party_label}.`;
+    elements.reviewList.replaceChildren();
+
+    responses.forEach((response, index) => {
+      const item = document.createElement('div');
+      item.className = 'review-item';
+      const name = document.createElement('strong');
+      name.textContent = response.name || state.invitation.guests[index].expected_name || `Reserved seat ${index + 1}`;
+      const attendance = document.createElement('p');
+      attendance.textContent = response.attending ? 'Attending' : 'Not attending';
+      item.append(name, attendance);
+      if (response.attending) {
+        const dietary = document.createElement('p');
+        dietary.textContent = `Dietary requirements: ${response.dietary_requirements || 'None provided'}`;
+        item.append(dietary);
+      }
+      elements.reviewList.append(item);
+    });
+
+    clearError(elements.submitError);
+    elements.form.hidden = true;
+    elements.review.hidden = false;
+    elements.review.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    elements.reviewHeading.setAttribute('tabindex', '-1');
+    elements.reviewHeading.focus({ preventScroll: true });
+  }
+
+  async function submitRsvp() {
+    if (!state.pendingResponses) return;
+    clearError(elements.submitError);
+    setButtonBusy(elements.submitButton, true, 'Saving…', 'Submit RSVP ✓');
+
+    try {
+      const invitation = await callRpc('submit_rsvp', {
+        p_code: state.code,
+        p_responses: state.pendingResponses
+      });
+      state.invitation = invitation;
+      elements.review.hidden = true;
+      elements.success.hidden = false;
+      elements.successMessage.textContent = 'Thank you. Your party’s response has been saved. You can return with the same code to review or update it before the deadline.';
+      elements.editButton.hidden = invitation.closed;
+      elements.success.focus();
+    } catch (error) {
+      showError(elements.submitError, submitErrorMessage(error));
+    } finally {
+      setButtonBusy(elements.submitButton, false, 'Saving…', 'Submit RSVP ✓');
+    }
+  }
+
+  function resetToLogin() {
+    state.code = '';
+    state.invitation = null;
+    state.pendingResponses = null;
+    elements.form.hidden = true;
+    elements.review.hidden = true;
+    elements.success.hidden = true;
+    elements.login.hidden = false;
+    elements.codeInput.value = '';
+    updateDeadline({ deadline: null });
+    clearError(elements.lookupError);
+    elements.codeInput.focus();
+  }
+
+  elements.login.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    clearError(elements.lookupError);
+    const code = elements.codeInput.value.trim();
+    if (!code) {
+      showError(elements.lookupError, 'Enter the invitation code printed on your invitation.');
+      elements.codeInput.focus();
+      return;
+    }
+
+    setButtonBusy(elements.lookupButton, true, 'Checking…', 'Continue →');
+    try {
+      const invitation = await callRpc('lookup_rsvp', { p_code: code });
+      if (!invitation) {
+        showError(elements.lookupError, 'That code does not match our records. Double-check the invitation and try again.');
+        elements.codeInput.focus();
+        return;
+      }
+      if (!Array.isArray(invitation.guests) || invitation.guests.length !== invitation.reserved_seats) {
+        throw new RsvpApiError('Invitation seats are incomplete.', 'DATA');
+      }
+      state.code = code;
+      renderInvitation(invitation);
+    } catch (error) {
+      showError(elements.lookupError, lookupErrorMessage(error));
+      elements.codeInput.focus();
+    } finally {
+      setButtonBusy(elements.lookupButton, false, 'Checking…', 'Continue →');
+    }
+  });
+
+  elements.partyAttendance.addEventListener('change', (event) => {
+    if (event.target.value === 'all') setAllAttendance('true');
+    if (event.target.value === 'none') setAllAttendance('false');
+  });
+  elements.reviewButton.addEventListener('click', showReview);
+  elements.backButton.addEventListener('click', () => {
+    elements.review.hidden = true;
+    elements.form.hidden = false;
+    elements.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  elements.submitButton.addEventListener('click', submitRsvp);
+  elements.editButton.addEventListener('click', () => renderInvitation(state.invitation));
+  elements.useAnother.addEventListener('click', resetToLogin);
+  elements.successAnother.addEventListener('click', resetToLogin);
+
+  window.addEventListener('offline', () => {
+    if (!elements.login.hidden) {
+      showError(elements.lookupError, 'You appear to be offline. Reconnect to RSVP online, or use the phone numbers below for help.');
+    }
+  });
+})();

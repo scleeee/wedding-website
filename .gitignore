@@ -4,6 +4,7 @@ claude_logs.txt
 prompt_notes.txt
 index_old.html
 .claude/
+.cache/
 
 # OS files
 .DS_Store

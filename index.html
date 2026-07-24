@@ -626,9 +626,26 @@
       }
     }
 
-    #rsvp-login { }
+    .rsvp-card [hidden] { display: none !important; }
 
-    #rsvp-form { display: none; }
+    .rsvp-status {
+      min-height: 1.5rem;
+      margin-top: 0.75rem;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .rsvp-help {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--ivory-dark);
+      color: var(--text-light);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .rsvp-help a { font-weight: 700; }
 
     .rsvp-welcome {
       background: var(--ivory-dark);
@@ -647,7 +664,6 @@
     }
 
     .rsvp-submitted-banner {
-      display: none;
       background: #eaf7ea;
       border: 1.5px solid #a5d6a7;
       border-radius: 8px;
@@ -656,8 +672,6 @@
       font-size: 0.9rem;
       color: #2e7d32;
     }
-
-    .rsvp-submitted-banner.visible { display: block; }
 
     .guest-row {
       background: var(--ivory);
@@ -676,19 +690,123 @@
       margin-bottom: 0.75rem;
     }
 
-    .guest-row-fields {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
+    .guest-row.has-error {
+      border-color: #c0392b;
+      box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.12);
     }
 
+    .attendance-group {
+      border: 0;
+      margin: 0 0 1rem;
+      padding: 0;
+    }
+
+    .attendance-options,
+    .party-attendance-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.65rem;
+    }
+
+    .party-attendance-options {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-bottom: 1.5rem;
+    }
+
+    .attendance-choice {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      min-height: 48px;
+      padding: 0.7rem 0.85rem;
+      border: 1.5px solid var(--ivory-dark);
+      border-radius: 8px;
+      background: var(--white);
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .attendance-choice:has(input:checked) {
+      border-color: var(--rose-dark);
+      background: var(--rose-light);
+    }
+
+    .attendance-choice input {
+      width: 1.2rem;
+      height: 1.2rem;
+      accent-color: var(--rose-dark);
+      flex: 0 0 auto;
+    }
+
+    .form-input[readonly] {
+      color: var(--text-light);
+      background: var(--ivory-dark);
+      cursor: default;
+    }
+
+    .guest-dietary { margin-top: 1rem; }
+
+    .rsvp-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .rsvp-actions .btn { flex: 1 1 180px; }
+
+    .btn-secondary {
+      background: var(--ivory-dark);
+      color: var(--text);
+      border: 1px solid var(--rose-light);
+    }
+
+    .btn-secondary:hover { background: var(--rose-light); }
+
+    .btn:focus-visible,
+    .attendance-choice:focus-within {
+      outline: 3px solid rgba(160, 112, 112, 0.35);
+      outline-offset: 2px;
+    }
+
+    .btn:disabled {
+      cursor: wait;
+      opacity: 0.65;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .rsvp-closed {
+      background: #fff4dc;
+      border: 1px solid var(--gold-light);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .review-list {
+      display: grid;
+      gap: 0.75rem;
+      margin: 1.25rem 0;
+    }
+
+    .review-item {
+      background: var(--ivory);
+      border: 1px solid var(--ivory-dark);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .review-item strong { color: var(--rose-dark); }
+
+    .review-item p { color: var(--text-light); font-size: 0.9rem; }
+
     .rsvp-success {
-      display: none;
       text-align: center;
       padding: 2rem 1rem;
     }
-
-    .rsvp-success.visible { display: block; }
 
     .rsvp-success-icon {
       font-size: 3rem;
@@ -706,6 +824,12 @@
     .rsvp-success p {
       color: var(--text-light);
       font-size: 0.95rem;
+    }
+
+    @media (max-width: 600px) {
+      .party-attendance-options { grid-template-columns: 1fr; }
+      .attendance-options { grid-template-columns: 1fr; }
+      .rsvp-card-header { padding: 1.5rem 1.25rem; }
     }
 
     /* =============================================
@@ -964,7 +1088,7 @@
         <p class="section-label">Kindly Reply</p>
         <h2 class="section-title">RSVP</h2>
         <div class="divider"></div>
-        <p class="section-subtitle">Please respond by <strong>[RSVP deadline — to be added]</strong>. Your unique code was included in your invitation.</p>
+        <p class="section-subtitle">Please respond by <strong id="rsvp-deadline-heading">[RSVP deadline — to be added]</strong>. Your unique code was included in your invitation.</p>
       </div>
 
       <div class="rsvp-wrapper">
@@ -975,56 +1099,91 @@
           </div>
           <div class="rsvp-body">
 
-            <div class="rsvp-deadline">
+            <div class="rsvp-deadline" id="rsvp-deadline-copy">
               <strong>Deadline:</strong> [RSVP deadline — to be added]
             </div>
 
             <!-- Login form -->
-            <div id="rsvp-login">
+            <form id="rsvp-login" novalidate>
               <div class="form-group">
                 <label class="form-label" for="rsvp-password">Your Invitation Code</label>
                 <input
                   type="text"
                   id="rsvp-password"
                   class="form-input"
-                  placeholder="e.g. SMITH2027"
-                  autocomplete="off"
+                  placeholder="Enter the code from your invitation"
+                  autocomplete="one-time-code"
                   autocapitalize="characters"
                   spellcheck="false"
+                  maxlength="128"
+                  aria-describedby="rsvp-code-help rsvp-error"
+                  required
                 />
-                <div class="form-error" id="rsvp-error" role="alert">
-                  That code doesn't match our records. Please double-check your invitation and try again.
-                </div>
+                <p id="rsvp-code-help" class="rsvp-status">Spaces and hyphens are okay.</p>
+                <div class="form-error" id="rsvp-error" role="alert"></div>
               </div>
-              <button class="btn btn-primary btn-full" onclick="handleRsvpLogin()">
+              <button class="btn btn-primary btn-full" id="rsvp-lookup-button" type="submit">
                 Continue →
               </button>
-            </div>
+            </form>
 
             <!-- RSVP form (shown after successful login) -->
-            <div id="rsvp-form">
-              <div class="rsvp-submitted-banner" id="rsvp-submitted-banner" role="status">
-                ✓ You've already submitted your RSVP! Your responses are shown below. You can update them and resubmit if anything has changed.
+            <div id="rsvp-form" hidden>
+              <div class="rsvp-submitted-banner" id="rsvp-submitted-banner" role="status" hidden>
+                ✓ This RSVP was already submitted. You can review and update it below.
               </div>
 
-              <div class="rsvp-welcome" id="rsvp-welcome"></div>
+              <p class="rsvp-welcome" id="rsvp-welcome"></p>
+
+              <div class="rsvp-closed" id="rsvp-closed" role="alert" hidden>
+                Online changes are closed for this invitation. Your saved response is shown below.
+              </div>
+
+              <fieldset class="attendance-group" id="party-attendance" hidden>
+                <legend class="form-label">Respond for the whole party</legend>
+                <div class="party-attendance-options">
+                  <label class="attendance-choice"><input type="radio" name="party-attendance" value="all" /> Everyone attending</label>
+                  <label class="attendance-choice"><input type="radio" name="party-attendance" value="none" /> No one attending</label>
+                  <label class="attendance-choice"><input type="radio" name="party-attendance" value="individual" /> Choose individually</label>
+                </div>
+              </fieldset>
 
               <div id="guest-rows"></div>
 
-              <button class="btn btn-primary btn-full" onclick="handleRsvpSubmit()" style="margin-top: 0.5rem;">
-                Submit RSVP ✓
-              </button>
+              <div class="form-error" id="rsvp-form-error" role="alert"></div>
+              <div class="rsvp-actions">
+                <button class="btn btn-secondary" id="rsvp-use-another" type="button">Use a different code</button>
+                <button class="btn btn-primary" id="rsvp-review-button" type="button">Review RSVP →</button>
+              </div>
+            </div>
+
+            <!-- Review before submission -->
+            <div id="rsvp-review" hidden>
+              <p class="rsvp-welcome" id="rsvp-review-heading"></p>
+              <div class="review-list" id="rsvp-review-list"></div>
+              <div class="form-error" id="rsvp-submit-error" role="alert"></div>
+              <div class="rsvp-actions">
+                <button class="btn btn-secondary" id="rsvp-back-button" type="button">← Back</button>
+                <button class="btn btn-primary" id="rsvp-submit-button" type="button">Submit RSVP ✓</button>
+              </div>
             </div>
 
             <!-- Success message -->
-            <div class="rsvp-success" id="rsvp-success" role="status">
+            <div class="rsvp-success" id="rsvp-success" role="status" tabindex="-1" hidden>
               <div class="rsvp-success-icon">💌</div>
-              <h3>You're on the list!</h3>
-              <p>Thank you for your RSVP. We're so excited to celebrate with you on January 5, 2027!</p>
-              <button class="btn btn-primary" onclick="handleRsvpEdit()" style="margin-top: 1.5rem;">
-                ✎ Edit my RSVP
-              </button>
+              <h3>RSVP saved</h3>
+              <p id="rsvp-success-message">Thank you. Your party's response has been saved.</p>
+              <div class="rsvp-actions">
+                <button class="btn btn-secondary" id="rsvp-success-another" type="button">Use a different code</button>
+                <button class="btn btn-primary" id="rsvp-edit-button" type="button">✎ View or edit RSVP</button>
+              </div>
             </div>
+
+            <p class="rsvp-help">
+              Need help? Call or text
+              <a href="tel:+63905264168">(0905) 264-1688</a> or
+              <a href="tel:+63917657283">(0917) 657-2836</a>.
+            </p>
 
           </div>
         </div>
@@ -1082,158 +1241,10 @@
   <!-- ============================================
        JAVASCRIPT
   ============================================= -->
+  <script src="rsvp-config.js"></script>
+  <script src="rsvp.js"></script>
   <script>
     'use strict';
-
-    // =============================================
-    // GUEST DATA
-    // TODO: Replace with Supabase call to fetch guest records
-    // =============================================
-    const GUESTS = {
-      "SMITH2027": { name: "Smith Family", seats: 4 },
-      "JONES2027": { name: "Jones Family", seats: 2 }
-    };
-
-    // =============================================
-    // RSVP STORAGE HELPERS
-    // TODO: Replace localStorage calls with Supabase read/write
-    // =============================================
-
-    /** Read saved RSVP from localStorage. Returns null if not found. */
-    function loadRsvpData(code) {
-      // TODO: Replace with Supabase query:
-      //   const { data } = await supabase
-      //     .from('rsvps')
-      //     .select('*')
-      //     .eq('code', code)
-      //     .single();
-      //   return data;
-      const raw = localStorage.getItem('rsvp_' + code);
-      return raw ? JSON.parse(raw) : null;
-    }
-
-    /** Save RSVP data to localStorage. */
-    function saveRsvpData(code, payload) {
-      // TODO: Replace with Supabase upsert:
-      //   await supabase
-      //     .from('rsvps')
-      //     .upsert({ code, ...payload });
-      localStorage.setItem('rsvp_' + code, JSON.stringify(payload));
-    }
-
-    // =============================================
-    // RSVP STATE
-    // =============================================
-    let currentCode = null;
-
-    function handleRsvpLogin() {
-      const input = document.getElementById('rsvp-password');
-      const errorEl = document.getElementById('rsvp-error');
-      const code = input.value.trim().toUpperCase();
-
-      // TODO: Replace with Supabase lookup instead of local GUESTS object
-      const guest = GUESTS[code];
-
-      if (!guest) {
-        errorEl.classList.add('visible');
-        input.focus();
-        return;
-      }
-
-      errorEl.classList.remove('visible');
-      currentCode = code;
-      showRsvpForm(code, guest);
-    }
-
-    function showRsvpForm(code, guest) {
-      document.getElementById('rsvp-login').style.display = 'none';
-      const formEl = document.getElementById('rsvp-form');
-      formEl.style.display = 'block';
-
-      // Welcome message
-      document.getElementById('rsvp-welcome').innerHTML =
-        `Welcome, <strong>${guest.name}</strong>! You have <strong>${guest.seats}</strong> seat${guest.seats !== 1 ? 's' : ''} reserved for your party. Please fill in the name and any dietary requirements for each guest below.`;
-
-      // Check for existing submission
-      // TODO: Replace with Supabase read (loadRsvpData is already scaffolded above)
-      const saved = loadRsvpData(code);
-      if (saved && saved.submitted) {
-        document.getElementById('rsvp-submitted-banner').classList.add('visible');
-      }
-
-      // Build guest rows
-      const rowsEl = document.getElementById('guest-rows');
-      rowsEl.innerHTML = '';
-      for (let i = 0; i < guest.seats; i++) {
-        const savedName  = saved && saved.names   ? (saved.names[i]   || '') : '';
-        const savedDiet  = saved && saved.dietary ? (saved.dietary[i] || '') : '';
-
-        const row = document.createElement('div');
-        row.className = 'guest-row';
-        row.innerHTML = `
-          <p class="guest-row-header">Guest ${i + 1}</p>
-          <div class="guest-row-fields">
-            <div class="form-group" style="margin:0">
-              <label class="form-label" for="guest-name-${i}">Full Name</label>
-              <input
-                type="text"
-                id="guest-name-${i}"
-                class="form-input"
-                placeholder="Guest name"
-                value="${escapeHtml(savedName)}"
-                autocomplete="off"
-              />
-            </div>
-            <div class="form-group" style="margin:0">
-              <label class="form-label" for="guest-diet-${i}">Dietary Requirements</label>
-              <input
-                type="text"
-                id="guest-diet-${i}"
-                class="form-input"
-                placeholder="e.g. Vegetarian, none"
-                value="${escapeHtml(savedDiet)}"
-                autocomplete="off"
-              />
-            </div>
-          </div>
-        `;
-        rowsEl.appendChild(row);
-      }
-    }
-
-    function handleRsvpSubmit() {
-      const guest = GUESTS[currentCode];
-      const names   = [];
-      const dietary = [];
-
-      for (let i = 0; i < guest.seats; i++) {
-        names.push(document.getElementById('guest-name-' + i).value.trim());
-        dietary.push(document.getElementById('guest-diet-' + i).value.trim());
-      }
-
-      const payload = { submitted: true, names, dietary, submittedAt: new Date().toISOString() };
-
-      // TODO: Replace with Supabase save (saveRsvpData is already scaffolded above)
-      saveRsvpData(currentCode, payload);
-
-      // Show success
-      document.getElementById('rsvp-form').style.display = 'none';
-      const successEl = document.getElementById('rsvp-success');
-      successEl.classList.add('visible');
-      successEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
-    function handleRsvpEdit() {
-      // Hide success screen, re-show the form pre-filled with saved data
-      document.getElementById('rsvp-success').classList.remove('visible');
-      showRsvpForm(currentCode, GUESTS[currentCode]);
-      document.getElementById('rsvp-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    // Allow Enter key to submit password
-    document.getElementById('rsvp-password').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') handleRsvpLogin();
-    });
 
     // =============================================
     // NAVIGATION — hide on scroll down, show on scroll up
