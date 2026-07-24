@@ -1,0 +1,4 @@
+[functions.rsvp]
+# This invitation-code endpoint is intentionally public. Authentication and
+# abuse controls are implemented in the function before either RPC is called.
+verify_jwt = false
