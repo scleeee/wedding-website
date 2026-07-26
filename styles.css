@@ -1,0 +1,629 @@
+:root {
+  --bg: #f9f6f1;
+  --text: #2d2d2d;
+  --text-muted: #77726b;
+  --accent: #f25e37;
+  --max-width: 920px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 2rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Baskerville", "Times New Roman", serif;
+  line-height: 1.55;
+}
+
+.page {
+  overflow-x: clip;
+  position: relative;
+}
+
+.section {
+  margin: 0 auto;
+  max-width: var(--max-width);
+  padding: 4.25rem 1.25rem;
+  text-align: center;
+}
+
+.top-nav {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 3.25rem;
+  justify-content: center;
+  letter-spacing: 0.1em;
+  margin: 2rem auto 0;
+  max-width: var(--max-width);
+  padding: 0 1.25rem;
+  text-transform: uppercase;
+}
+
+.top-nav a {
+  color: inherit;
+  font-size: 0.76rem;
+  text-decoration: none;
+}
+
+.top-nav a:hover {
+  text-decoration: underline;
+}
+
+.hero {
+  max-width: none;
+  position: relative;
+  padding-top: 7rem;
+  width: 100%;
+}
+
+.hero-quote {
+  /* Matches .hero-kicker */
+  font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+  font-style: italic;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+  margin: 0 auto 1.8rem;
+  max-width: 640px;
+  /* Nav target: adds to the 2rem scroll-padding so the quote doesn't
+     land flush against the top edge. */
+  scroll-margin-top: 1.5rem;
+}
+
+.hero-logo {
+  display: block;
+  margin: 0 auto 2rem;
+  max-width: min(84vw, 700px);
+  width: 100%;
+}
+
+.hero-kicker {
+  font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+  font-style: italic;
+  margin: 0 0 1.4rem;
+}
+
+.parents {
+  column-gap: 1.25rem;
+  font-size: 1.12rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  letter-spacing: 0.06em;
+  margin: 0 auto 1.6rem;
+  max-width: 690px;
+  text-transform: uppercase;
+}
+
+.invitation-copy {
+  font-style: italic;
+  font-size: clamp(1rem, 1.4vw, 1.25rem);
+  line-height: 1.75;
+  /* Equal top/bottom so the lead-in lines and venue groups all sit the
+     same distance apart; the venue name/address pair stays tight. */
+  margin: 2.5rem auto;
+  max-width: 720px;
+}
+
+h2 {
+  /* Matches .parents */
+  font-size: 1.12rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  line-height: 1.5;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.address {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: clamp(1rem, 1.4vw, 1.3rem);
+  line-height: 1.75;
+  margin: 0 auto;
+  max-width: 700px;
+}
+
+/* Sized off the artwork's 1:4.7 aspect so the pillars span the hero text
+   block rather than bleeding into the sections below. */
+.pillar {
+  position: absolute;
+  top: 5.5rem;
+  width: min(14.5vw, 165px);
+  z-index: -1;
+}
+
+.pillar-left {
+  left: 0;
+}
+
+/* Both pillar assets are already a mirrored pair: each one's cropped edge
+   belongs against its own side of the page, so neither is flipped in CSS. */
+.pillar-right {
+  right: 0;
+}
+
+h3 {
+  font-size: clamp(1.4rem, 3.5vw, 1.95rem);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  margin: 0 0 2rem;
+  text-transform: uppercase;
+}
+
+/* Full-bleed so the accents can dock to the page edges the way the
+   hero pillars do. */
+.timeline {
+  max-width: none;
+  position: relative;
+  width: 100%;
+}
+
+.timeline-church {
+  display: block;
+  height: auto;
+  margin: 0 auto 1.5rem;
+  max-width: min(62vw, 470px);
+  width: 100%;
+}
+
+/* Sized to its content rather than a fixed width so the block centres on
+   the longest row instead of leaving dead space on the right. */
+.timeline-list {
+  --row-pad: 0.62rem;
+  --dot-y: 0.72em;
+  display: grid;
+  list-style: none;
+  margin: 0 auto;
+  max-width: 100%;
+  padding: 0;
+  text-align: left;
+  width: fit-content;
+}
+
+/* One row per item keeps each time locked to its event even when the
+   event text wraps. The middle column draws the rail. */
+.timeline-list li {
+  column-gap: 1.5rem;
+  display: grid;
+  grid-template-columns: 4.6rem 9px auto;
+  padding-block: var(--row-pad);
+}
+
+/* Rail: a 1px vertical line with a dot on the first text line. The
+   negative margin cancels the row padding so consecutive segments meet
+   and read as one continuous line. */
+.timeline-list li::before {
+  background-image:
+    radial-gradient(
+      circle 3.5px at 50% calc(var(--row-pad) + var(--dot-y)),
+      #8d8579 99%,
+      transparent 100%
+    ),
+    linear-gradient(#cfc7ba, #cfc7ba);
+  background-position: 50% 0, 50% 0;
+  background-repeat: no-repeat, no-repeat;
+  background-size: 100% 100%, 1px 100%;
+  content: "";
+  grid-area: 1 / 2;
+  margin-block: calc(-1 * var(--row-pad));
+}
+
+.timeline-list .time {
+  grid-area: 1 / 1;
+}
+
+.timeline-list .event {
+  grid-area: 1 / 3;
+}
+
+/* Trim the line so it runs between the first and last dots only. */
+.timeline-list li:first-child::before {
+  background-position: 50% 0, 50% calc(var(--row-pad) + var(--dot-y));
+  background-size: 100% 100%, 1px calc(100% - var(--row-pad) - var(--dot-y));
+}
+
+.timeline-list li:last-child::before {
+  background-size: 100% 100%, 1px calc(var(--row-pad) + var(--dot-y));
+}
+
+.timeline-list .time {
+  letter-spacing: 0.05em;
+}
+
+.accent-left {
+  bottom: 0.5rem;
+  left: 0.45rem;
+  max-width: min(19vw, 185px);
+  position: absolute;
+}
+
+.accent-right {
+  max-width: min(13vw, 130px);
+  position: absolute;
+  right: 0;
+  top: 52%;
+}
+
+/* Full-bleed for the docked cypresses; the inline padding keeps every
+   name column clear of them. */
+.entourage {
+  max-width: none;
+  padding-inline: clamp(1.25rem, 15vw, 200px);
+  position: relative;
+  width: 100%;
+}
+
+.entourage .side-tree {
+  top: 44%;
+}
+
+.entourage-intro {
+  font-size: 0.95rem;
+  font-style: italic;
+  line-height: 1.8;
+  margin: 0 auto 3rem;
+  max-width: 760px;
+}
+
+.entourage-block {
+  margin: 0 auto 3rem;
+  max-width: 820px;
+}
+
+.entourage-block:last-child {
+  margin-bottom: 0;
+}
+
+.entourage-pair {
+  column-gap: 2rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.entourage-roles {
+  column-gap: 2rem;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  row-gap: 2.5rem;
+}
+
+.entourage-roles-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 620px;
+}
+
+.role-label {
+  font-size: 0.95rem;
+  font-style: italic;
+  margin: 0 0 1rem;
+}
+
+.name-list {
+  letter-spacing: 0.06em;
+  line-height: 1.9;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  text-transform: uppercase;
+}
+
+/* Full-bleed so the flower branches can dock to the page edges; the grid
+   keeps the original centred width. */
+.attire {
+  max-width: none;
+  position: relative;
+  width: 100%;
+}
+
+.attire-grid {
+  display: grid;
+  gap: 1.8rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0 auto;
+  max-width: var(--max-width);
+}
+
+.attire-flower {
+  position: absolute;
+}
+
+.attire-flower-left {
+  bottom: 3rem;
+  left: -1.5rem;
+  max-width: min(20vw, 240px);
+}
+
+.attire-flower-right {
+  max-width: min(21vw, 260px);
+  right: -1.5rem;
+  top: 1.5rem;
+}
+
+.attire-card {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* Both source images are 1058px tall, so pinning a shared render height
+   keeps the two outfits at the same scale and their captions on one line.
+   The ceiling is set by the wider image, which must still fit its column. */
+.attire-card img {
+  display: block;
+  height: clamp(230px, 29vw, 375px);
+  max-width: 100%;
+  object-fit: contain;
+  width: auto;
+}
+
+.attire-card p {
+  letter-spacing: 0.05em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.attire-card span {
+  font-style: italic;
+  text-transform: none;
+}
+
+.gift-flower {
+  display: block;
+  height: auto;
+  margin: 0 auto 1.6rem;
+  max-width: min(20vw, 170px);
+  width: 100%;
+}
+
+/* Cypresses docked to the page edges; each section sets its own vertical
+   anchor. */
+.side-tree {
+  max-width: min(12.5vw, 155px);
+  position: absolute;
+}
+
+.side-tree-left {
+  left: 0.55rem;
+}
+
+.side-tree-right {
+  right: 0.55rem;
+}
+
+.gifts p,
+.rsvp p {
+  margin: 0.6rem auto;
+  max-width: 760px;
+}
+
+.floral-footer {
+  max-width: none;
+  padding: 2rem 0 0;
+}
+
+.floral-footer img {
+  display: block;
+  height: auto;
+  margin: 0;
+  width: 100%;
+}
+
+@media (max-width: 960px) {
+  .pillar {
+    opacity: 0.55;
+    top: 6rem;
+    width: 17vw;
+  }
+
+  .pillar-left {
+    left: 0;
+  }
+
+  .pillar-right {
+    right: 0;
+  }
+
+  .accent-left {
+    left: 0.35rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .section {
+    padding: 3.2rem 1rem;
+  }
+
+  .parents,
+  .attire-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .attire-card img {
+    height: 68vw;
+  }
+
+  /* Stacked cards leave narrow side margins, so the branches tuck beside
+     the barong and the gown's bodice rather than flanking the section. */
+  .attire-flower-left {
+    bottom: auto;
+    left: -1.2rem;
+    max-width: 26vw;
+    top: 52%;
+  }
+
+  .attire-flower-right {
+    max-width: 26vw;
+    right: -1.2rem;
+    top: 12%;
+  }
+
+  /* Narrower rail and gaps so the list clears the docked accents. */
+  .timeline-list {
+    --row-pad: 0.5rem;
+  }
+
+  .timeline-list li {
+    column-gap: 0.85rem;
+    font-size: 0.85rem;
+    grid-template-columns: 3.9rem 9px auto;
+  }
+
+  .top-nav {
+    gap: 0.5rem 1.4rem;
+    margin-top: 1.3rem;
+  }
+
+  .top-nav a {
+    font-size: 0.67rem;
+  }
+
+  /* Cropped to a slim full-height column so the pillars frame the copy
+     instead of sitting behind it. object-position keeps each one's
+     outer edge, which is the side that meets the page edge. */
+  .pillar {
+    bottom: 2rem;
+    height: auto;
+    object-fit: cover;
+    opacity: 1;
+    top: 3.5rem;
+    width: 19vw;
+  }
+
+  .pillar-left {
+    object-position: left center;
+  }
+
+  .pillar-right {
+    object-position: right center;
+  }
+
+  /* Reserve the middle of the screen for text, clear of the pillars. */
+  .hero {
+    padding-inline: 21.5vw;
+    padding-top: 5rem;
+  }
+
+  .hero-quote {
+    font-size: 0.75rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .hero-logo {
+    margin-bottom: 1.5rem;
+    max-width: 94%;
+  }
+
+  .hero-kicker {
+    font-size: 0.75rem;
+  }
+
+  .parents,
+  h2 {
+    font-size: 0.8rem;
+  }
+
+  .invitation-copy {
+    font-size: 0.8rem;
+  }
+
+  .address {
+    font-size: 0.75rem;
+  }
+
+  /* The trees move to a band under the content on phones, which frees the
+     full width for the long names. */
+  .entourage {
+    padding-bottom: 12rem;
+    padding-inline: 1rem;
+  }
+
+  /* Paired columns are too narrow for full names on a phone, so each
+     group stacks; the small roles keep two per row. */
+  .entourage-pair {
+    grid-template-columns: 1fr;
+    row-gap: 2.2rem;
+  }
+
+  /* The sponsors' two columns share one label, so stacked they should
+     read as a single uninterrupted list. */
+  .entourage-block > .entourage-pair {
+    row-gap: 0;
+  }
+
+  /* Single file so a long name never has to share the width. */
+  .entourage-roles,
+  .entourage-roles-three {
+    grid-template-columns: 1fr;
+    row-gap: 1.8rem;
+  }
+
+  .entourage-intro,
+  .role-label,
+  .name-list {
+    font-size: 0.85rem;
+  }
+
+  .entourage .side-tree {
+    bottom: 0;
+    max-width: 20vw;
+    top: auto;
+  }
+
+  .gift-flower {
+    max-width: 32vw;
+  }
+
+  .side-tree-left {
+    left: 0.35rem;
+  }
+
+  .side-tree-right {
+    right: 0.35rem;
+  }
+
+  /* No room to flank the list on a phone, so the accents move into a band
+     below it, still docked to their own edges. */
+  .timeline {
+    padding-bottom: 13rem;
+  }
+
+  .accent-left {
+    bottom: 0;
+    left: 0.3rem;
+    max-width: 110px;
+  }
+
+  .accent-right {
+    bottom: 1.2rem;
+    left: auto;
+    max-width: 76px;
+    right: -0.6rem;
+    top: auto;
+  }
+
+  .timeline-church {
+    margin-bottom: 1rem;
+    max-width: 82vw;
+  }
+}

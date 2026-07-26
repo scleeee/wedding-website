@@ -1,1457 +1,276 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shawn &amp; Lizzy — January 5, 2027</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
-  <style>
-    /* =============================================
-       CSS CUSTOM PROPERTIES
-    ============================================= */
-    :root {
-      --ivory:       #faf7f2;
-      --ivory-dark:  #f0ebe0;
-      --rose:        #c9a0a0;
-      --rose-light:  #e8d0d0;
-      --rose-dark:   #a07070;
-      --sage:        #8a9e8a;
-      --sage-light:  #c5d4c5;
-      --gold:        #b8922a;
-      --gold-light:  #e8d5a0;
-      --text:        #3a3030;
-      --text-light:  #6a5a5a;
-      --white:       #ffffff;
-
-      --font-serif:  'Playfair Display', Georgia, serif;
-      --font-sans:   'Lato', system-ui, sans-serif;
-
-      --section-pad: clamp(3rem, 8vw, 6rem);
-      --content-max: 1100px;
-      --radius:      12px;
-      --shadow:      0 4px 24px rgba(58, 48, 48, 0.10);
-      --shadow-sm:   0 2px 10px rgba(58, 48, 48, 0.08);
-
-      --nav-h:       64px;
-      --transition:  0.3s ease;
-    }
-
-    /* =============================================
-       RESET & BASE
-    ============================================= */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: var(--font-sans);
-      background: var(--ivory);
-      color: var(--text);
-      line-height: 1.7;
-      font-size: 16px;
-    }
-
-    img { max-width: 100%; display: block; }
-    a { color: var(--rose-dark); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-
-    h1, h2, h3, h4 {
-      font-family: var(--font-serif);
-      line-height: 1.25;
-      color: var(--text);
-    }
-
-    /* =============================================
-       UTILITY
-    ============================================= */
-    .container {
-      max-width: var(--content-max);
-      margin: 0 auto;
-      padding: 0 clamp(1.25rem, 5vw, 2.5rem);
-    }
-
-    .section {
-      padding: var(--section-pad) 0;
-    }
-
-    .section--alt {
-      background: var(--ivory-dark);
-    }
-
-    .section-label {
-      font-family: var(--font-sans);
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--rose-dark);
-      margin-bottom: 0.5rem;
-    }
-
-    .section-title {
-      font-size: clamp(1.75rem, 4vw, 2.75rem);
-      font-weight: 600;
-      margin-bottom: 1rem;
-      color: var(--text);
-    }
-
-    .section-subtitle {
-      font-size: 1.1rem;
-      color: var(--text-light);
-      max-width: 560px;
-    }
-
-    .section-header {
-      margin-bottom: clamp(2rem, 5vw, 3.5rem);
-    }
-
-    .divider {
-      width: 60px;
-      height: 2px;
-      background: var(--rose);
-      margin: 1rem 0 1.5rem;
-    }
-
-    .card {
-      background: var(--white);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: clamp(1.5rem, 4vw, 2.5rem);
-    }
-
-    .badge {
-      display: inline-block;
-      background: var(--gold-light);
-      color: var(--gold);
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      padding: 0.3rem 0.8rem;
-      border-radius: 100px;
-      margin-bottom: 1rem;
-    }
-
-    /* =============================================
-       NAVIGATION
-    ============================================= */
-    #nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      height: var(--nav-h);
-      background: rgba(250, 247, 242, 0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--rose-light);
-      transition: transform var(--transition), box-shadow var(--transition);
-    }
-
-    #nav.hidden { transform: translateY(-100%); }
-    #nav.scrolled { box-shadow: var(--shadow-sm); }
-
-    .nav-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: var(--nav-h);
-    }
-
-    .nav-logo {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: 1.2rem;
-      color: var(--text);
-      letter-spacing: 0.02em;
-      white-space: nowrap;
-    }
-
-    .nav-links { display: flex; list-style: none; gap: 0.1rem; align-items: center; }
-    .nav-links > li > a, .nav-dropdown-btn { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); padding: 0.4rem 0.6rem; border-radius: 6px; transition: color var(--transition), background var(--transition); display: flex; align-items: center; gap: 0.3rem; background: transparent; border: none; cursor: pointer; font-family: var(--font-sans); }
-    .nav-links > li > a:hover, .nav-dropdown-btn:hover { color: var(--rose-dark); background: var(--rose-light); text-decoration: none; }
-    .nav-links > li > a.active, .nav-dropdown-btn.active { color: var(--rose-dark); }
-    .nav-dropdown { position: relative; }
-    .nav-caret { font-size: 0.6rem; transition: transform var(--transition); display: inline-block; }
-    .nav-dropdown.open .nav-caret { transform: rotate(180deg); }
-    .nav-dropdown-menu { display: none; position: absolute; top: calc(100% + 6px); left: 0; background: var(--white); border: 1px solid var(--rose-light); border-radius: 10px; box-shadow: var(--shadow); padding: 0.5rem; list-style: none; min-width: 180px; z-index: 100; }
-    .nav-dropdown.open .nav-dropdown-menu { display: block; }
-    .nav-dropdown-menu a { display: block; padding: 0.55rem 0.85rem; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-light); border-radius: 7px; transition: background var(--transition), color var(--transition); white-space: nowrap; }
-    .nav-dropdown-menu a:hover { background: var(--rose-light); color: var(--rose-dark); text-decoration: none; }
-    .nav-hamburger-wrap { margin-left: auto; }
-    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; border: none; background: transparent; }
-    .hamburger span { display: block; width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: all var(--transition); }
-    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-    .hamburger.open span:nth-child(2) { opacity: 0; }
-    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-    .mobile-menu { display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; background: var(--ivory); border-bottom: 1px solid var(--rose-light); padding: 1rem; z-index: 999; box-shadow: var(--shadow); }
-    .mobile-menu.open { display: block; }
-    .mobile-menu a { display: block; padding: 0.75rem 1rem; font-size: 0.9rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); border-radius: 8px; transition: background var(--transition), color var(--transition); }
-    .mobile-menu a:hover { background: var(--rose-light); color: var(--rose-dark); text-decoration: none; }
-    .mobile-menu-sep { height: 1px; background: var(--rose-light); margin: 0.5rem 0; }
-    .mobile-menu-sub a { padding-left: 1.75rem; font-size: 0.8rem; }
-
-    /* =============================================
-       HERO
-    ============================================= */
-    #hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 2rem 1.5rem 3rem;
-      background: url('bg-hero-03.jpg') center center / cover no-repeat;
-      position: relative;
-    }
-    #hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(18, 8, 8, 0.48);
-      pointer-events: none;
-    }
-    #hero > * { position: relative; }
-
-    #hero-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-      opacity: 0;
-      transition: opacity 0.9s ease;
-    }
-    #hero-content.revealed {
-      opacity: 1;
-    }
-    #hero-scroll {
-      opacity: 0;
-      transition: opacity 0.9s ease 0.3s;
-    }
-    #hero-scroll.visible {
-      opacity: 1;
-    }
-
-    .hero-ornament {
-      font-size: 1.5rem;
-      color: rgba(255, 255, 255, 0.75);
-      margin-bottom: 1.5rem;
-      letter-spacing: 0.5em;
-    }
-
-    .hero-names {
-      font-family: var(--font-serif);
-      font-size: clamp(3rem, 10vw, 7rem);
-      font-weight: 400;
-      font-style: italic;
-      color: #ffffff;
-      line-height: 1.1;
-      margin-bottom: 0.5rem;
-    }
-
-    .hero-names span {
-      color: #ffffff;
-    }
-
-    .hero-ampersand {
-      display: block;
-      font-size: 0.6em;
-      color: rgba(255, 255, 255, 0.55);
-      margin: -0.1em 0;
-    }
-
-    .hero-date {
-      font-family: var(--font-sans);
-      font-size: clamp(0.85rem, 2vw, 1rem);
-      font-weight: 700;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.7);
-      margin: 1.5rem 0 0.5rem;
-    }
-
-    .hero-location {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: clamp(1rem, 2.5vw, 1.25rem);
-      color: rgba(255, 255, 255, 0.6);
-      margin-bottom: 3rem;
-    }
-
-    .hero-scroll {
-      margin-top: 3.5rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 0.75rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      animation: bounce 2s infinite;
-    }
-
-    .hero-scroll svg { color: rgba(255, 255, 255, 0.7); }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(6px); }
-    }
-
-    /* =============================================
-       RSVP
-    ============================================= */
-    #rsvp {
-      scroll-margin-top: var(--nav-h);
-      background: linear-gradient(135deg, var(--rose-light) 0%, var(--ivory) 50%, var(--sage-light) 100%);
-    }
-
-    .rsvp-wrapper {
-      max-width: 680px;
-      margin: 0 auto;
-    }
-
-    .rsvp-card {
-      background: var(--white);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .rsvp-card-header {
-      background: var(--rose-dark);
-      padding: 2rem 2.5rem;
-      color: var(--white);
-      text-align: center;
-    }
-
-    .rsvp-card-header h3 {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: 1.6rem;
-      font-weight: 400;
-      color: var(--white);
-    }
-
-    .rsvp-card-header p {
-      font-size: 0.9rem;
-      opacity: 0.85;
-      margin-top: 0.4rem;
-    }
-
-    .rsvp-body {
-      padding: clamp(1.5rem, 4vw, 2.5rem);
-    }
-
-    .rsvp-deadline {
-      background: var(--ivory-dark);
-      border-left: 3px solid var(--gold);
-      padding: 0.75rem 1rem;
-      border-radius: 0 8px 8px 0;
-      font-size: 0.875rem;
-      color: var(--text-light);
-      margin-bottom: 1.75rem;
-    }
-
-    .rsvp-deadline strong { color: var(--gold); }
-
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
-
-    .form-label {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-light);
-      margin-bottom: 0.5rem;
-    }
-
-    .form-input {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border: 1.5px solid var(--ivory-dark);
-      border-radius: 8px;
-      font-family: var(--font-sans);
-      font-size: 1rem;
-      color: var(--text);
-      background: var(--ivory);
-      transition: border-color var(--transition), box-shadow var(--transition);
-      min-height: 44px;
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: var(--rose);
-      box-shadow: 0 0 0 3px rgba(201, 160, 160, 0.2);
-      background: var(--white);
-    }
-
-    .form-error {
-      display: none;
-      margin-top: 0.5rem;
-      font-size: 0.85rem;
-      color: #c0392b;
-      background: #fdf0ee;
-      border: 1px solid #f5c6c0;
-      border-radius: 6px;
-      padding: 0.5rem 0.75rem;
-    }
-
-    .form-error.visible { display: block; }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      padding: 0.8rem 2rem;
-      border: none;
-      border-radius: 8px;
-      font-family: var(--font-sans);
-      font-size: 0.9rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all var(--transition);
-      min-height: 44px;
-    }
-
-    .btn-primary {
-      background: var(--rose-dark);
-      color: var(--white);
-    }
-
-    .btn-primary:hover {
-      background: #8a5a5a;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(160, 112, 112, 0.35);
-    }
-
-    .btn-primary:active { transform: translateY(0); }
-
-    .btn-full { width: 100%; }
-
-    /* =============================================
-       ENVELOPE LETTER ANIMATION
-    ============================================= */
-    .env-overlay {
-      position: fixed; inset: 0; z-index: 3000;
-      background: radial-gradient(ellipse at 50% 40%, #2d1a1a 0%, #0e0808 100%);
-      display: flex; align-items: center; justify-content: center;
-      transition: opacity 0.8s ease;
-      cursor: pointer;
-    }
-    .env-overlay.fade-out { opacity: 0; pointer-events: none; }
-
-    @keyframes envEntrance {
-      from { transform: translateY(-24px) scale(0.9); opacity: 0; }
-      to   { transform: translateY(0)      scale(1);   opacity: 1; }
-    }
-    @keyframes envPulse {
-      0%, 100% { transform: scale(1); }
-      50%       { transform: scale(1.03); }
-    }
-    @keyframes sealCrack {
-      0%   { transform: scale(1);    opacity: 1; }
-      35%  { transform: scale(1.28); opacity: 0.7; }
-      100% { transform: scale(0.3);  opacity: 0; }
-    }
-
-    .env-scene {
-      position: relative;
-      width: min(520px, 88vw);
-      height: calc(min(520px, 88vw) * 0.87);
-      animation: envEntrance 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
-    }
-    .env-scene.pulsing { animation: envPulse 2.2s ease-in-out infinite; }
-
-    .env-body-wrap {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 55%;
-      z-index: 2;
-      transition: opacity 0.4s ease;
-      transform-style: preserve-3d;
-    }
-    .env-body-wrap.hidden { opacity: 0; pointer-events: none; }
-    .env-body-svg { width: 100%; height: 100%; display: block; }
-
-    .env-flap-wrap {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 58%;
-      transform-origin: top center;
-      will-change: transform;
-      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .env-flap-wrap.open { transform: perspective(900px) rotateX(-172deg); }
-
-    #env-seal.cracking {
-      animation: sealCrack 0.42s ease-in forwards;
-      transform-origin: center;
-      transform-box: fill-box;
-    }
-
-    .env-letter-card {
-      position: absolute;
-      left: 50%; top: 53%;
-      width: 76%;
-      transform: translateX(-50%) translateY(0);
-      background: linear-gradient(155deg, #fdf9f4 0%, #f8f0e4 100%);
-      border-radius: 8px;
-      padding: clamp(1rem, 3.5%, 1.5rem) clamp(1.25rem, 5%, 1.75rem) clamp(0.85rem, 3%, 1.35rem);
-      text-align: center;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.35);
-      border-top: 3px solid #c9a0a0;
-      opacity: 0;
-      z-index: 1;
-      transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-                  opacity 0.55s ease,
-                  background 0.6s ease,
-                  box-shadow 0.5s ease,
-                  border-color 0.5s ease;
-    }
-    .env-letter-card.rising {
-      transform: translateX(-50%) translateY(-115%);
-      opacity: 1;
-      z-index: 4;
-    }
-    .env-letter-card.expanding {
-      background: transparent !important;
-      box-shadow: none;
-      border-top-color: transparent;
-    }
-
-    .env-letter-eyebrow {
-      font-family: var(--font-sans); font-weight: 700; letter-spacing: 0.35em;
-      text-transform: uppercase; color: rgba(58,48,48,0.55); margin-bottom: 0.85rem;
-      font-size: clamp(0.5rem, 1.2vw, 0.72rem);
-      transition: color 0.5s ease;
-    }
-    .env-letter-heading {
-      font-family: var(--font-serif); font-weight: 400; font-style: italic;
-      color: var(--text); line-height: 1.0;
-      font-size: clamp(1.5rem, 4vw, 2.4rem);
-      transition: color 0.5s ease;
-    }
-    .env-letter-heading .amp {
-      display: block; font-size: 0.5em; line-height: 1.4;
-      color: rgba(58,48,48,0.4); transition: color 0.5s ease;
-    }
-    .env-letter-dateline {
-      margin-top: 0.9rem; font-family: var(--font-sans); font-weight: 700;
-      letter-spacing: 0.2em; text-transform: uppercase; color: rgba(58,48,48,0.5);
-      font-size: clamp(0.5rem, 1.1vw, 0.68rem);
-      transition: color 0.5s ease;
-    }
-    .env-letter-card.expanding .env-letter-eyebrow  { color: rgba(255,255,255,0.65); }
-    .env-letter-card.expanding .env-letter-heading  { color: #ffffff; }
-    .env-letter-card.expanding .env-letter-heading .amp { color: rgba(255,255,255,0.6); }
-    .env-letter-card.expanding .env-letter-dateline { color: rgba(255,255,255,0.7); }
-
-    .env-prompt {
-      position: absolute;
-      bottom: -2.75rem; left: 50%;
-      transform: translateX(-50%);
-      display: flex; align-items: center; gap: 0.5rem;
-      font-family: var(--font-sans); font-size: 0.68rem; font-weight: 700;
-      letter-spacing: 0.2em; text-transform: uppercase;
-      color: rgba(255,255,255,0.5); white-space: nowrap;
-      opacity: 0; transition: opacity 0.5s ease;
-      pointer-events: none;
-    }
-    .env-prompt.visible { opacity: 1; }
-
-    .env-hero-bg {
-      position: absolute; inset: 0;
-      background: url('bg-hero-03.jpg') center/cover no-repeat;
-      opacity: 0; transition: opacity 0.8s ease;
-    }
-    .env-hero-bg.visible { opacity: 1; }
-
-    /* Shared pill style for both intro buttons */
-    #skip-intro,
-    #replay-intro {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      background: rgba(255,255,255,0.10);
-      border: 1px solid rgba(255,255,255,0.28);
-      color: rgba(255,255,255,0.65);
-      font-family: var(--font-sans);
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      padding: 0.5rem 1rem;
-      border-radius: 100px;
-      cursor: pointer;
-      transition: opacity 0.6s ease, background 0.2s ease, color 0.2s ease;
-      backdrop-filter: blur(8px);
-      z-index: 3100;
-      white-space: nowrap;
-    }
-    #skip-intro:hover,
-    #replay-intro:hover {
-      background: rgba(255,255,255,0.20);
-      color: #ffffff;
-    }
-
-    /* Replay: lives on the landing page, hidden until needed */
-    #replay-intro {
-      display: none;
-      background: rgba(18,8,8,0.55);
-      border-color: rgba(255,255,255,0.20);
-      color: rgba(255,255,255,0.55);
-    }
-
-    /* Widescreen — larger envelope */
-    @media (min-width: 1400px) {
-      .env-scene {
-        width: min(680px, 60vw);
-        height: calc(min(680px, 60vw) * 0.87);
-      }
-    }
-    @media (min-width: 1900px) {
-      .env-scene {
-        width: min(820px, 50vw);
-        height: calc(min(820px, 50vw) * 0.87);
-      }
-    }
-
-    .rsvp-card [hidden] { display: none !important; }
-
-    .rsvp-status {
-      min-height: 1.5rem;
-      margin-top: 0.75rem;
-      color: var(--text-light);
-      font-size: 0.9rem;
-      text-align: center;
-    }
-
-    .rsvp-help {
-      margin-top: 1.5rem;
-      padding-top: 1.25rem;
-      border-top: 1px solid var(--ivory-dark);
-      color: var(--text-light);
-      font-size: 0.9rem;
-      text-align: center;
-    }
-
-    .rsvp-help a { font-weight: 700; }
-
-    .rsvp-welcome {
-      background: var(--ivory-dark);
-      border-radius: 8px;
-      padding: 1rem 1.25rem;
-      margin-bottom: 1.5rem;
-      font-size: 0.95rem;
-      color: var(--text);
-    }
-
-    .rsvp-welcome strong {
-      color: var(--rose-dark);
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: 1.05rem;
-    }
-
-    .rsvp-submitted-banner {
-      background: #eaf7ea;
-      border: 1.5px solid #a5d6a7;
-      border-radius: 8px;
-      padding: 1rem 1.25rem;
-      margin-bottom: 1.5rem;
-      font-size: 0.9rem;
-      color: #2e7d32;
-    }
-
-    .guest-row {
-      background: var(--ivory);
-      border: 1px solid var(--ivory-dark);
-      border-radius: 10px;
-      padding: 1.25rem;
-      margin-bottom: 1rem;
-    }
-
-    .guest-row-header {
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--rose-dark);
-      margin-bottom: 0.75rem;
-    }
-
-    .guest-row.has-error {
-      border-color: #c0392b;
-      box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.12);
-    }
-
-    .attendance-group {
-      border: 0;
-      margin: 0 0 1rem;
-      padding: 0;
-    }
-
-    .attendance-options,
-    .party-attendance-options {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.65rem;
-    }
-
-    .party-attendance-options {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      margin-bottom: 1.5rem;
-    }
-
-    .attendance-choice {
-      display: flex;
-      align-items: center;
-      gap: 0.65rem;
-      min-height: 48px;
-      padding: 0.7rem 0.85rem;
-      border: 1.5px solid var(--ivory-dark);
-      border-radius: 8px;
-      background: var(--white);
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 700;
-    }
-
-    .attendance-choice:has(input:checked) {
-      border-color: var(--rose-dark);
-      background: var(--rose-light);
-    }
-
-    .attendance-choice input {
-      width: 1.2rem;
-      height: 1.2rem;
-      accent-color: var(--rose-dark);
-      flex: 0 0 auto;
-    }
-
-    .form-input[readonly] {
-      color: var(--text-light);
-      background: var(--ivory-dark);
-      cursor: default;
-    }
-
-    .guest-dietary { margin-top: 1rem; }
-
-    .rsvp-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-top: 1rem;
-    }
-
-    .rsvp-actions .btn { flex: 1 1 180px; }
-
-    .btn-secondary {
-      background: var(--ivory-dark);
-      color: var(--text);
-      border: 1px solid var(--rose-light);
-    }
-
-    .btn-secondary:hover { background: var(--rose-light); }
-
-    .btn:focus-visible,
-    .attendance-choice:focus-within {
-      outline: 3px solid rgba(160, 112, 112, 0.35);
-      outline-offset: 2px;
-    }
-
-    .btn:disabled {
-      cursor: wait;
-      opacity: 0.65;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .rsvp-closed {
-      background: #fff4dc;
-      border: 1px solid var(--gold-light);
-      color: var(--text);
-      border-radius: 8px;
-      padding: 1rem 1.25rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .review-list {
-      display: grid;
-      gap: 0.75rem;
-      margin: 1.25rem 0;
-    }
-
-    .review-item {
-      background: var(--ivory);
-      border: 1px solid var(--ivory-dark);
-      border-radius: 8px;
-      padding: 1rem;
-    }
-
-    .review-item strong { color: var(--rose-dark); }
-
-    .review-item p { color: var(--text-light); font-size: 0.9rem; }
-
-    .rsvp-success {
-      text-align: center;
-      padding: 2rem 1rem;
-    }
-
-    .rsvp-success-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-
-    .rsvp-success h3 {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: 1.5rem;
-      margin-bottom: 0.5rem;
-      color: var(--rose-dark);
-    }
-
-    .rsvp-success p {
-      color: var(--text-light);
-      font-size: 0.95rem;
-    }
-
-    @media (max-width: 600px) {
-      .party-attendance-options { grid-template-columns: 1fr; }
-      .attendance-options { grid-template-columns: 1fr; }
-      .rsvp-card-header { padding: 1.5rem 1.25rem; }
-    }
-
-    /* =============================================
-       CONTACT
-    ============================================= */
-    #contact { scroll-margin-top: var(--nav-h); }
-
-    .contact-card {
-      max-width: 580px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .contact-avatar {
-      width: 80px;
-      height: 80px;
-      background: var(--rose-light);
-      border-radius: 50%;
-      margin: 0 auto 1.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-    }
-
-    .contact-name {
-      font-family: var(--font-serif);
-      font-size: 1.3rem;
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
-
-    .contact-role {
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-light);
-      margin-bottom: 1.5rem;
-    }
-
-    .contact-methods {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      align-items: center;
-    }
-
-    .contact-method {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      background: var(--white);
-      border: 1px solid var(--ivory-dark);
-      border-radius: 10px;
-      padding: 0.75rem 1.5rem;
-      min-width: 280px;
-      justify-content: center;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .contact-method svg { color: var(--rose-dark); }
-
-    .contact-method a {
-      font-weight: 700;
-      color: var(--rose-dark);
-    }
-
-    /* =============================================
-       FOOTER
-    ============================================= */
-    footer {
-      background: var(--text);
-      color: rgba(255,255,255,0.6);
-      text-align: center;
-      padding: 2.5rem 1.5rem;
-      font-size: 0.85rem;
-      line-height: 1.8;
-    }
-
-    footer strong {
-      display: block;
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: 1.2rem;
-      color: var(--rose-light);
-      margin-bottom: 0.35rem;
-    }
-
-    /* =============================================
-       RESPONSIVE — TABLETS & SMALLER
-    ============================================= */
-    @media (max-width: 900px) {
-      .nav-links { display: none; }
-      .hamburger { display: flex; }
-    }
-
-    @media (max-width: 768px) {
-      .guest-row-fields { grid-template-columns: 1fr; }
-    }
-
-  </style>
-</head>
-
-<body>
-
-  <!-- Envelope Letter Animation -->
-  <div class="env-overlay" id="env-overlay">
-    <div class="env-hero-bg" id="env-hero-bg"></div>
-    <div class="env-scene">
-      <!-- Letter card — rises out of envelope -->
-      <div class="env-letter-card" id="env-letter">
-        <p class="env-letter-eyebrow">You are invited to celebrate</p>
-        <h2 class="env-letter-heading">
-          Shawn
-          <span class="amp">&amp;</span>
-          Lizzy
-        </h2>
-        <p class="env-letter-dateline">January 5, 2027 &nbsp;·&nbsp; Manila, Philippines</p>
-      </div>
-      <!-- Envelope body (higher z-index, covers letter while inside) -->
-      <div class="env-body-wrap" id="env-body">
-        <svg class="env-body-svg" viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <!-- Parchment background -->
-          <rect width="340" height="220" rx="8" fill="#f5f0e8" stroke="#d4c9b0" stroke-width="1.5"/>
-          <!-- Interior fold — left wing -->
-          <polygon points="0,0 170,128 0,220"    fill="#ede6d4" stroke="#d4c9b0" stroke-width="0.8"/>
-          <!-- Interior fold — right wing -->
-          <polygon points="340,0 170,128 340,220" fill="#ede6d4" stroke="#d4c9b0" stroke-width="0.8"/>
-          <!-- Interior fold — bottom flap -->
-          <polygon points="0,220 340,220 170,128" fill="#e8e0cc" stroke="#d4c9b0" stroke-width="0.8"/>
-          <!-- Monogram at center -->
-          <text x="170" y="186" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="13" fill="#c8bea8" letter-spacing="4">S &amp; L</text>
-        </svg>
-        <!-- Envelope flap (rotates backward on open) -->
-        <div class="env-flap-wrap" id="env-flap">
-          <svg viewBox="0 0 340 128" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block" aria-hidden="true">
-            <!-- Flap triangle -->
-            <polygon points="0,0 340,0 170,128" fill="#e2d9c6" stroke="#d4c9b0" stroke-width="1.5"/>
-            <!-- Subtle crease lines -->
-            <line x1="1" y1="1" x2="170" y2="127"   stroke="#c8bea8" stroke-width="0.7" opacity="0.5"/>
-            <line x1="339" y1="1" x2="170" y2="127" stroke="#c8bea8" stroke-width="0.7" opacity="0.5"/>
-            <!-- Wax seal -->
-            <g id="env-seal">
-              <circle cx="170" cy="112" r="19" fill="#c9506a"/>
-              <path d="M170 122 C160 115 153 105 153 98 C153 92 157 87 163 87 C166 87 169 89 170 92 C171 89 174 87 177 87 C183 87 187 92 187 98 C187 105 180 115 170 122 Z" fill="rgba(255,255,255,0.88)"/>
-            </g>
-          </svg>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shawn & Lizzy - Wedding Invitation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=48" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="top-nav">
+        <a href="#details">Wedding Details</a>
+        <a href="#timeline">Timeline</a>
+        <a href="#attire">Attire</a>
+        <a href="#gifts">Gifts</a>
+        <a href="#rsvp">RSVP</a>
+      </header>
+
+      <section class="section hero">
+        <img
+          class="pillar pillar-left"
+          src="assets/Pillar Left.png"
+          alt="Floral pillar illustration"
+          loading="lazy"
+        />
+        <img
+          class="pillar pillar-right"
+          src="assets/Pillar Right.png"
+          alt="Floral pillar illustration"
+          loading="lazy"
+        />
+        <p class="hero-quote" id="details">
+          Home is where our hearts intertwine and love grows.<br />
+          We found a home in each other.<br />
+          And now, we...
+        </p>
+        <img class="hero-logo" src="assets/Logo.png" alt="Shawn and Lizzy" />
+        <p class="hero-kicker">Together with our parents</p>
+        <div class="parents">
+          <p>Edmund Sy Lee<br />Maria Dolores Cheng Lee</p>
+          <p>Jesus Santos Guevara II<br />Maria Lydia Valdez Guevara</p>
         </div>
-      </div>
-      <!-- Tap-to-open prompt -->
-      <p class="env-prompt" id="env-prompt">tap to open</p>
-    </div>
-  </div>
+        <p class="invitation-copy">
+          Joyfully invite you to celebrate our wedding on
+          <strong>January 5, 2027, Tuesday, 2pm</strong> at
+        </p>
+        <h2>St. Andrew the Apostle Parish</h2>
+        <p class="address">Constellation, cor Nicanor Garcia St, Makati City, Philippines</p>
+        <p class="invitation-copy">Cocktails will immediately follow at</p>
+        <h2>Blue Leaf Events Pavilion, Banyan Hall</h2>
+        <p class="address">100 Park Avenue, McKinley Hill Village, Taguig City, Philippines</p>
+      </section>
 
-  <!-- Replay button — shown on landing page for returning visitors -->
-  <button id="replay-intro" aria-label="Watch intro again">Watch intro again ▶</button>
-
-  <!-- Skip button — always visible during envelope animation -->
-  <button id="skip-intro" aria-label="Skip intro animation">Skip intro →</button>
-
-  <!-- ============================================
-       NAVIGATION
-  ============================================= -->
-  <nav id="nav" class="hidden" role="navigation" aria-label="Main navigation">
-    <div class="container">
-      <div class="nav-inner">
-        <a href="index.html" class="nav-logo">Shawn &amp; Lizzy</a>
-        <ul class="nav-links">
-          <li class="nav-dropdown" id="nav-home-drop">
-            <button class="nav-dropdown-btn active" aria-haspopup="true" aria-expanded="false">
-              Home <span class="nav-caret">▾</span>
-            </button>
-            <ul class="nav-dropdown-menu" role="menu">
-              <li><a href="index.html">Landing</a></li>
-              <li><a href="#rsvp">RSVP</a></li>
-              <li><a href="#contact">Contact</a></li>
-            </ul>
+      <section id="timeline" class="section timeline">
+        <img
+          class="timeline-church"
+          src="assets/Church.png"
+          alt="Illustration of St. Andrew the Apostle Parish"
+          loading="lazy"
+        />
+        <h3>Timeline</h3>
+        <ol class="timeline-list">
+          <li>
+            <span class="time">1:15 PM</span>
+            <span class="event">Call time at St. Andrew the Apostle Parish</span>
           </li>
-          <li class="nav-dropdown" id="nav-details-drop">
-            <button class="nav-dropdown-btn" aria-haspopup="true" aria-expanded="false">
-              Details <span class="nav-caret">▾</span>
-            </button>
-            <ul class="nav-dropdown-menu" role="menu">
-              <li><a href="details.html#schedule">Schedule</a></li>
-              <li><a href="details.html#dress-code">Dress Code</a></li>
-              <li><a href="details.html#faq">FAQ</a></li>
-              <li><a href="details.html#manila-guide">Manila Guide</a></li>
-              <li><a href="details.html#registry">Registry</a></li>
-            </ul>
+          <li>
+            <span class="time">1:40 PM</span>
+            <span class="event">Processional lineup</span>
           </li>
-          <li><a href="gallery.html">Gallery</a></li>
-        </ul>
-        <div class="nav-hamburger-wrap">
-          <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
-            <span></span><span></span><span></span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </nav>
+          <li>
+            <span class="time">2:00 PM</span>
+            <span class="event">Nuptial Mass</span>
+          </li>
+          <li>
+            <span class="time">3:00 PM</span>
+            <span class="event">Photos by the altar</span>
+          </li>
+          <li>
+            <span class="time">5:00 PM</span>
+            <span class="event">Cocktail hour</span>
+          </li>
+          <li>
+            <span class="time">6:00 PM</span>
+            <span class="event">Reception program</span>
+          </li>
+          <li>
+            <span class="time">6:30 PM</span>
+            <span class="event">Dinner</span>
+          </li>
+          <li>
+            <span class="time">9:00 PM</span>
+            <span class="event">After party</span>
+          </li>
+        </ol>
+        <img class="accent-left" src="assets/Floral Arrangement.png" alt="" />
+        <img class="accent-right" src="assets/Tangerines.png" alt="" />
+      </section>
 
-  <div class="mobile-menu" id="mobile-menu" role="menu">
-    <a href="index.html" onclick="closeMobileMenu()" style="font-weight:700">Home</a>
-    <div class="mobile-menu-sub">
-      <a href="index.html" onclick="closeMobileMenu()">↳ Landing</a>
-      <a href="#rsvp" onclick="closeMobileMenu()">↳ RSVP</a>
-      <a href="#contact" onclick="closeMobileMenu()">↳ Contact</a>
-    </div>
-    <div class="mobile-menu-sep"></div>
-    <a href="details.html" style="font-weight:700">Details</a>
-    <div class="mobile-menu-sub">
-      <a href="details.html#schedule" onclick="closeMobileMenu()">↳ Schedule</a>
-      <a href="details.html#dress-code" onclick="closeMobileMenu()">↳ Dress Code</a>
-      <a href="details.html#faq" onclick="closeMobileMenu()">↳ FAQ</a>
-      <a href="details.html#manila-guide" onclick="closeMobileMenu()">↳ Manila Guide</a>
-      <a href="details.html#registry" onclick="closeMobileMenu()">↳ Registry</a>
-    </div>
-    <div class="mobile-menu-sep"></div>
-    <a href="gallery.html" onclick="closeMobileMenu()">Gallery</a>
-  </div>
+      <section id="entourage" class="section entourage">
+        <img class="side-tree side-tree-left" src="assets/Tree left.png" alt="" />
+        <img class="side-tree side-tree-right" src="assets/Tree Right.png" alt="" />
+        <h3>Entourage</h3>
+        <p class="entourage-intro">
+          Home is built not only by two hearts, but by the people who help shape them.<br />
+          We are honored to be surrounded by those whose love, wisdom, and unwavering
+          support have brought us to this day.
+        </p>
 
-
-  <!-- ============================================
-       1. HERO
-  ============================================= -->
-  <section id="hero" aria-label="Hero">
-    <div id="hero-content">
-      <div class="hero-ornament">— ✦ —</div>
-      <h1 class="hero-names">
-        <span>Shawn</span>
-        <em class="hero-ampersand">&amp;</em>
-        <span>Lizzy</span>
-      </h1>
-      <p class="hero-date">January 5, 2027</p>
-      <p class="hero-location">Manila, Philippines</p>
-
-    </div>
-
-    <div class="hero-scroll" id="hero-scroll" aria-hidden="true">
-      <svg width="16" height="22" viewBox="0 0 16 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="4 10 8 14 12 10"></polyline>
-        <line x1="8" y1="3" x2="8" y2="14"></line>
-      </svg>
-      Scroll
-    </div>
-  </section>
-
-
-  <!-- ============================================
-       2. RSVP
-  ============================================= -->
-  <section id="rsvp" class="section" aria-label="RSVP">
-    <div class="container">
-      <div class="section-header">
-        <p class="section-label">Kindly Reply</p>
-        <h2 class="section-title">RSVP</h2>
-        <div class="divider"></div>
-        <p class="section-subtitle">Please respond by <strong id="rsvp-deadline-heading">[RSVP deadline — to be added]</strong>. Your unique code was included in your invitation.</p>
-      </div>
-
-      <div class="rsvp-wrapper">
-        <div class="rsvp-card">
-          <div class="rsvp-card-header">
-            <h3>Will you be joining us?</h3>
-            <p>Enter the unique code from your invitation to begin.</p>
+        <div class="entourage-block">
+          <p class="role-label">Principal Sponsors</p>
+          <div class="entourage-pair">
+            <ul class="name-list">
+              <li>Name</li>
+              <li>Name</li>
+              <li>Name</li>
+              <li>Name</li>
+            </ul>
+            <ul class="name-list">
+              <li>Name</li>
+              <li>Name</li>
+              <li>Name</li>
+              <li>Name</li>
+            </ul>
           </div>
-          <div class="rsvp-body">
+        </div>
 
-            <div class="rsvp-deadline" id="rsvp-deadline-copy">
-              <strong>Deadline:</strong> [RSVP deadline — to be added]
-            </div>
+        <div class="entourage-block entourage-pair">
+          <div>
+            <p class="role-label">Best Men</p>
+            <ul class="name-list">
+              <li>Matthew Darrell Cheng Lee</li>
+              <li>Mark Angelo Bernaldez</li>
+            </ul>
+          </div>
+          <div>
+            <p class="role-label">Maids of Honor</p>
+            <ul class="name-list">
+              <li>Lylen Therese Valdez Guevara</li>
+              <li>Maria Patricia Malig Bautista</li>
+            </ul>
+          </div>
+        </div>
 
-            <!-- Login form -->
-            <form id="rsvp-login" novalidate>
-              <div class="form-group">
-                <label class="form-label" for="rsvp-password">Your Invitation Code</label>
-                <input
-                  type="text"
-                  id="rsvp-password"
-                  class="form-input"
-                  placeholder="Enter the code from your invitation"
-                  autocomplete="one-time-code"
-                  autocapitalize="characters"
-                  spellcheck="false"
-                  maxlength="128"
-                  aria-describedby="rsvp-code-help rsvp-error"
-                  required
-                />
-                <p id="rsvp-code-help" class="rsvp-status">Spaces and hyphens are okay.</p>
-                <div class="form-error" id="rsvp-error" role="alert"></div>
-              </div>
-              <button class="btn btn-primary btn-full" id="rsvp-lookup-button" type="submit">
-                Continue →
-              </button>
-            </form>
+        <div class="entourage-block entourage-pair">
+          <div>
+            <p class="role-label">Groomsmen</p>
+            <ul class="name-list">
+              <li>Name</li>
+              <li>Name</li>
+              <li>Name</li>
+              <li>Name</li>
+            </ul>
+          </div>
+          <div>
+            <p class="role-label">Bridesmaids</p>
+            <ul class="name-list">
+              <li>Name</li>
+              <li>Name</li>
+              <li>Name</li>
+              <li>Name</li>
+            </ul>
+          </div>
+        </div>
 
-            <!-- RSVP form (shown after successful login) -->
-            <div id="rsvp-form" hidden>
-              <div class="rsvp-submitted-banner" id="rsvp-submitted-banner" role="status" hidden>
-                ✓ This RSVP was already submitted. You can review and update it below.
-              </div>
+        <div class="entourage-block entourage-roles">
+          <div>
+            <p class="role-label">Candle</p>
+            <ul class="name-list"><li>Name</li></ul>
+          </div>
+          <div>
+            <p class="role-label">Cord</p>
+            <ul class="name-list"><li>Name</li></ul>
+          </div>
+          <div>
+            <p class="role-label">Veil</p>
+            <ul class="name-list"><li>Name</li></ul>
+          </div>
+          <div>
+            <p class="role-label">Ring Bearer</p>
+            <ul class="name-list"><li>Name</li></ul>
+          </div>
+        </div>
 
-              <p class="rsvp-welcome" id="rsvp-welcome"></p>
+        <div class="entourage-block entourage-roles entourage-roles-three">
+          <div>
+            <p class="role-label">Bible Bearer</p>
+            <ul class="name-list"><li>Name</li></ul>
+          </div>
+          <div>
+            <p class="role-label">Flower Girl</p>
+            <ul class="name-list"><li>Name</li></ul>
+          </div>
+          <div>
+            <p class="role-label">Coin Bearer</p>
+            <ul class="name-list"><li>Name</li></ul>
+          </div>
+        </div>
+      </section>
 
-              <div class="rsvp-closed" id="rsvp-closed" role="alert" hidden>
-                Online changes are closed for this invitation. Your saved response is shown below.
-              </div>
-
-              <fieldset class="attendance-group" id="party-attendance" hidden>
-                <legend class="form-label">Respond for the whole party</legend>
-                <div class="party-attendance-options">
-                  <label class="attendance-choice"><input type="radio" name="party-attendance" value="all" /> Everyone attending</label>
-                  <label class="attendance-choice"><input type="radio" name="party-attendance" value="none" /> No one attending</label>
-                  <label class="attendance-choice"><input type="radio" name="party-attendance" value="individual" /> Choose individually</label>
-                </div>
-              </fieldset>
-
-              <div id="guest-rows"></div>
-
-              <div class="form-error" id="rsvp-form-error" role="alert"></div>
-              <div class="rsvp-actions">
-                <button class="btn btn-secondary" id="rsvp-use-another" type="button">Use a different code</button>
-                <button class="btn btn-primary" id="rsvp-review-button" type="button">Review RSVP →</button>
-              </div>
-            </div>
-
-            <!-- Review before submission -->
-            <div id="rsvp-review" hidden>
-              <p class="rsvp-welcome" id="rsvp-review-heading"></p>
-              <div class="review-list" id="rsvp-review-list"></div>
-              <div class="form-error" id="rsvp-submit-error" role="alert"></div>
-              <div class="rsvp-actions">
-                <button class="btn btn-secondary" id="rsvp-back-button" type="button">← Back</button>
-                <button class="btn btn-primary" id="rsvp-submit-button" type="button">Submit RSVP ✓</button>
-              </div>
-            </div>
-
-            <!-- Success message -->
-            <div class="rsvp-success" id="rsvp-success" role="status" tabindex="-1" hidden>
-              <div class="rsvp-success-icon">💌</div>
-              <h3>RSVP saved</h3>
-              <p id="rsvp-success-message">Thank you. Your party's response has been saved.</p>
-              <div class="rsvp-actions">
-                <button class="btn btn-secondary" id="rsvp-success-another" type="button">Use a different code</button>
-                <button class="btn btn-primary" id="rsvp-edit-button" type="button">✎ View or edit RSVP</button>
-              </div>
-            </div>
-
-            <p class="rsvp-help">
-              Need help? Call or text
-              <a href="tel:+63905264168">(0905) 264-1688</a> or
-              <a href="tel:+63917657283">(0917) 657-2836</a>.
+      <section id="attire" class="section attire">
+        <img class="attire-flower attire-flower-left" src="assets/Flower branch Left.png" alt="" />
+        <img
+          class="attire-flower attire-flower-right"
+          src="assets/Flower branch Right.png"
+          alt=""
+        />
+        <h3>Attire</h3>
+        <div class="attire-grid">
+          <article class="attire-card">
+            <img
+              src="assets/Outfit Left.png"
+              alt="Barong Tagalog attire reference"
+            />
+            <p>Barong Tagalog</p>
+          </article>
+          <article class="attire-card">
+            <img
+              src="assets/Outfit and Palette Right.png"
+              alt="Formal dress attire reference"
+            />
+            <p>
+              Floor-length gown or formal dress<br />
+              <span>in any shade from our color palette</span>
             </p>
-
-          </div>
+          </article>
         </div>
-      </div>
-    </div>
-  </section>
+      </section>
 
+      <section id="gifts" class="section gifts">
+        <img class="gift-flower" src="assets/Red Flower.png" alt="" />
+        <h3>A Note on Gifts</h3>
+        <p>Your love and presence are all we could ask for.</p>
+        <p>
+          If you'd like to bless us with a gift, a monetary contribution would be greatly
+          appreciated as we begin this new chapter together.
+        </p>
+      </section>
 
-  <!-- ============================================
-       3. CONTACT
-  ============================================= -->
-  <section id="contact" class="section section--alt" aria-label="Contact">
-    <div class="container">
-      <div class="section-header">
-        <p class="section-label">Get in Touch</p>
-        <h2 class="section-title">Contact</h2>
-        <div class="divider"></div>
-        <p class="section-subtitle">Have a question? We'd love to hear from you. Please reach out to our point of contact below.</p>
-      </div>
+      <section id="rsvp" class="section rsvp">
+        <h3>RSVP</h3>
+        <p>We reserved a seat for you.</p>
+        <p>
+          The favor of a reply is requested on or before <strong>[date here]</strong>
+        </p>
+        <p>
+          Karla Ocana (My Big Event) <strong>09171763893</strong>
+        </p>
+      </section>
 
-      <div class="contact-card">
-        <div class="contact-avatar">💐</div>
-        <h3 class="contact-name">Thea Ocana</h3>
-        <p class="contact-role">Wedding Coordinator · My Big Event Management</p>
-
-        <div class="contact-methods">
-          <div class="contact-method">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-            <span>Email: <a href="mailto:mbeeventmanagement@gmail.com">mbeeventmanagement@gmail.com</a></span>
-          </div>
-          <div class="contact-method">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 11a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.59 0H6.6a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 7.91a16 16 0 0 0 6.12 6.12l.95-.95a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 15.32v1.6z"></path></svg>
-            <span>
-              <a href="tel:+63905264168">(0905) 264-1688</a>
-              &nbsp;/&nbsp;
-              <a href="tel:+63917657283">(0917) 657-2836</a>
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
-  <!-- ============================================
-       FOOTER
-  ============================================= -->
-  <footer>
-    <strong>Shawn &amp; Lizzy — January 5, 2027</strong>
-    St. Andrew the Apostle Parish, Makati &nbsp;·&nbsp; Blue Leaf Events Pavilion, Banyan Hall<br>
-    Made with love ♥ for our family and friends around the world
-  </footer>
-
-
-  <!-- ============================================
-       JAVASCRIPT
-  ============================================= -->
-  <script src="rsvp-config.js"></script>
-  <script src="rsvp.js"></script>
-  <script>
-    'use strict';
-
-    // =============================================
-    // NAVIGATION — hide on scroll down, show on scroll up
-    // =============================================
-    const nav = document.getElementById('nav');
-    let lastScrollY = window.scrollY;
-
-    window.addEventListener('scroll', () => {
-      const currentScrollY = window.scrollY;
-      nav.classList.toggle('scrolled', currentScrollY > 20);
-      lastScrollY = currentScrollY;
-    }, { passive: true });
-
-    // =============================================
-    // HAMBURGER MENU
-    // =============================================
-    const hamburger = document.getElementById('hamburger');
-    const mobileMenu = document.getElementById('mobile-menu');
-
-    hamburger.addEventListener('click', () => {
-      const isOpen = mobileMenu.classList.toggle('open');
-      hamburger.classList.toggle('open', isOpen);
-      hamburger.setAttribute('aria-expanded', isOpen);
-    });
-
-    function closeMobileMenu() {
-      mobileMenu.classList.remove('open');
-      hamburger.classList.remove('open');
-      hamburger.setAttribute('aria-expanded', 'false');
-    }
-
-    // =============================================
-    // DROPDOWN NAV (Home + Details)
-    // =============================================
-    const homeDrop   = document.getElementById('nav-home-drop');
-    const homeBtn    = homeDrop?.querySelector('.nav-dropdown-btn');
-    homeBtn?.addEventListener('click', () => {
-      const open = homeDrop.classList.toggle('open');
-      homeBtn.setAttribute('aria-expanded', open);
-    });
-
-    const detailsDrop = document.getElementById('nav-details-drop');
-    const detailsBtn  = detailsDrop?.querySelector('.nav-dropdown-btn');
-    detailsBtn?.addEventListener('click', () => {
-      const open = detailsDrop.classList.toggle('open');
-      detailsBtn.setAttribute('aria-expanded', open);
-    });
-
-    // Close any open dropdown when clicking outside
-    document.addEventListener('click', e => {
-      if (!homeDrop?.contains(e.target))    homeDrop?.classList.remove('open');
-      if (!detailsDrop?.contains(e.target)) detailsDrop?.classList.remove('open');
-    });
-
-    // =============================================
-    // UTILITY
-    // =============================================
-    function escapeHtml(str) {
-      const div = document.createElement('div');
-      div.appendChild(document.createTextNode(str));
-      return div.innerHTML;
-    }
-
-    // =============================================
-    // ENVELOPE LETTER ANIMATION
-    // =============================================
-    // Preload hero background for smooth reveal
-    (new Image()).src = 'bg-hero-03.jpg';
-
-    window.addEventListener('load', () => {
-      const overlay  = document.getElementById('env-overlay');
-      const scene    = document.querySelector('.env-scene');
-      const flap     = document.getElementById('env-flap');
-      const seal     = document.getElementById('env-seal');
-      const letter   = document.getElementById('env-letter');
-      const envBody  = document.getElementById('env-body');
-      const heroBg   = document.getElementById('env-hero-bg');
-      const prompt   = document.getElementById('env-prompt');
-      const content  = document.getElementById('hero-content');
-      const scroll   = document.getElementById('hero-scroll');
-      const skipBtn  = document.getElementById('skip-intro');
-      const replayBtn = document.getElementById('replay-intro');
-
-      // ── helpers ─────────────────────────────────────────────────────
-      function revealLanding() {
-        overlay.classList.add('fade-out');
-        nav.classList.remove('hidden');
-        setTimeout(() => {
-          content.classList.add('revealed');
-          scroll.classList.add('visible');
-          replayBtn.style.display = '';
-        }, 350);
-        setTimeout(() => {
-          overlay.style.display = 'none';
-          overlay.classList.remove('fade-out');
-        }, 900);
-      }
-
-      function resetEnvelope() {
-        seal.classList.remove('cracking');
-        flap.classList.remove('open');
-        letter.classList.remove('rising', 'expanding');
-        envBody.classList.remove('hidden');
-        heroBg.classList.remove('visible');
-        scene.style.transition = '';
-        scene.style.transform  = '';
-        scene.classList.remove('pulsing');
-        prompt.classList.remove('visible');
-        // Force reflow so envEntrance replays from CSS
-        scene.style.animation = 'none';
-        void scene.offsetWidth;
-        scene.style.animation = '';
-      }
-
-      function showOverlayAndPlay() {
-        replayBtn.style.display = 'none';
-        resetEnvelope();
-        nav.classList.add('hidden');
-        content.classList.remove('revealed');
-        scroll.classList.remove('visible');
-        overlay.style.display = 'flex';
-        // Beat 0: show prompt + pulse after entrance animation
-        setTimeout(() => {
-          prompt.classList.add('visible');
-          scene.classList.add('pulsing');
-          overlay.addEventListener('click', onOpen);
-        }, 900);
-      }
-
-      // ── one-time click/tap handler on the full overlay ───────────────
-      function onOpen(e) {
-        e.stopPropagation();
-        overlay.removeEventListener('click', onOpen);
-        scene.classList.remove('pulsing');
-        scene.style.animation = 'none';
-        prompt.classList.remove('visible');
-
-        // Beat 2: Seal crack
-        seal.classList.add('cracking');
-
-        // Beat 3: Flap opens (after seal crack: 420ms)
-        setTimeout(() => {
-          flap.classList.add('open');
-        }, 420);
-
-        // Beat 4: Letter rises (after flap opens: 420 + 850ms)
-        setTimeout(() => {
-          letter.classList.add('rising');
-        }, 420 + 850);
-
-        // Beat 5: Expand scene (after letter risen: 420 + 850 + 750ms)
-        const expandStart = 420 + 850 + 750;
-        setTimeout(() => {
-          envBody.classList.add('hidden');
-          heroBg.classList.add('visible');
-
-          const rect     = scene.getBoundingClientRect();
-          const rawScale = Math.max(window.innerWidth / rect.width, window.innerHeight / rect.height);
-          const scale    = Math.min(rawScale * 1.05, 4.5);
-
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              scene.style.transition = 'transform 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
-              scene.style.transform  = `scale(${scale})`;
-            });
-          });
-
-          // Beat 6: fade letter text to white, reveal content
-          setTimeout(() => {
-            letter.classList.add('expanding');
-            content.classList.add('revealed');
-            scroll.classList.add('visible');
-            replayBtn.style.display = '';
-
-            // Beat 7: fade out overlay
-            setTimeout(() => {
-              overlay.classList.add('fade-out');
-              nav.classList.remove('hidden');
-            }, 250);
-
-            // Beat 8: hide overlay (keep in DOM for replay)
-            setTimeout(() => {
-              overlay.style.display = 'none';
-              overlay.classList.remove('fade-out');
-            }, 1100);
-          }, 960);
-
-        }, expandStart);
-      }
-
-      // ── wire buttons ─────────────────────────────────────────────────
-      skipBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        overlay.removeEventListener('click', onOpen);
-        revealLanding();
+      <footer class="section floral-footer" aria-hidden="true">
+        <img
+          src="assets/Bottom Border Foliage.png"
+          alt=""
+        />
+      </footer>
+    </main>
+    <script>
+      document.querySelectorAll('.top-nav a[href^="#"]').forEach((link) => {
+        link.addEventListener("click", (event) => {
+          const target = document.querySelector(link.getAttribute("href"));
+          if (!target) return;
+          event.preventDefault();
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+          history.replaceState(null, "", link.getAttribute("href"));
+        });
       });
-
-      replayBtn.addEventListener('click', () => showOverlayAndPlay());
-
-      // Beat 0: show prompt + pulse after entrance animation
-      setTimeout(() => {
-        prompt.classList.add('visible');
-        scene.classList.add('pulsing');
-        overlay.addEventListener('click', onOpen);
-      }, 900);
-    });
-  </script>
-
-</body>
+    </script>
+  </body>
 </html>
