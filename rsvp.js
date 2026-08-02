@@ -12,9 +12,9 @@
     codeInput: document.getElementById('rsvp-password'),
     lookupButton: document.getElementById('rsvp-lookup-button'),
     lookupError: document.getElementById('rsvp-error'),
+    seatCopy: document.getElementById('rsvp-seat-copy'),
     form: document.getElementById('rsvp-form'),
     submittedBanner: document.getElementById('rsvp-submitted-banner'),
-    welcome: document.getElementById('rsvp-welcome'),
     closed: document.getElementById('rsvp-closed'),
     partyAttendance: document.getElementById('party-attendance'),
     guestRows: document.getElementById('guest-rows'),
@@ -31,8 +31,7 @@
     successMessage: document.getElementById('rsvp-success-message'),
     editButton: document.getElementById('rsvp-edit-button'),
     successAnother: document.getElementById('rsvp-success-another'),
-    deadlineHeading: document.getElementById('rsvp-deadline-heading'),
-    deadlineCopy: document.getElementById('rsvp-deadline-copy')
+    deadlineHeading: document.getElementById('rsvp-deadline-heading')
   };
   const defaultDeadlineText = elements.deadlineHeading.textContent;
 
@@ -135,22 +134,18 @@
     if (Number.isNaN(date.getTime())) return null;
     return new Intl.DateTimeFormat(undefined, {
       dateStyle: 'long',
-      timeStyle: 'short'
+      timeZone: 'Asia/Manila'
     }).format(date);
   }
 
   function updateDeadline(invitation) {
     const deadline = formatDeadline(invitation.deadline);
-    elements.deadlineCopy.replaceChildren();
-    const strong = document.createElement('strong');
-    strong.textContent = 'Deadline: ';
     elements.deadlineHeading.textContent = deadline || defaultDeadlineText;
-    elements.deadlineCopy.append(strong, document.createTextNode(deadline || defaultDeadlineText));
   }
 
-  function confirmationText(invitation) {
+  function seatReservationText(invitation) {
     const seatWord = invitation.reserved_seats === 1 ? 'seat' : 'seats';
-    return `This invitation reserves ${invitation.reserved_seats} ${seatWord} for the ${invitation.party_label}.`;
+    return `We reserved ${invitation.reserved_seats} ${seatWord} for you.`;
   }
 
   function unlockSite() {
@@ -204,7 +199,7 @@
     elements.closed.hidden = !invitation.closed;
     elements.partyAttendance.hidden = invitation.reserved_seats < 2 || invitation.closed;
     elements.reviewButton.hidden = invitation.closed;
-    elements.welcome.textContent = confirmationText(invitation);
+    elements.seatCopy.textContent = seatReservationText(invitation);
     clearError(elements.formError);
     updateDeadline(invitation);
     renderGuests(invitation);
@@ -217,8 +212,9 @@
       playEnvelopeIntro();
     } else {
       elements.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      elements.welcome.setAttribute('tabindex', '-1');
-      elements.welcome.focus({ preventScroll: true });
+      elements.form.setAttribute('tabindex', '-1');
+      elements.form.focus({ preventScroll: true });
+      elements.form.removeAttribute('tabindex');
     }
   }
 

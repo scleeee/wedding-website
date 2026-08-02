@@ -338,30 +338,24 @@
 
       <section id="rsvp" class="section rsvp" aria-label="RSVP">
         <h3>RSVP</h3>
-        <p>We reserved a seat for you.</p>
+        <p id="rsvp-seat-copy">We reserved 1 seat for you.</p>
         <p>
           The favor of a reply is requested on or before
-          <strong id="rsvp-deadline-heading">[date here]</strong>
+          <strong id="rsvp-deadline-heading">September 15, 2027</strong>.
         </p>
 
         <div class="rsvp-card">
-          <div class="rsvp-deadline" id="rsvp-deadline-copy">
-            <strong>Deadline:</strong> [date here]
-          </div>
-
           <div id="rsvp-form" hidden>
             <div class="rsvp-submitted-banner" id="rsvp-submitted-banner" role="status" hidden>
               This RSVP was already submitted. You can review and update it below.
             </div>
-
-            <p class="rsvp-welcome" id="rsvp-welcome"></p>
 
             <div class="rsvp-closed" id="rsvp-closed" role="alert" hidden>
               Online changes are closed for this invitation. Your saved response is shown below.
             </div>
 
             <fieldset class="attendance-group" id="party-attendance" hidden>
-              <legend class="form-label">Respond for the whole party</legend>
+              <legend class="form-label">Response for the whole party</legend>
               <div class="party-attendance-options">
                 <label class="attendance-choice"><input type="radio" name="party-attendance" value="all" /> Everyone attending</label>
                 <label class="attendance-choice"><input type="radio" name="party-attendance" value="none" /> No one attending</label>
@@ -414,7 +408,7 @@
     </main>
     <script src="rsvp-config.js"></script>
     <script src="envelope.js?v=1"></script>
-    <script src="rsvp.js?v=3"></script>
+    <script src="rsvp.js?v=4"></script>
     <script>
       document.querySelectorAll('.top-nav a[href^="#"]').forEach((link) => {
         link.addEventListener("click", (event) => {
