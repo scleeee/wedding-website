@@ -46,6 +46,7 @@
     elements.seal.classList.remove('cracking');
     elements.letter.classList.remove('rising', 'flight', 'expanded');
     elements.letter.removeAttribute('style');
+    elements.letter.setAttribute('aria-hidden', 'true');
     elements.body.classList.remove('hidden');
     elements.prompt.classList.remove('visible');
     elements.holdStatus.hidden = true;
@@ -147,6 +148,7 @@
     document.body.classList.add('envelope-holding');
     elements.overlay.classList.add('morphing');
     elements.letter.classList.add('flight', 'expanded');
+    elements.letter.setAttribute('aria-hidden', 'false');
     elements.letter.style.left = `${targetRect.left}px`;
     elements.letter.style.top = `${targetRect.top}px`;
     elements.letter.style.width = `${targetRect.width}px`;

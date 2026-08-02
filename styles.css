@@ -393,6 +393,11 @@ body.envelope-active {
   text-transform: uppercase;
 }
 
+.env-expanded-only,
+.env-expanded-details {
+  display: none;
+}
+
 .env-letter-card.rising {
   opacity: 1;
   transform: translateX(-50%) translateY(-118%);
@@ -423,6 +428,10 @@ body.envelope-active {
   max-width: 640px;
 }
 
+.env-letter-card.expanded .env-expanded-only {
+  display: block;
+}
+
 .env-letter-card.expanded img {
   margin: 0 auto;
   max-width: none;
@@ -430,9 +439,28 @@ body.envelope-active {
 }
 
 .env-letter-card.expanded .env-letter-date {
-  color: var(--text-muted);
-  font-size: clamp(0.68rem, 1vw, 0.82rem);
-  margin-top: 1rem;
+  display: none;
+}
+
+.env-letter-card.expanded .env-expanded-details {
+  display: block;
+}
+
+.env-expanded-invitation {
+  font-size: clamp(1rem, 1.4vw, 1.25rem);
+  font-style: italic;
+  line-height: 1.75;
+  margin: 2rem auto 1.25rem;
+  max-width: 700px;
+}
+
+.env-expanded-details h2 {
+  font-size: 1.12rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  line-height: 1.5;
+  margin: 0;
+  text-transform: uppercase;
 }
 
 .env-prompt {
@@ -476,6 +504,7 @@ body.envelope-active {
   z-index: 3100;
 }
 
+body.envelope-holding .top-nav,
 body.envelope-holding .hero > :not(.pillar) {
   visibility: hidden;
 }
@@ -1218,6 +1247,15 @@ h3 {
   .env-letter-card.expanded .env-letter-quote {
     font-size: 0.75rem;
     margin-bottom: 1.2rem;
+  }
+
+  .env-expanded-invitation,
+  .env-expanded-details h2 {
+    font-size: 0.8rem;
+  }
+
+  .env-expanded-invitation {
+    margin: 1.4rem auto 0.9rem;
   }
 
   .env-hold-status {
