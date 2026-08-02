@@ -10,7 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Great+Vibes&amp;display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=50" />
+    <link rel="stylesheet" href="styles.css?v=52" />
   </head>
   <body class="site-locked">
     <div class="access-gate" id="access-gate">
@@ -59,6 +59,7 @@
       aria-modal="true"
       aria-label="Wedding invitation"
       aria-hidden="true"
+      tabindex="-1"
       hidden
     >
       <div class="env-backdrop"></div>
@@ -71,8 +72,12 @@
         aria-disabled="false"
       >
         <div class="env-letter-card" id="env-letter" aria-hidden="true">
+          <p class="env-letter-quote">
+            Home is where our hearts intertwine and love grows.<br />
+            We found a home in each other.
+          </p>
           <img src="assets/Logo.png" alt="" />
-          <p>January 5, 2027</p>
+          <p class="env-letter-date">January 5, 2027</p>
         </div>
 
         <div class="env-body-wrap" id="env-body">
@@ -100,6 +105,7 @@
       </div>
 
       <button id="skip-intro" type="button" aria-label="Skip invitation animation">Skip intro</button>
+      <p class="env-hold-status" id="env-hold-status" role="status" aria-live="polite" hidden></p>
     </div>
 
     <button id="replay-intro" type="button" aria-label="Watch invitation animation again" hidden>
@@ -407,7 +413,7 @@
       </footer>
     </main>
     <script src="rsvp-config.js"></script>
-    <script src="envelope.js?v=1"></script>
+    <script src="envelope.js?v=3"></script>
     <script src="rsvp.js?v=4"></script>
     <script>
       document.querySelectorAll('.top-nav a[href^="#"]').forEach((link) => {

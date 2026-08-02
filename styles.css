@@ -244,7 +244,7 @@ body.envelope-active {
 }
 
 .env-overlay.morphing {
-  pointer-events: none;
+  cursor: pointer;
 }
 
 .env-overlay.morphing .env-backdrop {
@@ -371,11 +371,21 @@ body.envelope-active {
 .env-letter-card img {
   display: block;
   height: auto;
-  max-width: 92%;
+  max-width: 78%;
   width: 100%;
 }
 
-.env-letter-card p {
+.env-letter-quote {
+  color: #5f574f;
+  font-size: clamp(0.5rem, 1.2vw, 0.72rem);
+  font-style: italic;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  margin: 0 0 clamp(0.35rem, 1vw, 0.65rem);
+  text-align: center;
+}
+
+.env-letter-date {
   color: #796d61;
   font-size: clamp(0.55rem, 1.6vw, 0.78rem);
   letter-spacing: 0.22em;
@@ -389,10 +399,40 @@ body.envelope-active {
   z-index: 3;
 }
 
-.env-letter-card.expanding {
+.env-letter-card.flight {
+  min-height: 0;
+  position: fixed;
+  z-index: 4;
+}
+
+.env-letter-card.expanded {
+  background: transparent;
+  border-top-color: transparent;
   box-shadow: none;
-  opacity: 0;
-  transform: translateX(-50%) translateY(-118%) scale(2.35);
+  display: block;
+  overflow: visible;
+  padding: 0;
+  text-align: center;
+}
+
+.env-letter-card.expanded .env-letter-quote {
+  color: var(--text);
+  font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+  line-height: 1.6;
+  margin: 0 auto 1.8rem;
+  max-width: 640px;
+}
+
+.env-letter-card.expanded img {
+  margin: 0 auto;
+  max-width: none;
+  width: 100%;
+}
+
+.env-letter-card.expanded .env-letter-date {
+  color: var(--text-muted);
+  font-size: clamp(0.68rem, 1vw, 0.82rem);
+  margin-top: 1rem;
 }
 
 .env-prompt {
@@ -415,6 +455,29 @@ body.envelope-active {
 
 .env-prompt.visible {
   opacity: 1;
+}
+
+.env-hold-status {
+  backdrop-filter: blur(8px);
+  background: rgba(45, 26, 26, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  bottom: 1.5rem;
+  color: rgba(255, 255, 255, 0.78);
+  font: 700 0.64rem Arial, sans-serif;
+  left: 50%;
+  letter-spacing: 0.1em;
+  margin: 0;
+  padding: 0.55rem 0.9rem;
+  position: fixed;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  z-index: 3100;
+}
+
+body.envelope-holding .hero > :not(.pillar) {
+  visibility: hidden;
 }
 
 #skip-intro,
@@ -487,9 +550,6 @@ body.envelope-active {
     transform: translateX(-50%) translateY(-35%);
   }
 
-  .env-letter-card.expanding {
-    transform: translateX(-50%) translateY(-35%) scale(1.05);
-  }
 }
 
 .page {
@@ -1153,6 +1213,19 @@ h3 {
   .hero-quote {
     font-size: 0.75rem;
     margin-bottom: 1.2rem;
+  }
+
+  .env-letter-card.expanded .env-letter-quote {
+    font-size: 0.75rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .env-hold-status {
+    bottom: 0.9rem;
+    font-size: 0.56rem;
+    max-width: calc(100vw - 2rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .hero-logo {
