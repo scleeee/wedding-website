@@ -5,13 +5,16 @@
   const state = { code: '', invitation: null, pendingResponses: null };
 
   const elements = {
+    gate: document.getElementById('access-gate'),
+    site: document.getElementById('site-content'),
+    replayIntro: document.getElementById('replay-intro'),
     login: document.getElementById('rsvp-login'),
     codeInput: document.getElementById('rsvp-password'),
     lookupButton: document.getElementById('rsvp-lookup-button'),
     lookupError: document.getElementById('rsvp-error'),
+    seatCopy: document.getElementById('rsvp-seat-copy'),
     form: document.getElementById('rsvp-form'),
     submittedBanner: document.getElementById('rsvp-submitted-banner'),
-    welcome: document.getElementById('rsvp-welcome'),
     closed: document.getElementById('rsvp-closed'),
     partyAttendance: document.getElementById('party-attendance'),
     guestRows: document.getElementById('guest-rows'),
@@ -28,8 +31,7 @@
     successMessage: document.getElementById('rsvp-success-message'),
     editButton: document.getElementById('rsvp-edit-button'),
     successAnother: document.getElementById('rsvp-success-another'),
-    deadlineHeading: document.getElementById('rsvp-deadline-heading'),
-    deadlineCopy: document.getElementById('rsvp-deadline-copy')
+    deadlineHeading: document.getElementById('rsvp-deadline-heading')
   };
   const defaultDeadlineText = elements.deadlineHeading.textContent;
 
@@ -108,17 +110,17 @@
 
   function lookupErrorMessage(error) {
     if (error.code === 'CONFIG') {
-      return 'Online RSVP is not configured yet. Please use the phone numbers below for help.';
+      return 'Invitation access is not configured yet. Please contact the couple for help.';
     }
     if (error.code === 'RATE_LIMITED') {
-      return `For everyoneâ€™s privacy, too many invitation codes have been tried from this connection. Please wait ${retryWaitText(error.retryAfterSeconds)} and try again.`;
+      return `For everyone’s privacy, too many invitation codes have been tried from this connection. Please wait ${retryWaitText(error.retryAfterSeconds)} and try again.`;
     }
-    return 'We could not check that code right now. Check your connection and try again, or use the phone numbers below for help.';
+    return 'We could not check that code right now. Check your connection and try again.';
   }
 
   function submitErrorMessage(error) {
     if (error.code === 'RATE_LIMITED') {
-      return `For everyoneâ€™s privacy, RSVP saving is temporarily limited from this connection. Please wait ${retryWaitText(error.retryAfterSeconds)} and try again; your responses are still shown here.`;
+      return `For everyone’s privacy, RSVP saving is temporarily limited from this connection. Please wait ${retryWaitText(error.retryAfterSeconds)} and try again; your responses are still shown here.`;
     }
     if (error.code === 'RSVP_NOT_SAVED') {
       return 'We could not save this RSVP. Please review every reserved seat and try again, or return and re-enter the invitation code.';
@@ -132,25 +134,60 @@
     if (Number.isNaN(date.getTime())) return null;
     return new Intl.DateTimeFormat(undefined, {
       dateStyle: 'long',
-      timeStyle: 'short'
+      timeZone: 'Asia/Manila'
     }).format(date);
   }
 
   function updateDeadline(invitation) {
     const deadline = formatDeadline(invitation.deadline);
-    elements.deadlineCopy.replaceChildren();
-    const strong = document.createElement('strong');
-    strong.textContent = 'Deadline: ';
     elements.deadlineHeading.textContent = deadline || defaultDeadlineText;
-    elements.deadlineCopy.append(strong, document.createTextNode(deadline || defaultDeadlineText));
   }
 
-  function confirmationText(invitation) {
+  function seatReservationText(invitation) {
     const seatWord = invitation.reserved_seats === 1 ? 'seat' : 'seats';
-    return `This invitation reserves ${invitation.reserved_seats} ${seatWord} for the ${invitation.party_label}.`;
+    return `We reserved ${invitation.reserved_seats} ${seatWord} for you.`;
+  }
+
+  function unlockSite() {
+    elements.gate.hidden = true;
+    elements.site.hidden = false;
+    elements.site.removeAttribute('inert');
+    elements.site.setAttribute('aria-hidden', 'false');
+    document.body.classList.remove('site-locked');
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+
+    elements.site.setAttribute('tabindex', '-1');
+    elements.site.focus({ preventScroll: true });
+    elements.site.removeAttribute('tabindex');
+  }
+
+  function playEnvelopeIntro() {
+    elements.gate.hidden = true;
+    elements.site.hidden = false;
+    elements.site.setAttribute('inert', '');
+    elements.site.setAttribute('aria-hidden', 'true');
+    document.body.classList.add('site-locked');
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+
+    if (window.WeddingEnvelope) {
+      window.WeddingEnvelope.play(unlockSite);
+    } else {
+      unlockSite();
+    }
+  }
+
+  function lockSite() {
+    if (window.WeddingEnvelope) window.WeddingEnvelope.cancel();
+    elements.site.setAttribute('inert', '');
+    elements.site.setAttribute('aria-hidden', 'true');
+    elements.site.hidden = true;
+    elements.gate.hidden = false;
+    document.body.classList.add('site-locked');
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }
 
   function renderInvitation(invitation) {
+    const unlockingSite = elements.site.hidden;
     state.invitation = invitation;
     state.pendingResponses = null;
 
@@ -162,7 +199,7 @@
     elements.closed.hidden = !invitation.closed;
     elements.partyAttendance.hidden = invitation.reserved_seats < 2 || invitation.closed;
     elements.reviewButton.hidden = invitation.closed;
-    elements.welcome.textContent = confirmationText(invitation);
+    elements.seatCopy.textContent = seatReservationText(invitation);
     clearError(elements.formError);
     updateDeadline(invitation);
     renderGuests(invitation);
@@ -171,9 +208,14 @@
       elements.guestRows.querySelectorAll('input').forEach((input) => { input.disabled = true; });
     }
 
-    elements.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    elements.welcome.setAttribute('tabindex', '-1');
-    elements.welcome.focus({ preventScroll: true });
+    if (unlockingSite) {
+      playEnvelopeIntro();
+    } else {
+      elements.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      elements.form.setAttribute('tabindex', '-1');
+      elements.form.focus({ preventScroll: true });
+      elements.form.removeAttribute('tabindex');
+    }
   }
 
   function makeLabel(text, input) {
@@ -398,6 +440,7 @@
     elements.codeInput.value = '';
     updateDeadline({ deadline: null });
     clearError(elements.lookupError);
+    lockSite();
     elements.codeInput.focus();
   }
 
@@ -411,7 +454,7 @@
       return;
     }
 
-    setButtonBusy(elements.lookupButton, true, 'Checking…', 'Continue →');
+    setButtonBusy(elements.lookupButton, true, 'Checking…', 'Enter website');
     try {
       const invitation = await callRsvpApi('lookup', { code });
       if (!invitation) {
@@ -428,7 +471,7 @@
       showError(elements.lookupError, lookupErrorMessage(error));
       elements.codeInput.focus();
     } finally {
-      setButtonBusy(elements.lookupButton, false, 'Checking…', 'Continue →');
+      setButtonBusy(elements.lookupButton, false, 'Checking…', 'Enter website');
     }
   });
 
@@ -446,10 +489,11 @@
   elements.editButton.addEventListener('click', () => renderInvitation(state.invitation));
   elements.useAnother.addEventListener('click', resetToLogin);
   elements.successAnother.addEventListener('click', resetToLogin);
+  elements.replayIntro.addEventListener('click', playEnvelopeIntro);
 
   window.addEventListener('offline', () => {
     if (!elements.login.hidden) {
-      showError(elements.lookupError, 'You appear to be offline. Reconnect to RSVP online, or use the phone numbers below for help.');
+      showError(elements.lookupError, 'You appear to be offline. Reconnect to verify your invitation code.');
     }
   });
 })();

@@ -1,0 +1,1391 @@
+:root {
+  --bg: #f9f6f1;
+  --text: #2d2d2d;
+  --text-muted: #77726b;
+  --accent: #f25e37;
+  --border: #ded5c8;
+  --paper: #fffdf9;
+  --success: #2e6d46;
+  --max-width: 920px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 2rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Baskerville", "Times New Roman", serif;
+  line-height: 1.55;
+}
+
+body.site-locked {
+  overflow: hidden;
+}
+
+body.envelope-active {
+  overflow: hidden;
+}
+
+.access-gate {
+  align-items: center;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(242, 94, 55, 0.09), transparent 34rem),
+    var(--bg);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  min-height: 100dvh;
+  overflow-y: auto;
+  padding: 1.25rem;
+  position: fixed;
+  z-index: 1000;
+}
+
+.access-card {
+  background: rgba(255, 253, 249, 0.96);
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 60px rgba(67, 55, 42, 0.13);
+  max-width: 470px;
+  padding: clamp(1.75rem, 6vw, 3rem);
+  text-align: center;
+  width: 100%;
+}
+
+.access-logo {
+  display: block;
+  margin: 0 auto 1.5rem;
+  max-width: 300px;
+  width: 80%;
+}
+
+.access-kicker {
+  color: var(--accent);
+  font-size: 0.74rem;
+  letter-spacing: 0.2em;
+  margin: 0 0 0.6rem;
+  text-transform: uppercase;
+}
+
+.access-card h1 {
+  font-size: clamp(1.45rem, 5vw, 2rem);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.access-copy {
+  color: var(--text-muted);
+  margin: 0.9rem auto 1.7rem;
+  max-width: 350px;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.form-label {
+  color: var(--text-muted);
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.45rem;
+  text-transform: uppercase;
+}
+
+.form-input {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font: inherit;
+  min-height: 48px;
+  padding: 0.75rem 0.9rem;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+  width: 100%;
+}
+
+.form-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(242, 94, 55, 0.16);
+  outline: none;
+}
+
+.form-input[readonly] {
+  background: #f0ece6;
+  color: var(--text-muted);
+}
+
+.rsvp-status {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin: 0.45rem 0 0;
+  text-align: left;
+}
+
+.form-error {
+  background: #fff0ed;
+  border: 1px solid #efb8ae;
+  color: #9d2c1f;
+  display: none;
+  font-size: 0.85rem;
+  margin-top: 0.65rem;
+  padding: 0.65rem 0.75rem;
+}
+
+.form-error.visible {
+  display: block;
+}
+
+.btn {
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+  justify-content: center;
+  letter-spacing: 0.1em;
+  min-height: 46px;
+  padding: 0.75rem 1.4rem;
+  text-transform: uppercase;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #d84d29;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.btn-secondary:hover {
+  background: #f0ece6;
+}
+
+.btn:focus-visible,
+.attendance-choice:focus-within {
+  outline: 3px solid rgba(242, 94, 55, 0.22);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  cursor: wait;
+  opacity: 0.65;
+  transform: none;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+/* Envelope invitation animation, adapted from the envelope-animation work. */
+.env-overlay {
+  align-items: center;
+  display: flex;
+  inset: 0;
+  isolation: isolate;
+  justify-content: center;
+  overflow: hidden;
+  position: fixed;
+  transition: opacity 0.45s ease;
+  z-index: 3000;
+}
+
+.env-overlay.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.env-backdrop {
+  background: radial-gradient(ellipse at 50% 40%, #2d1a1a 0%, #0e0808 100%);
+  inset: 0;
+  opacity: 1;
+  pointer-events: none;
+  position: absolute;
+  transition: opacity 0.95s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
+}
+
+.env-overlay.morphing {
+  cursor: pointer;
+}
+
+.env-overlay.morphing .env-backdrop {
+  opacity: 0;
+}
+
+@keyframes envEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes envPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+@keyframes sealCrack {
+  0% { opacity: 1; transform: scale(1); }
+  35% { opacity: 0.7; transform: scale(1.28); }
+  100% { opacity: 0; transform: scale(0.3); }
+}
+
+.env-scene {
+  animation: envEntrance 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+  aspect-ratio: 100 / 87;
+  cursor: pointer;
+  outline: none;
+  position: relative;
+  width: min(520px, 88vw, 82vh);
+  width: min(520px, 88vw, 82svh);
+  z-index: 1;
+}
+
+.env-scene.pulsing {
+  animation: envPulse 2.2s ease-in-out infinite;
+}
+
+.env-scene:focus-visible .env-prompt {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.env-scene[aria-disabled="true"] {
+  cursor: default;
+}
+
+.env-body-wrap {
+  bottom: 0;
+  height: 55%;
+  left: 0;
+  position: absolute;
+  right: 0;
+  transform-style: preserve-3d;
+  transition: opacity 0.65s ease, transform 0.65s ease;
+  z-index: 2;
+}
+
+.env-body-wrap.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px) scale(0.96);
+}
+
+.env-body-svg,
+.env-flap-wrap svg {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.env-flap-wrap {
+  height: 58%;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transform-origin: top center;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+  will-change: transform;
+}
+
+.env-flap-wrap.open {
+  transform: perspective(900px) rotateX(-172deg);
+}
+
+#env-seal.cracking {
+  animation: sealCrack 0.42s ease-in forwards;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.env-letter-card {
+  align-items: center;
+  background:
+    linear-gradient(rgba(255, 252, 246, 0.58), rgba(255, 248, 238, 0.68)),
+    url("assets/Sunset.png") center 42% / cover no-repeat;
+  border-top: 3px solid #c9506a;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  left: 50%;
+  min-height: 45%;
+  opacity: 0;
+  overflow: hidden;
+  padding: clamp(0.9rem, 4vw, 1.5rem);
+  pointer-events: none;
+  position: absolute;
+  top: 53%;
+  transform: translateX(-50%) translateY(0);
+  transform-origin: center;
+  transition:
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.7s ease,
+    box-shadow 0.7s ease;
+  width: 76%;
+  will-change: transform, opacity;
+  z-index: 1;
+}
+
+.env-letter-card img {
+  display: block;
+  height: auto;
+  max-width: 78%;
+  width: 100%;
+}
+
+.env-letter-quote {
+  color: #5f574f;
+  font-size: clamp(0.5rem, 1.2vw, 0.72rem);
+  font-style: italic;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  margin: 0 0 clamp(0.35rem, 1vw, 0.65rem);
+  text-align: center;
+}
+
+.env-letter-date {
+  color: #796d61;
+  font-size: clamp(0.55rem, 1.6vw, 0.78rem);
+  letter-spacing: 0.22em;
+  margin: 0.4rem 0 0;
+  text-transform: uppercase;
+}
+
+.env-expanded-only,
+.env-expanded-details {
+  display: none;
+}
+
+.env-letter-card.rising {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-118%);
+  z-index: 3;
+}
+
+.env-letter-card.flight {
+  min-height: 0;
+  position: fixed;
+  z-index: 4;
+}
+
+.env-letter-card.expanded {
+  background: transparent;
+  border-top-color: transparent;
+  box-shadow: none;
+  display: block;
+  overflow: visible;
+  padding: 0;
+  text-align: center;
+}
+
+.env-letter-card.expanded .env-letter-quote {
+  color: var(--text);
+  font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+  line-height: 1.6;
+  margin: 0 auto 1.8rem;
+  max-width: 640px;
+}
+
+.env-letter-card.expanded .env-expanded-only {
+  display: block;
+}
+
+.env-letter-card.expanded img {
+  margin: 0 auto;
+  max-width: none;
+  width: 100%;
+}
+
+.env-letter-card.expanded .env-letter-date {
+  display: none;
+}
+
+.env-letter-card.expanded .env-expanded-details {
+  display: block;
+}
+
+.env-expanded-invitation {
+  font-size: clamp(1rem, 1.4vw, 1.25rem);
+  font-style: italic;
+  line-height: 1.75;
+  margin: 2rem auto 1.25rem;
+  max-width: 700px;
+}
+
+.env-expanded-details h2 {
+  font-size: 1.12rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  line-height: 1.5;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.env-prompt {
+  bottom: -2.75rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-family: Arial, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  left: 50%;
+  letter-spacing: 0.2em;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+  transition: opacity 0.5s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+
+.env-prompt.visible {
+  opacity: 1;
+}
+
+.env-hold-status {
+  backdrop-filter: blur(8px);
+  background: rgba(45, 26, 26, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  bottom: 1.5rem;
+  color: rgba(255, 255, 255, 0.78);
+  font: 700 0.64rem Arial, sans-serif;
+  left: 50%;
+  letter-spacing: 0.1em;
+  margin: 0;
+  padding: 0.55rem 0.9rem;
+  position: fixed;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  z-index: 3100;
+}
+
+body.envelope-holding .top-nav,
+body.envelope-holding .hero > :not(.pillar) {
+  visibility: hidden;
+}
+
+#skip-intro,
+#replay-intro {
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  bottom: 1.5rem;
+  color: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+  font: 700 0.68rem Arial, sans-serif;
+  letter-spacing: 0.12em;
+  padding: 0.55rem 0.9rem;
+  position: fixed;
+  right: 1.5rem;
+  text-transform: uppercase;
+  transition: background 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+  z-index: 3100;
+}
+
+#skip-intro:hover,
+#replay-intro:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+#replay-intro {
+  background: rgba(45, 26, 26, 0.72);
+  border-color: rgba(255, 255, 255, 0.2);
+  z-index: 50;
+}
+
+@media (min-width: 1400px) {
+  .env-scene {
+    width: min(680px, 60vw, 82vh);
+    width: min(680px, 60vw, 82svh);
+  }
+}
+
+@media (min-width: 1900px) {
+  .env-scene {
+    width: min(820px, 50vw, 82vh);
+    width: min(820px, 50vw, 82svh);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .env-scene,
+  .env-scene.pulsing,
+  #env-seal.cracking {
+    animation: none;
+  }
+
+  .env-overlay,
+  .env-backdrop,
+  .env-body-wrap,
+  .env-flap-wrap,
+  .env-letter-card {
+    transition-duration: 0.16s !important;
+  }
+
+  .env-flap-wrap.open {
+    opacity: 0;
+    transform: none;
+  }
+
+  .env-letter-card.rising {
+    transform: translateX(-50%) translateY(-35%);
+  }
+
+}
+
+.page {
+  display: flow-root;
+  isolation: isolate;
+  overflow-x: clip;
+  position: relative;
+}
+
+.page::before {
+  background: url("assets/Sunset.png") center 32% / cover no-repeat;
+  content: "";
+  height: clamp(760px, 115vh, 1100px);
+  height: clamp(760px, 115svh, 1100px);
+  left: 0;
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.92) 42%, transparent 100%);
+  opacity: 0.48;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.92) 42%, transparent 100%);
+  z-index: -2;
+}
+
+.section {
+  margin: 0 auto;
+  max-width: var(--max-width);
+  padding: 4.25rem 1.25rem;
+  text-align: center;
+}
+
+.top-nav {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 3.25rem;
+  justify-content: center;
+  letter-spacing: 0.1em;
+  margin: 2rem auto 0;
+  max-width: var(--max-width);
+  padding: 0 1.25rem;
+  text-transform: uppercase;
+}
+
+.top-nav a {
+  color: inherit;
+  font-size: 0.76rem;
+  text-decoration: none;
+}
+
+.top-nav a:hover {
+  text-decoration: underline;
+}
+
+.hero {
+  max-width: none;
+  position: relative;
+  padding-top: 7rem;
+  width: 100%;
+}
+
+.hero-quote {
+  /* Matches .hero-kicker */
+  font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+  font-style: italic;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+  margin: 0 auto 1.8rem;
+  max-width: 640px;
+  /* Nav target: adds to the 2rem scroll-padding so the quote doesn't
+     land flush against the top edge. */
+  scroll-margin-top: 1.5rem;
+}
+
+.hero-logo {
+  display: block;
+  margin: 0 auto 2rem;
+  max-width: min(84vw, 700px);
+  width: 100%;
+}
+
+.hero-kicker {
+  font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+  font-style: italic;
+  margin: 0 0 1.4rem;
+}
+
+.parents {
+  column-gap: 1.25rem;
+  font-size: 1.12rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  letter-spacing: 0.06em;
+  margin: 0 auto 1.6rem;
+  max-width: 690px;
+  text-transform: uppercase;
+}
+
+.invitation-copy {
+  font-style: italic;
+  font-size: clamp(1rem, 1.4vw, 1.25rem);
+  line-height: 1.75;
+  /* Equal top/bottom so the lead-in lines and venue groups all sit the
+     same distance apart; the venue name/address pair stays tight. */
+  margin: 2.5rem auto;
+  max-width: 720px;
+}
+
+h2 {
+  /* Matches .parents */
+  font-size: 1.12rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  line-height: 1.5;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.address {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: clamp(1rem, 1.4vw, 1.3rem);
+  line-height: 1.75;
+  margin: 0 auto;
+  max-width: 700px;
+}
+
+/* Sized off the artwork's 1:4.7 aspect so the pillars span the hero text
+   block rather than bleeding into the sections below. */
+.pillar {
+  position: absolute;
+  top: 5.5rem;
+  width: min(14.5vw, 165px);
+  z-index: -1;
+}
+
+.pillar-left {
+  left: 0;
+}
+
+/* Both pillar assets are already a mirrored pair: each one's cropped edge
+   belongs against its own side of the page, so neither is flipped in CSS. */
+.pillar-right {
+  right: 0;
+}
+
+h3 {
+  font-size: clamp(1.4rem, 3.5vw, 1.95rem);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  margin: 0 0 2rem;
+  text-transform: uppercase;
+}
+
+/* Full-bleed so the accents can dock to the page edges the way the
+   hero pillars do. */
+.timeline {
+  max-width: none;
+  position: relative;
+  width: 100%;
+}
+
+.timeline-church {
+  display: block;
+  height: auto;
+  margin: 0 auto 1.5rem;
+  max-width: min(62vw, 470px);
+  width: 100%;
+}
+
+/* Sized to its content rather than a fixed width so the block centres on
+   the longest row instead of leaving dead space on the right. */
+.timeline-list {
+  --row-pad: 0.62rem;
+  --dot-y: 0.72em;
+  display: grid;
+  list-style: none;
+  margin: 0 auto;
+  max-width: 100%;
+  padding: 0;
+  text-align: left;
+  width: fit-content;
+}
+
+/* One row per item keeps each time locked to its event even when the
+   event text wraps. The middle column draws the rail. */
+.timeline-list li {
+  column-gap: 1.5rem;
+  display: grid;
+  grid-template-columns: 4.6rem 9px auto;
+  padding-block: var(--row-pad);
+}
+
+/* Rail: a 1px vertical line with a dot on the first text line. The
+   negative margin cancels the row padding so consecutive segments meet
+   and read as one continuous line. */
+.timeline-list li::before {
+  background-image:
+    radial-gradient(
+      circle 3.5px at 50% calc(var(--row-pad) + var(--dot-y)),
+      #8d8579 99%,
+      transparent 100%
+    ),
+    linear-gradient(#cfc7ba, #cfc7ba);
+  background-position: 50% 0, 50% 0;
+  background-repeat: no-repeat, no-repeat;
+  background-size: 100% 100%, 1px 100%;
+  content: "";
+  grid-area: 1 / 2;
+  margin-block: calc(-1 * var(--row-pad));
+}
+
+.timeline-list .time {
+  grid-area: 1 / 1;
+}
+
+.timeline-list .event {
+  grid-area: 1 / 3;
+}
+
+/* Trim the line so it runs between the first and last dots only. */
+.timeline-list li:first-child::before {
+  background-position: 50% 0, 50% calc(var(--row-pad) + var(--dot-y));
+  background-size: 100% 100%, 1px calc(100% - var(--row-pad) - var(--dot-y));
+}
+
+.timeline-list li:last-child::before {
+  background-size: 100% 100%, 1px calc(var(--row-pad) + var(--dot-y));
+}
+
+.timeline-list .time {
+  letter-spacing: 0.05em;
+}
+
+.accent-left {
+  bottom: 0.5rem;
+  left: 0.45rem;
+  max-width: min(19vw, 185px);
+  position: absolute;
+}
+
+.accent-right {
+  max-width: min(13vw, 130px);
+  position: absolute;
+  right: 0;
+  top: 52%;
+}
+
+/* Full-bleed for the docked cypresses; the inline padding keeps every
+   name column clear of them. */
+.entourage {
+  max-width: none;
+  padding-inline: clamp(1.25rem, 15vw, 200px);
+  position: relative;
+  width: 100%;
+}
+
+.entourage .side-tree {
+  top: 44%;
+}
+
+.entourage-intro {
+  font-size: 0.95rem;
+  font-style: italic;
+  line-height: 1.8;
+  margin: 0 auto 3rem;
+  max-width: 760px;
+}
+
+.entourage-block {
+  margin: 0 auto 3rem;
+  max-width: 820px;
+}
+
+.entourage-block:last-child {
+  margin-bottom: 0;
+}
+
+.entourage-pair {
+  column-gap: 2rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.entourage-roles {
+  column-gap: 2rem;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  row-gap: 2.5rem;
+}
+
+.entourage-roles-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 620px;
+}
+
+.role-label {
+  font-size: 0.95rem;
+  font-style: italic;
+  margin: 0 0 1rem;
+}
+
+.name-list {
+  letter-spacing: 0.06em;
+  line-height: 1.9;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  text-transform: uppercase;
+}
+
+/* Full-bleed so the flower branches can dock to the page edges; the grid
+   keeps the original centred width. */
+.attire {
+  max-width: none;
+  position: relative;
+  width: 100%;
+}
+
+.attire-grid {
+  display: grid;
+  gap: 1.8rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0 auto;
+  max-width: var(--max-width);
+}
+
+.attire-flower {
+  position: absolute;
+}
+
+.attire-flower-left {
+  bottom: 3rem;
+  left: -1.5rem;
+  max-width: min(20vw, 240px);
+}
+
+.attire-flower-right {
+  max-width: min(21vw, 260px);
+  right: -1.5rem;
+  top: 1.5rem;
+}
+
+.attire-card {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* Both source images are 1058px tall, so pinning a shared render height
+   keeps the two outfits at the same scale and their captions on one line.
+   The ceiling is set by the wider image, which must still fit its column. */
+.attire-card img {
+  display: block;
+  height: clamp(230px, 29vw, 375px);
+  max-width: 100%;
+  object-fit: contain;
+  width: auto;
+}
+
+.attire-card p {
+  letter-spacing: 0.05em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.attire-card span {
+  font-style: italic;
+  text-transform: none;
+}
+
+.gift-flower {
+  display: block;
+  height: auto;
+  margin: 0 auto 1.6rem;
+  max-width: min(20vw, 170px);
+  width: 100%;
+}
+
+/* Cypresses docked to the page edges; each section sets its own vertical
+   anchor. */
+.side-tree {
+  max-width: min(12.5vw, 155px);
+  position: absolute;
+}
+
+.side-tree-left {
+  left: 0.55rem;
+}
+
+.side-tree-right {
+  right: 0.55rem;
+}
+
+.gifts p,
+.rsvp p {
+  margin: 0.6rem auto;
+  max-width: 760px;
+}
+
+.rsvp-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  box-shadow: 0 18px 50px rgba(67, 55, 42, 0.1);
+  margin: 2rem auto 0;
+  max-width: 680px;
+  padding: clamp(1.25rem, 4vw, 2.25rem);
+  text-align: left;
+}
+
+.rsvp-card p {
+  max-width: none;
+}
+
+.rsvp-welcome,
+.rsvp-submitted-banner,
+.rsvp-closed {
+  border-left: 3px solid var(--accent);
+  margin-bottom: 1.5rem;
+  padding: 0.85rem 1rem;
+}
+
+.rsvp-welcome {
+  background: #f2eee7;
+  color: var(--text-muted);
+}
+
+.rsvp-submitted-banner {
+  background: #edf7f0;
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.rsvp-closed {
+  background: #fff4dc;
+  border-color: #bd8b20;
+}
+
+.guest-row {
+  background: #faf7f2;
+  border: 1px solid var(--border);
+  margin: 0 0 1rem;
+  padding: 1.15rem;
+}
+
+.guest-row.has-error {
+  border-color: #b44031;
+  box-shadow: 0 0 0 2px rgba(180, 64, 49, 0.12);
+}
+
+.guest-row-header {
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.9rem;
+  padding: 0 0.25rem;
+  text-transform: uppercase;
+}
+
+.attendance-group {
+  border: 0;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+.attendance-options,
+.party-attendance-options {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.party-attendance-options {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 1.5rem;
+}
+
+.attendance-choice {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  display: flex;
+  font-size: 0.88rem;
+  font-weight: 700;
+  gap: 0.6rem;
+  min-height: 48px;
+  padding: 0.65rem 0.75rem;
+}
+
+.attendance-choice:has(input:checked) {
+  background: #fff2ed;
+  border-color: var(--accent);
+}
+
+.attendance-choice input {
+  accent-color: var(--accent);
+  flex: 0 0 auto;
+  height: 1.15rem;
+  width: 1.15rem;
+}
+
+.guest-dietary {
+  margin-top: 1rem;
+}
+
+.rsvp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.rsvp-actions .btn {
+  flex: 1 1 180px;
+}
+
+.review-list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+}
+
+.review-item {
+  background: #faf7f2;
+  border: 1px solid var(--border);
+  padding: 1rem;
+}
+
+.review-item strong {
+  color: var(--accent);
+}
+
+.review-item p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0.25rem 0 0;
+}
+
+.rsvp-success {
+  padding: 1rem 0;
+  text-align: center;
+}
+
+.rsvp-success-icon {
+  font-size: 2.5rem;
+}
+
+.rsvp-success h3 {
+  color: var(--accent);
+  margin: 0.5rem 0;
+}
+
+.rsvp-help {
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-top: 1.75rem !important;
+  padding-top: 1.25rem;
+  text-align: center;
+}
+
+.rsvp-help a {
+  color: inherit;
+  font-weight: 700;
+}
+
+.floral-footer {
+  max-width: none;
+  padding: 2rem 0 0;
+}
+
+.floral-footer img {
+  display: block;
+  height: auto;
+  margin: 0;
+  width: 100%;
+}
+
+@media (max-width: 960px) {
+  .pillar {
+    opacity: 0.55;
+    top: 6rem;
+    width: 17vw;
+  }
+
+  .pillar-left {
+    left: 0;
+  }
+
+  .pillar-right {
+    right: 0;
+  }
+
+  .accent-left {
+    left: 0.35rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .section {
+    padding: 3.2rem 1rem;
+  }
+
+  .parents,
+  .attire-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .attire-card img {
+    height: 68vw;
+  }
+
+  /* Stacked cards leave narrow side margins, so the branches tuck beside
+     the barong and the gown's bodice rather than flanking the section. */
+  .attire-flower-left {
+    bottom: auto;
+    left: -1.2rem;
+    max-width: 26vw;
+    top: 52%;
+  }
+
+  .attire-flower-right {
+    max-width: 26vw;
+    right: -1.2rem;
+    top: 12%;
+  }
+
+  /* Narrower rail and gaps so the list clears the docked accents. */
+  .timeline-list {
+    --row-pad: 0.5rem;
+  }
+
+  .timeline-list li {
+    column-gap: 0.85rem;
+    font-size: 0.85rem;
+    grid-template-columns: 3.9rem 9px auto;
+  }
+
+  .top-nav {
+    gap: 0.5rem 1.4rem;
+    margin-top: 1.3rem;
+  }
+
+  .top-nav a {
+    font-size: 0.67rem;
+  }
+
+  /* Cropped to a slim full-height column so the pillars frame the copy
+     instead of sitting behind it. object-position keeps each one's
+     outer edge, which is the side that meets the page edge. */
+  .pillar {
+    bottom: 2rem;
+    height: auto;
+    object-fit: cover;
+    opacity: 1;
+    top: 3.5rem;
+    width: 19vw;
+  }
+
+  .pillar-left {
+    object-position: left center;
+  }
+
+  .pillar-right {
+    object-position: right center;
+  }
+
+  /* Reserve the middle of the screen for text, clear of the pillars. */
+  .hero {
+    padding-inline: 21.5vw;
+    padding-top: 5rem;
+  }
+
+  .hero-quote {
+    font-size: 0.75rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .env-letter-card.expanded .env-letter-quote {
+    font-size: 0.75rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .env-expanded-invitation,
+  .env-expanded-details h2 {
+    font-size: 0.8rem;
+  }
+
+  .env-expanded-invitation {
+    margin: 1.4rem auto 0.9rem;
+  }
+
+  .env-hold-status {
+    bottom: 0.9rem;
+    font-size: 0.56rem;
+    max-width: calc(100vw - 2rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .hero-logo {
+    margin-bottom: 1.5rem;
+    max-width: 94%;
+  }
+
+  .hero-kicker {
+    font-size: 0.75rem;
+  }
+
+  .parents,
+  h2 {
+    font-size: 0.8rem;
+  }
+
+  .invitation-copy {
+    font-size: 0.8rem;
+  }
+
+  .address {
+    font-size: 0.75rem;
+  }
+
+  /* The trees move to a band under the content on phones, which frees the
+     full width for the long names. */
+  .entourage {
+    padding-bottom: 12rem;
+    padding-inline: 1rem;
+  }
+
+  /* Paired columns are too narrow for full names on a phone, so each
+     group stacks; the small roles keep two per row. */
+  .entourage-pair {
+    grid-template-columns: 1fr;
+    row-gap: 2.2rem;
+  }
+
+  /* The sponsors' two columns share one label, so stacked they should
+     read as a single uninterrupted list. */
+  .entourage-block > .entourage-pair {
+    row-gap: 0;
+  }
+
+  /* Single file so a long name never has to share the width. */
+  .entourage-roles,
+  .entourage-roles-three {
+    grid-template-columns: 1fr;
+    row-gap: 1.8rem;
+  }
+
+  .entourage-intro,
+  .role-label,
+  .name-list {
+    font-size: 0.85rem;
+  }
+
+  .entourage .side-tree {
+    bottom: 0;
+    max-width: 20vw;
+    top: auto;
+  }
+
+  .gift-flower {
+    max-width: 32vw;
+  }
+
+  .side-tree-left {
+    left: 0.35rem;
+  }
+
+  .side-tree-right {
+    right: 0.35rem;
+  }
+
+  .party-attendance-options,
+  .attendance-options {
+    grid-template-columns: 1fr;
+  }
+
+  /* No room to flank the list on a phone, so the accents move into a band
+     below it, still docked to their own edges. */
+  .timeline {
+    padding-bottom: 13rem;
+  }
+
+  .accent-left {
+    bottom: 0;
+    left: 0.3rem;
+    max-width: 110px;
+  }
+
+  .accent-right {
+    bottom: 1.2rem;
+    left: auto;
+    max-width: 76px;
+    right: -0.6rem;
+    top: auto;
+  }
+
+  .timeline-church {
+    margin-bottom: 1rem;
+    max-width: 82vw;
+  }
+}
