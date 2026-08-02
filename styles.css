@@ -343,7 +343,9 @@ body.envelope-active {
 
 .env-letter-card {
   align-items: center;
-  background: linear-gradient(155deg, #fdf9f4 0%, #f4eadb 100%);
+  background:
+    linear-gradient(rgba(255, 252, 246, 0.58), rgba(255, 248, 238, 0.68)),
+    url("assets/Sunset.png") center 42% / cover no-repeat;
   border-top: 3px solid #c9506a;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
   display: flex;
@@ -582,8 +584,26 @@ body.envelope-holding .hero > :not(.pillar) {
 }
 
 .page {
+  display: flow-root;
+  isolation: isolate;
   overflow-x: clip;
   position: relative;
+}
+
+.page::before {
+  background: url("assets/Sunset.png") center 32% / cover no-repeat;
+  content: "";
+  height: clamp(760px, 115vh, 1100px);
+  height: clamp(760px, 115svh, 1100px);
+  left: 0;
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.92) 42%, transparent 100%);
+  opacity: 0.48;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.92) 42%, transparent 100%);
+  z-index: -2;
 }
 
 .section {
