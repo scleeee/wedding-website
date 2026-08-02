@@ -45,6 +45,10 @@ body.site-locked {
   overflow: hidden;
 }
 
+body.envelope-active {
+  overflow: hidden;
+}
+
 .access-gate {
   align-items: center;
   background:
@@ -209,6 +213,283 @@ body.site-locked {
 
 .btn-full {
   width: 100%;
+}
+
+/* Envelope invitation animation, adapted from the envelope-animation work. */
+.env-overlay {
+  align-items: center;
+  display: flex;
+  inset: 0;
+  isolation: isolate;
+  justify-content: center;
+  overflow: hidden;
+  position: fixed;
+  transition: opacity 0.45s ease;
+  z-index: 3000;
+}
+
+.env-overlay.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.env-backdrop {
+  background: radial-gradient(ellipse at 50% 40%, #2d1a1a 0%, #0e0808 100%);
+  inset: 0;
+  opacity: 1;
+  pointer-events: none;
+  position: absolute;
+  transition: opacity 0.95s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
+}
+
+.env-overlay.morphing {
+  pointer-events: none;
+}
+
+.env-overlay.morphing .env-backdrop {
+  opacity: 0;
+}
+
+@keyframes envEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes envPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+@keyframes sealCrack {
+  0% { opacity: 1; transform: scale(1); }
+  35% { opacity: 0.7; transform: scale(1.28); }
+  100% { opacity: 0; transform: scale(0.3); }
+}
+
+.env-scene {
+  animation: envEntrance 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+  aspect-ratio: 100 / 87;
+  cursor: pointer;
+  outline: none;
+  position: relative;
+  width: min(520px, 88vw, 82vh);
+  width: min(520px, 88vw, 82svh);
+  z-index: 1;
+}
+
+.env-scene.pulsing {
+  animation: envPulse 2.2s ease-in-out infinite;
+}
+
+.env-scene:focus-visible .env-prompt {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.env-scene[aria-disabled="true"] {
+  cursor: default;
+}
+
+.env-body-wrap {
+  bottom: 0;
+  height: 55%;
+  left: 0;
+  position: absolute;
+  right: 0;
+  transform-style: preserve-3d;
+  transition: opacity 0.65s ease, transform 0.65s ease;
+  z-index: 2;
+}
+
+.env-body-wrap.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px) scale(0.96);
+}
+
+.env-body-svg,
+.env-flap-wrap svg {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.env-flap-wrap {
+  height: 58%;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transform-origin: top center;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+  will-change: transform;
+}
+
+.env-flap-wrap.open {
+  transform: perspective(900px) rotateX(-172deg);
+}
+
+#env-seal.cracking {
+  animation: sealCrack 0.42s ease-in forwards;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.env-letter-card {
+  align-items: center;
+  background: linear-gradient(155deg, #fdf9f4 0%, #f4eadb 100%);
+  border-top: 3px solid #c9506a;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  left: 50%;
+  min-height: 45%;
+  opacity: 0;
+  overflow: hidden;
+  padding: clamp(0.9rem, 4vw, 1.5rem);
+  pointer-events: none;
+  position: absolute;
+  top: 53%;
+  transform: translateX(-50%) translateY(0);
+  transform-origin: center;
+  transition:
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.7s ease,
+    box-shadow 0.7s ease;
+  width: 76%;
+  will-change: transform, opacity;
+  z-index: 1;
+}
+
+.env-letter-card img {
+  display: block;
+  height: auto;
+  max-width: 92%;
+  width: 100%;
+}
+
+.env-letter-card p {
+  color: #796d61;
+  font-size: clamp(0.55rem, 1.6vw, 0.78rem);
+  letter-spacing: 0.22em;
+  margin: 0.4rem 0 0;
+  text-transform: uppercase;
+}
+
+.env-letter-card.rising {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-118%);
+  z-index: 3;
+}
+
+.env-letter-card.expanding {
+  box-shadow: none;
+  opacity: 0;
+  transform: translateX(-50%) translateY(-118%) scale(2.35);
+}
+
+.env-prompt {
+  bottom: -2.75rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-family: Arial, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  left: 50%;
+  letter-spacing: 0.2em;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+  transition: opacity 0.5s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+
+.env-prompt.visible {
+  opacity: 1;
+}
+
+#skip-intro,
+#replay-intro {
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  bottom: 1.5rem;
+  color: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+  font: 700 0.68rem Arial, sans-serif;
+  letter-spacing: 0.12em;
+  padding: 0.55rem 0.9rem;
+  position: fixed;
+  right: 1.5rem;
+  text-transform: uppercase;
+  transition: background 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+  z-index: 3100;
+}
+
+#skip-intro:hover,
+#replay-intro:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+#replay-intro {
+  background: rgba(45, 26, 26, 0.72);
+  border-color: rgba(255, 255, 255, 0.2);
+  z-index: 50;
+}
+
+@media (min-width: 1400px) {
+  .env-scene {
+    width: min(680px, 60vw, 82vh);
+    width: min(680px, 60vw, 82svh);
+  }
+}
+
+@media (min-width: 1900px) {
+  .env-scene {
+    width: min(820px, 50vw, 82vh);
+    width: min(820px, 50vw, 82svh);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .env-scene,
+  .env-scene.pulsing,
+  #env-seal.cracking {
+    animation: none;
+  }
+
+  .env-overlay,
+  .env-backdrop,
+  .env-body-wrap,
+  .env-flap-wrap,
+  .env-letter-card {
+    transition-duration: 0.16s !important;
+  }
+
+  .env-flap-wrap.open {
+    opacity: 0;
+    transform: none;
+  }
+
+  .env-letter-card.rising {
+    transform: translateX(-50%) translateY(-35%);
+  }
+
+  .env-letter-card.expanding {
+    transform: translateX(-50%) translateY(-35%) scale(1.05);
+  }
 }
 
 .page {

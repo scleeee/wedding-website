@@ -10,7 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Great+Vibes&amp;display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=49" />
+    <link rel="stylesheet" href="styles.css?v=50" />
   </head>
   <body class="site-locked">
     <div class="access-gate" id="access-gate">
@@ -51,6 +51,60 @@
         </noscript>
       </section>
     </div>
+
+    <div
+      class="env-overlay"
+      id="env-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Wedding invitation"
+      aria-hidden="true"
+      hidden
+    >
+      <div class="env-backdrop"></div>
+      <div
+        class="env-scene"
+        id="env-trigger"
+        role="button"
+        tabindex="0"
+        aria-label="Open wedding invitation"
+        aria-disabled="false"
+      >
+        <div class="env-letter-card" id="env-letter" aria-hidden="true">
+          <img src="assets/Logo.png" alt="" />
+          <p>January 5, 2027</p>
+        </div>
+
+        <div class="env-body-wrap" id="env-body">
+          <svg class="env-body-svg" viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="340" height="220" rx="8" fill="#f5f0e8" stroke="#d4c9b0" stroke-width="1.5" />
+            <polygon points="0,0 170,128 0,220" fill="#ede6d4" stroke="#d4c9b0" stroke-width="0.8" />
+            <polygon points="340,0 170,128 340,220" fill="#ede6d4" stroke="#d4c9b0" stroke-width="0.8" />
+            <polygon points="0,220 340,220 170,128" fill="#e8e0cc" stroke="#d4c9b0" stroke-width="0.8" />
+            <text x="170" y="186" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="13" fill="#c8bea8" letter-spacing="4">S &amp; L</text>
+          </svg>
+
+          <div class="env-flap-wrap" id="env-flap">
+            <svg viewBox="0 0 340 128" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <polygon points="0,0 340,0 170,128" fill="#e2d9c6" stroke="#d4c9b0" stroke-width="1.5" />
+              <line x1="1" y1="1" x2="170" y2="127" stroke="#c8bea8" stroke-width="0.7" opacity="0.5" />
+              <line x1="339" y1="1" x2="170" y2="127" stroke="#c8bea8" stroke-width="0.7" opacity="0.5" />
+              <g id="env-seal">
+                <circle cx="170" cy="112" r="19" fill="#c9506a" />
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <p class="env-prompt" id="env-prompt" aria-hidden="true">Open invitation</p>
+      </div>
+
+      <button id="skip-intro" type="button" aria-label="Skip invitation animation">Skip intro</button>
+    </div>
+
+    <button id="replay-intro" type="button" aria-label="Watch invitation animation again" hidden>
+      Watch intro again
+    </button>
 
     <main class="page" id="site-content" aria-hidden="true" inert hidden>
       <header class="top-nav">
@@ -359,7 +413,8 @@
       </footer>
     </main>
     <script src="rsvp-config.js"></script>
-    <script src="rsvp.js?v=2"></script>
+    <script src="envelope.js?v=1"></script>
+    <script src="rsvp.js?v=3"></script>
     <script>
       document.querySelectorAll('.top-nav a[href^="#"]').forEach((link) => {
         link.addEventListener("click", (event) => {

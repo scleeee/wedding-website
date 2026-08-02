@@ -7,6 +7,7 @@
   const elements = {
     gate: document.getElementById('access-gate'),
     site: document.getElementById('site-content'),
+    replayIntro: document.getElementById('replay-intro'),
     login: document.getElementById('rsvp-login'),
     codeInput: document.getElementById('rsvp-password'),
     lookupButton: document.getElementById('rsvp-lookup-button'),
@@ -165,7 +166,23 @@
     elements.site.removeAttribute('tabindex');
   }
 
+  function playEnvelopeIntro() {
+    elements.gate.hidden = true;
+    elements.site.hidden = false;
+    elements.site.setAttribute('inert', '');
+    elements.site.setAttribute('aria-hidden', 'true');
+    document.body.classList.add('site-locked');
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+
+    if (window.WeddingEnvelope) {
+      window.WeddingEnvelope.play(unlockSite);
+    } else {
+      unlockSite();
+    }
+  }
+
   function lockSite() {
+    if (window.WeddingEnvelope) window.WeddingEnvelope.cancel();
     elements.site.setAttribute('inert', '');
     elements.site.setAttribute('aria-hidden', 'true');
     elements.site.hidden = true;
@@ -197,7 +214,7 @@
     }
 
     if (unlockingSite) {
-      unlockSite();
+      playEnvelopeIntro();
     } else {
       elements.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
       elements.welcome.setAttribute('tabindex', '-1');
@@ -476,6 +493,7 @@
   elements.editButton.addEventListener('click', () => renderInvitation(state.invitation));
   elements.useAnother.addEventListener('click', resetToLogin);
   elements.successAnother.addEventListener('click', resetToLogin);
+  elements.replayIntro.addEventListener('click', playEnvelopeIntro);
 
   window.addEventListener('offline', () => {
     if (!elements.login.hidden) {
