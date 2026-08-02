@@ -5,6 +5,8 @@
   const state = { code: '', invitation: null, pendingResponses: null };
 
   const elements = {
+    gate: document.getElementById('access-gate'),
+    site: document.getElementById('site-content'),
     login: document.getElementById('rsvp-login'),
     codeInput: document.getElementById('rsvp-password'),
     lookupButton: document.getElementById('rsvp-lookup-button'),
@@ -108,17 +110,17 @@
 
   function lookupErrorMessage(error) {
     if (error.code === 'CONFIG') {
-      return 'Online RSVP is not configured yet. Please use the phone numbers below for help.';
+      return 'Invitation access is not configured yet. Please contact the couple for help.';
     }
     if (error.code === 'RATE_LIMITED') {
-      return `For everyoneâ€™s privacy, too many invitation codes have been tried from this connection. Please wait ${retryWaitText(error.retryAfterSeconds)} and try again.`;
+      return `For everyone’s privacy, too many invitation codes have been tried from this connection. Please wait ${retryWaitText(error.retryAfterSeconds)} and try again.`;
     }
-    return 'We could not check that code right now. Check your connection and try again, or use the phone numbers below for help.';
+    return 'We could not check that code right now. Check your connection and try again.';
   }
 
   function submitErrorMessage(error) {
     if (error.code === 'RATE_LIMITED') {
-      return `For everyoneâ€™s privacy, RSVP saving is temporarily limited from this connection. Please wait ${retryWaitText(error.retryAfterSeconds)} and try again; your responses are still shown here.`;
+      return `For everyone’s privacy, RSVP saving is temporarily limited from this connection. Please wait ${retryWaitText(error.retryAfterSeconds)} and try again; your responses are still shown here.`;
     }
     if (error.code === 'RSVP_NOT_SAVED') {
       return 'We could not save this RSVP. Please review every reserved seat and try again, or return and re-enter the invitation code.';
@@ -150,7 +152,30 @@
     return `This invitation reserves ${invitation.reserved_seats} ${seatWord} for the ${invitation.party_label}.`;
   }
 
+  function unlockSite() {
+    elements.gate.hidden = true;
+    elements.site.hidden = false;
+    elements.site.removeAttribute('inert');
+    elements.site.setAttribute('aria-hidden', 'false');
+    document.body.classList.remove('site-locked');
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+
+    elements.site.setAttribute('tabindex', '-1');
+    elements.site.focus({ preventScroll: true });
+    elements.site.removeAttribute('tabindex');
+  }
+
+  function lockSite() {
+    elements.site.setAttribute('inert', '');
+    elements.site.setAttribute('aria-hidden', 'true');
+    elements.site.hidden = true;
+    elements.gate.hidden = false;
+    document.body.classList.add('site-locked');
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }
+
   function renderInvitation(invitation) {
+    const unlockingSite = elements.site.hidden;
     state.invitation = invitation;
     state.pendingResponses = null;
 
@@ -171,9 +196,13 @@
       elements.guestRows.querySelectorAll('input').forEach((input) => { input.disabled = true; });
     }
 
-    elements.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    elements.welcome.setAttribute('tabindex', '-1');
-    elements.welcome.focus({ preventScroll: true });
+    if (unlockingSite) {
+      unlockSite();
+    } else {
+      elements.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      elements.welcome.setAttribute('tabindex', '-1');
+      elements.welcome.focus({ preventScroll: true });
+    }
   }
 
   function makeLabel(text, input) {
@@ -398,6 +427,7 @@
     elements.codeInput.value = '';
     updateDeadline({ deadline: null });
     clearError(elements.lookupError);
+    lockSite();
     elements.codeInput.focus();
   }
 
@@ -411,7 +441,7 @@
       return;
     }
 
-    setButtonBusy(elements.lookupButton, true, 'Checking…', 'Continue →');
+    setButtonBusy(elements.lookupButton, true, 'Checking…', 'Enter website');
     try {
       const invitation = await callRsvpApi('lookup', { code });
       if (!invitation) {
@@ -428,7 +458,7 @@
       showError(elements.lookupError, lookupErrorMessage(error));
       elements.codeInput.focus();
     } finally {
-      setButtonBusy(elements.lookupButton, false, 'Checking…', 'Continue →');
+      setButtonBusy(elements.lookupButton, false, 'Checking…', 'Enter website');
     }
   });
 
@@ -449,7 +479,7 @@
 
   window.addEventListener('offline', () => {
     if (!elements.login.hidden) {
-      showError(elements.lookupError, 'You appear to be offline. Reconnect to RSVP online, or use the phone numbers below for help.');
+      showError(elements.lookupError, 'You appear to be offline. Reconnect to verify your invitation code.');
     }
   });
 })();

@@ -3,6 +3,9 @@
   --text: #2d2d2d;
   --text-muted: #77726b;
   --accent: #f25e37;
+  --border: #ded5c8;
+  --paper: #fffdf9;
+  --success: #2e6d46;
   --max-width: 920px;
 }
 
@@ -14,6 +17,10 @@ html,
 body {
   margin: 0;
   padding: 0;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 html {
@@ -32,6 +39,176 @@ body {
   color: var(--text);
   font-family: "Baskerville", "Times New Roman", serif;
   line-height: 1.55;
+}
+
+body.site-locked {
+  overflow: hidden;
+}
+
+.access-gate {
+  align-items: center;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(242, 94, 55, 0.09), transparent 34rem),
+    var(--bg);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  min-height: 100dvh;
+  overflow-y: auto;
+  padding: 1.25rem;
+  position: fixed;
+  z-index: 1000;
+}
+
+.access-card {
+  background: rgba(255, 253, 249, 0.96);
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 60px rgba(67, 55, 42, 0.13);
+  max-width: 470px;
+  padding: clamp(1.75rem, 6vw, 3rem);
+  text-align: center;
+  width: 100%;
+}
+
+.access-logo {
+  display: block;
+  margin: 0 auto 1.5rem;
+  max-width: 300px;
+  width: 80%;
+}
+
+.access-kicker {
+  color: var(--accent);
+  font-size: 0.74rem;
+  letter-spacing: 0.2em;
+  margin: 0 0 0.6rem;
+  text-transform: uppercase;
+}
+
+.access-card h1 {
+  font-size: clamp(1.45rem, 5vw, 2rem);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.access-copy {
+  color: var(--text-muted);
+  margin: 0.9rem auto 1.7rem;
+  max-width: 350px;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.form-label {
+  color: var(--text-muted);
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.45rem;
+  text-transform: uppercase;
+}
+
+.form-input {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font: inherit;
+  min-height: 48px;
+  padding: 0.75rem 0.9rem;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+  width: 100%;
+}
+
+.form-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(242, 94, 55, 0.16);
+  outline: none;
+}
+
+.form-input[readonly] {
+  background: #f0ece6;
+  color: var(--text-muted);
+}
+
+.rsvp-status {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin: 0.45rem 0 0;
+  text-align: left;
+}
+
+.form-error {
+  background: #fff0ed;
+  border: 1px solid #efb8ae;
+  color: #9d2c1f;
+  display: none;
+  font-size: 0.85rem;
+  margin-top: 0.65rem;
+  padding: 0.65rem 0.75rem;
+}
+
+.form-error.visible {
+  display: block;
+}
+
+.btn {
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+  justify-content: center;
+  letter-spacing: 0.1em;
+  min-height: 46px;
+  padding: 0.75rem 1.4rem;
+  text-transform: uppercase;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #d84d29;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.btn-secondary:hover {
+  background: #f0ece6;
+}
+
+.btn:focus-visible,
+.attendance-choice:focus-within {
+  outline: 3px solid rgba(242, 94, 55, 0.22);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  cursor: wait;
+  opacity: 0.65;
+  transform: none;
+}
+
+.btn-full {
+  width: 100%;
 }
 
 .page {
@@ -417,6 +594,176 @@ h3 {
   max-width: 760px;
 }
 
+.rsvp-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  box-shadow: 0 18px 50px rgba(67, 55, 42, 0.1);
+  margin: 2rem auto 0;
+  max-width: 680px;
+  padding: clamp(1.25rem, 4vw, 2.25rem);
+  text-align: left;
+}
+
+.rsvp-card p {
+  max-width: none;
+}
+
+.rsvp-deadline,
+.rsvp-welcome,
+.rsvp-submitted-banner,
+.rsvp-closed {
+  border-left: 3px solid var(--accent);
+  margin-bottom: 1.5rem;
+  padding: 0.85rem 1rem;
+}
+
+.rsvp-deadline,
+.rsvp-welcome {
+  background: #f2eee7;
+  color: var(--text-muted);
+}
+
+.rsvp-submitted-banner {
+  background: #edf7f0;
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.rsvp-closed {
+  background: #fff4dc;
+  border-color: #bd8b20;
+}
+
+.guest-row {
+  background: #faf7f2;
+  border: 1px solid var(--border);
+  margin: 0 0 1rem;
+  padding: 1.15rem;
+}
+
+.guest-row.has-error {
+  border-color: #b44031;
+  box-shadow: 0 0 0 2px rgba(180, 64, 49, 0.12);
+}
+
+.guest-row-header {
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.9rem;
+  padding: 0 0.25rem;
+  text-transform: uppercase;
+}
+
+.attendance-group {
+  border: 0;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+.attendance-options,
+.party-attendance-options {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.party-attendance-options {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 1.5rem;
+}
+
+.attendance-choice {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  display: flex;
+  font-size: 0.88rem;
+  font-weight: 700;
+  gap: 0.6rem;
+  min-height: 48px;
+  padding: 0.65rem 0.75rem;
+}
+
+.attendance-choice:has(input:checked) {
+  background: #fff2ed;
+  border-color: var(--accent);
+}
+
+.attendance-choice input {
+  accent-color: var(--accent);
+  flex: 0 0 auto;
+  height: 1.15rem;
+  width: 1.15rem;
+}
+
+.guest-dietary {
+  margin-top: 1rem;
+}
+
+.rsvp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.rsvp-actions .btn {
+  flex: 1 1 180px;
+}
+
+.review-list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+}
+
+.review-item {
+  background: #faf7f2;
+  border: 1px solid var(--border);
+  padding: 1rem;
+}
+
+.review-item strong {
+  color: var(--accent);
+}
+
+.review-item p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0.25rem 0 0;
+}
+
+.rsvp-success {
+  padding: 1rem 0;
+  text-align: center;
+}
+
+.rsvp-success-icon {
+  font-size: 2.5rem;
+}
+
+.rsvp-success h3 {
+  color: var(--accent);
+  margin: 0.5rem 0;
+}
+
+.rsvp-help {
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-top: 1.75rem !important;
+  padding-top: 1.25rem;
+  text-align: center;
+}
+
+.rsvp-help a {
+  color: inherit;
+  font-weight: 700;
+}
+
 .floral-footer {
   max-width: none;
   padding: 2rem 0 0;
@@ -600,6 +947,11 @@ h3 {
 
   .side-tree-right {
     right: 0.35rem;
+  }
+
+  .party-attendance-options,
+  .attendance-options {
+    grid-template-columns: 1fr;
   }
 
   /* No room to flank the list on a phone, so the accents move into a band

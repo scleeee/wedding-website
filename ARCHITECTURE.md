@@ -2,8 +2,16 @@
 
 ## Request path
 
-The frontend is static HTML/CSS/JavaScript. It sends lookup and submission JSON
-only to the public Supabase Edge Function at `/functions/v1/rsvp`.
+The frontend is static HTML/CSS/JavaScript. The invitation content starts hidden
+behind a full-page code prompt. That prompt validates the guest's existing RSVP
+code through the public Supabase Edge Function at `/functions/v1/rsvp`; a valid
+lookup unlocks the page and preloads the matching party's RSVP form. The browser
+sends lookup and submission JSON only to that Function.
+
+Because the host serves static files, this is a server-validated user-interface
+gate rather than server-level protection for the HTML and image assets. Enforcing
+access to the files themselves would require a host with authenticated middleware
+or another server-side request boundary.
 
 The Edge Function:
 
