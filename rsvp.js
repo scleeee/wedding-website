@@ -235,23 +235,22 @@
 
       const legend = document.createElement('legend');
       legend.className = 'guest-row-header';
-      legend.textContent = guest.expected_name || `Reserved seat ${index + 1}`;
+      legend.textContent = `Reserved seat ${index + 1}`;
 
       const nameGroup = document.createElement('div');
       nameGroup.className = 'form-group';
       const nameLabel = document.createElement('label');
       nameLabel.className = 'form-label';
       nameLabel.htmlFor = `guest-name-${guest.seat_number}`;
-      nameLabel.textContent = guest.name_editable ? 'Guest name' : 'Name on invitation';
+      nameLabel.textContent = 'Guest name';
       const nameInput = document.createElement('input');
       nameInput.type = 'text';
       nameInput.id = `guest-name-${guest.seat_number}`;
       nameInput.className = 'form-input guest-name';
       nameInput.value = guest.name || '';
-      nameInput.placeholder = guest.name_editable ? 'Partner or guest name' : '';
+      nameInput.placeholder = 'Enter guest name';
       nameInput.maxLength = 200;
       nameInput.autocomplete = 'name';
-      nameInput.readOnly = !guest.name_editable;
       nameGroup.append(nameLabel, nameInput);
 
       const attendance = document.createElement('fieldset');
@@ -342,8 +341,17 @@
   }
 
   function collectResponses() {
+    const allowedSeats = state.invitation && state.invitation.reserved_seats;
+    const cards = guestCards();
+    if (!Number.isInteger(allowedSeats)
+      || cards.length !== allowedSeats
+      || cards.length > allowedSeats) {
+      showError(elements.formError, 'The reserved guest slots changed unexpectedly. Please re-enter your invitation code.');
+      return null;
+    }
+
     let firstInvalid = null;
-    const responses = guestCards().map((card) => {
+    const responses = cards.map((card) => {
       card.classList.remove('has-error');
       const selected = card.querySelector('input[type="radio"]:checked');
       const nameInput = card.querySelector('.guest-name');
@@ -364,6 +372,14 @@
       };
     });
 
+    const seatNumbers = responses.map((response) => response.seat_number);
+    const seatsAreExact = seatNumbers.every((seatNumber, index) => seatNumber === index + 1)
+      && new Set(seatNumbers).size === allowedSeats;
+    if (responses.length !== allowedSeats || responses.length > allowedSeats || !seatsAreExact) {
+      showError(elements.formError, 'The reserved guest slots changed unexpectedly. Please re-enter your invitation code.');
+      return null;
+    }
+
     if (firstInvalid) {
       showError(elements.formError, 'Please choose attending or not attending for every seat, and add a name for each attending guest.');
       firstInvalid.focus();
@@ -379,14 +395,14 @@
     if (!responses) return;
 
     state.pendingResponses = responses;
-    elements.reviewHeading.textContent = `Review the response for the ${state.invitation.party_label}.`;
+    elements.reviewHeading.textContent = 'Review your party’s response.';
     elements.reviewList.replaceChildren();
 
     responses.forEach((response, index) => {
       const item = document.createElement('div');
       item.className = 'review-item';
       const name = document.createElement('strong');
-      name.textContent = response.name || state.invitation.guests[index].expected_name || `Reserved seat ${index + 1}`;
+      name.textContent = response.name || `Reserved seat ${index + 1}`;
       const attendance = document.createElement('p');
       attendance.textContent = response.attending ? 'Attending' : 'Not attending';
       item.append(name, attendance);
@@ -462,7 +478,18 @@
         elements.codeInput.focus();
         return;
       }
-      if (!Array.isArray(invitation.guests) || invitation.guests.length !== invitation.reserved_seats) {
+      const validSeats = invitation
+        && Number.isInteger(invitation.reserved_seats)
+        && invitation.reserved_seats >= 1
+        && invitation.reserved_seats <= 50
+        && Array.isArray(invitation.guests)
+        && invitation.guests.length === invitation.reserved_seats
+        && invitation.guests.every((guest, index) => (
+          guest
+          && Number.isInteger(guest.seat_number)
+          && guest.seat_number === index + 1
+        ));
+      if (!validSeats) {
         throw new RsvpApiError('Invitation seats are incomplete.', 'DATA');
       }
       state.code = code;
