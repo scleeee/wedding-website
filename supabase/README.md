@@ -2,13 +2,16 @@
 
 The static site calls one public Supabase Edge Function at
 `/functions/v1/rsvp`. That function validates the request, applies atomic
-per-IP limits in Upstash Redis, and only then calls `lookup_rsvp` or
-`submit_rsvp` with a server-side Supabase credential. Browser roles cannot
-execute either RPC or access `invites` and `guests` directly.
+per-IP limits through protected Postgres RPCs, normalizes and SHA-256 digests the access code,
+and only then calls `lookup_rsvp` or `submit_rsvp` with a server-side Supabase
+credential. Browser roles cannot execute either RPC or access `invites`,
+`guests`, or the `rsvp_submissions` admin view directly. Plaintext access codes
+never reach or live in the database.
 
 The function is intentionally public (`verify_jwt = false` in `config.toml`),
-so its Redis checks are part of the security boundary. It fails closed: if the
-rate-limit store is unavailable, it returns 503 without calling an RSVP RPC.
+so its database rate-limit checks are part of the security boundary. It fails
+closed: if a rate-limit reservation fails, it returns 503 without calling a
+lookup or submission RPC.
 It accepts only JSON requests up to 256 KiB, which accommodates the database's
 maximum 50-seat RSVP payload while still bounding request memory use.
 
@@ -28,32 +31,13 @@ maximum 50-seat RSVP payload while still bounding request memory use.
 
 The IP comes only from the Supabase edge gateway's `x-forwarded-for` header,
 following Supabase's Edge Function examples. An IP in the request body or query
-string is never accepted. The IP is salted and hashed before it is used in a
-Redis key.
+string is never accepted. The IP is salted with the hosted server credential
+and hashed before it is used in a protected database bucket.
 
-## Required secrets
+## Credentials
 
-Create an Upstash Global Redis database and obtain its REST credentials. Set
-these three Supabase Edge Function secrets:
-
-- `UPSTASH_REDIS_REST_URL`
-- `UPSTASH_REDIS_REST_TOKEN`
-- `RSVP_RATE_LIMIT_SALT`: an independent, high-entropy random value (at least
-  32 random bytes)
-
-For local work, put placeholders or development values in an ignored file such
-as `.env.rsvp.local`:
-
-```dotenv
-UPSTASH_REDIS_REST_URL=https://example.upstash.io
-UPSTASH_REDIS_REST_TOKEN=replace-with-upstash-rest-token
-RSVP_RATE_LIMIT_SALT=replace-with-a-long-random-value
-```
-
-Never commit that file. The repository's `.gitignore` ignores
-`.env.*.local`.
-
-Hosted Supabase Edge Functions automatically receive `SUPABASE_URL` and a
+No custom third-party rate-limit secret is required. Hosted Supabase Edge
+Functions automatically receive `SUPABASE_URL` and a
 server credential (`SUPABASE_SERVICE_ROLE_KEY`, with
 `SUPABASE_SECRET_KEYS` supported as the current-key fallback). Do not copy a
 service-role or secret key into `rsvp-config.js`, an `.env` file committed to
@@ -61,7 +45,6 @@ Git, a browser header, or a response.
 
 Supabase references:
 
-- [Rate limiting Edge Functions with Upstash Redis](https://supabase.com/docs/guides/functions/examples/rate-limiting)
 - [Public function and authorization configuration](https://supabase.com/docs/guides/functions/auth)
 - [Per-function `verify_jwt` configuration](https://supabase.com/docs/guides/functions/function-configuration)
 - [Edge Function environment variables and production secrets](https://supabase.com/docs/guides/functions/secrets)
@@ -75,14 +58,15 @@ Install the current Supabase CLI and Docker, then run:
 ```sh
 supabase start
 supabase db reset
-supabase functions serve rsvp --env-file .env.rsvp.local
+supabase functions serve rsvp
 ```
 
 The checked-in `config.toml` disables JWT verification for `rsvp`; the CLI's
 `--no-verify-jwt` flag is therefore not needed. Use only synthetic local invite
 data for testing. Do not copy the production guest list into the repository.
 
-Example request shape:
+Example browser-to-Function request shape (the Function sends only a digest to
+Postgres):
 
 ```json
 { "action": "lookup", "code": "EXAMPLE" }
@@ -105,24 +89,51 @@ Submission requests use this shape:
 }
 ```
 
+## Import guest groups
+
+The private `.cache/guestlist_csv.csv` file is gitignored. Column 1 is used only
+to calculate the number of unique names per group; column 2 is the access code.
+No CSV name or plaintext code is written to the generated migration.
+
+Regenerate the digest-only seed whenever the private guest list changes:
+
+```sh
+python3 supabase/scripts/generate_guest_group_seed.py \
+  --input .cache/guestlist_csv.csv \
+  --output supabase/migrations/YYYYMMDDHHMMSS_guest_group_seed.sql
+```
+
+Name uniqueness is deterministic: Unicode NFKC normalization, collapsed
+whitespace, and case folding are applied before counting. Codes are normalized
+to uppercase ASCII letters/digits after separators are removed. The generator
+fails on empty values, normalized-code collisions, or groups outside the
+database's 1–50 slot limit.
+
+The seed treats the private CSV as authoritative: groups absent from the import
+are deleted with their RSVP slots. For imported groups it creates missing slots
+and removes slots above the allowance, so review/back up existing RSVP data
+before deploying a changed guest-list count.
+
 ## Production deployment (not performed by this change)
 
-Coordinate the database, Function, and static-site rollout closely because the
-permission migration intentionally breaks the old direct-browser RPC path.
+Coordinate the database and Function rollout in a short maintenance window.
+The RPC argument changes from plaintext code to code digest, so the old and new
+Function/database versions are intentionally incompatible with each other.
 
 ```sh
 supabase login
 supabase link --project-ref ehyoweasqwahqpdzftgt
-supabase secrets set --env-file .env.rsvp.local
-supabase functions deploy rsvp
 supabase db push
+supabase functions deploy rsvp
 ```
 
-Then publish the updated static files (`rsvp-config.js` and `rsvp.js`). The
-Function can be deployed before the migration, but it will not successfully
-call the RPCs until `service_role` receives the new explicit grants. After the
-migration, old browser clients can no longer call the RPCs, so publish the
-static update immediately.
+Deploy the Function immediately after `db push`, then publish the updated static
+files (`rsvp-config.js` and `rsvp.js`). The browser request format is unchanged,
+so an already-open page works once the new Function is live. Verify a backup
+before `db push`; the migration deliberately removes stored plaintext codes and
+clears legacy response names that were derived from `expected_name`; the seed
+may also remove slots above a group's imported allowance. Existing attendance
+and dietary responses within the allowance are preserved.
 
 Do not use `--no-verify-jwt` as an ad hoc deployment-only setting; the public
 configuration is checked into `supabase/config.toml` so environments remain
@@ -154,58 +165,26 @@ using the publishable key are rejected, while `/functions/v1/rsvp` returns the
 generic response for a synthetic invalid code. Be aware that an invalid live
 test consumes a failure slot for the tester's IP.
 
-## Credential rotation
-
-To rotate Upstash credentials, create/rotate the REST token in Upstash, update
-`UPSTASH_REDIS_REST_URL` and/or `UPSTASH_REDIS_REST_TOKEN` with
-`supabase secrets set`, verify the Function, and revoke the old token. Supabase
-makes updated Function secrets available without a redeploy.
-
-Rotate `RSVP_RATE_LIMIT_SALT` with the same command if it may have been exposed.
-Changing it starts a new set of hashed-IP keys, so existing counters are reset;
-the old keys expire automatically within one hour. Rotate during a low-risk
-window and monitor Function/Upstash errors.
-
 ## Friendly code limitations
 
-A memorable RSVP code is a guessable identifier, not a strong secret. Rate
-limiting makes enumeration materially harder but cannot stop distributed
-attacks across many IPs, and shared networks can cause guests to share a limit.
+A memorable RSVP code is a guessable shared credential, not a strong secret.
+Digesting prevents routine plaintext exposure in Supabase but does not add
+entropy to the original code. Rate limiting makes online enumeration materially
+harder but cannot stop distributed attacks across many IPs, and shared networks
+can cause guests to share a limit.
 For stronger protection, require a server-validated CAPTCHA such as Cloudflare
 Turnstile after several failures and/or print a separate high-entropy invitation
 secret in addition to the friendly code. Supabase provides an official
 [Turnstile Edge Function example](https://supabase.com/docs/guides/functions/examples/cloudflare-turnstile).
 
-## Invitation data administration
+## RSVP data administration
 
-`invites` contains one row per physical invitation. `guests` contains one row
-per reserved seat. Create invitations only as an administrator. Store friendly
-codes uppercase and without spaces or hyphens; guests may type separators,
-which the RPC removes before comparison.
+`invites.id` is the opaque guest-group identifier. `guests.invite_id` associates
+each submitted row with that group; `name`, `attending`,
+`dietary_requirements`, and `submitted_at` are the guest-entered values. The
+Supabase dashboard can use `public.rsvp_submissions` for a concise one-row-per-
+submitted-guest view. It intentionally contains no access-code digest.
 
-```sql
-begin;
-
-with new_invite as (
-  insert into public.invites (code, party_name, num_seats, rsvp_deadline)
-  values (upper('<FRIENDLY_CODE>'), '<PARTY LABEL>', 2, null)
-  returning id, code
-), new_seats as (
-  insert into public.guests (invite_id, seat_number, expected_name)
-  select new_invite.id, seat.seat_number, seat.expected_name
-  from new_invite
-  cross join (
-    values
-      (1, '<KNOWN GUEST NAME>'::text),
-      (2, null::text)
-  ) as seat(seat_number, expected_name)
-  returning invite_id
-)
-select code as code_to_print_on_invitation from new_invite;
-
-commit;
-```
-
-For an unnamed partner/guest seat, use `null` for `expected_name`. Never prefill
-the response-only `name`, `attending`, or `dietary_requirements` columns. Keep
-all guest-list exports and the ignored `.cache` directory out of Git.
+The deprecated `expected_name` and `party_name` planning fields are removed.
+Submissions always store only the visitor-entered values. Keep all guest-list
+exports and the ignored `.cache` directory out of Git.

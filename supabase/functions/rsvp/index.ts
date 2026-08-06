@@ -1,4 +1,3 @@
-import { Redis } from 'npm:@upstash/redis@^1'
 import { createClient } from 'npm:@supabase/supabase-js@^2'
 
 // Allows the database's maximum 50-seat RSVP payload, including UTF-8
@@ -31,34 +30,6 @@ const responseHeaders = {
   Pragma: 'no-cache',
   'X-Content-Type-Options': 'nosniff',
 }
-
-// Atomic sliding-window reservation. Each request is a unique sorted-set
-// member; expired attempts are removed before the limit is checked.
-const reserveScript = `
-local now_ms = tonumber(ARGV[1])
-local window_ms = tonumber(ARGV[2])
-local limit = tonumber(ARGV[3])
-local member = ARGV[4]
-
-redis.call('ZREMRANGEBYSCORE', KEYS[1], '-inf', now_ms - window_ms)
-local current = redis.call('ZCARD', KEYS[1])
-if current >= limit then
-  local oldest = redis.call('ZRANGE', KEYS[1], 0, 0, 'WITHSCORES')
-  local retry_after = math.ceil((tonumber(oldest[2]) + window_ms - now_ms) / 1000)
-  if retry_after < 1 then retry_after = 1 end
-  return {0, current, retry_after}
-end
-
-redis.call('ZADD', KEYS[1], now_ms, member)
-redis.call('PEXPIRE', KEYS[1], window_ms)
-return {1, current + 1, math.ceil(window_ms / 1000)}
-`
-
-// Successful lookups release the failure reservation they acquired before the
-// RPC. Invalid codes retain it, giving a strict atomic failed-attempt limit.
-const releaseScript = `
-return redis.call('ZREM', KEYS[1], ARGV[1])
-`
 
 type JsonRecord = Record<string, unknown>
 
@@ -111,19 +82,13 @@ function supabaseServerKey(): string {
   throw new Error('Missing Supabase server credential')
 }
 
-const redis = new Redis({
-  url: requiredEnv('UPSTASH_REDIS_REST_URL'),
-  token: requiredEnv('UPSTASH_REDIS_REST_TOKEN'),
-})
-
-const supabase = createClient(requiredEnv('SUPABASE_URL'), supabaseServerKey(), {
+const serverKey = supabaseServerKey()
+const supabase = createClient(requiredEnv('SUPABASE_URL'), serverKey, {
   auth: {
     autoRefreshToken: false,
     persistSession: false,
   },
 })
-
-const rateLimitSalt = requiredEnv('RSVP_RATE_LIMIT_SALT')
 
 function jsonResponse(body: unknown, status = 200, extraHeaders: HeadersInit = {}): Response {
   return new Response(JSON.stringify(body), {
@@ -170,7 +135,26 @@ function hasOnlyKeys(value: JsonRecord, allowedKeys: string[]): boolean {
 
 function validCode(value: unknown): value is string {
   return typeof value === 'string'
+    && value.length >= 1
     && value.length <= MAX_CODE_LENGTH
+    && normalizeCode(value) !== null
+}
+
+function normalizeCode(value: string): string | null {
+  const normalized = value.replace(/[^A-Za-z0-9]/g, '').toUpperCase()
+  return normalized.length >= 1 && normalized.length <= MAX_CODE_LENGTH
+    ? normalized
+    : null
+}
+
+async function codeDigest(code: string): Promise<string> {
+  const normalized = normalizeCode(code)
+  if (!normalized) throw new Error('Invalid normalized RSVP code')
+
+  const digest = new Uint8Array(
+    await crypto.subtle.digest('SHA-256', new TextEncoder().encode(normalized)),
+  )
+  return Array.from(digest, (byte) => byte.toString(16).padStart(2, '0')).join('')
 }
 
 function validResponse(value: unknown): value is RsvpResponse {
@@ -262,32 +246,40 @@ function clientIp(req: Request): string {
 }
 
 async function ipIdentifier(req: Request): Promise<string> {
-  const input = new TextEncoder().encode(`${rateLimitSalt}:${clientIp(req)}`)
+  // The hosted server credential is already secret and available only to this
+  // Function, so it safely salts identifiers without another deploy secret.
+  const input = new TextEncoder().encode(`${serverKey}:${clientIp(req)}`)
   const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', input))
   return Array.from(digest, (byte) => byte.toString(16).padStart(2, '0')).join('')
 }
 
 async function reserve(key: string, limit: number, windowSeconds: number): Promise<Reservation> {
   const token = crypto.randomUUID()
-  const result = await redis.eval(
-    reserveScript,
-    [key],
-    [String(Date.now()), String(windowSeconds * 1000), String(limit), token],
-  )
-
-  if (!Array.isArray(result) || result.length !== 3) {
+  const { data, error } = await supabase.rpc('reserve_rsvp_rate_limit', {
+    p_bucket: key,
+    p_limit: limit,
+    p_window_seconds: windowSeconds,
+    p_member: token,
+  })
+  if (error || !isRecord(data)
+    || typeof data.allowed !== 'boolean'
+    || typeof data.retry_after_seconds !== 'number') {
     throw new Error('Unexpected rate-limit response')
   }
 
   return {
-    allowed: Number(result[0]) === 1,
-    retryAfterSeconds: Math.max(1, Number(result[2]) || windowSeconds),
+    allowed: data.allowed,
+    retryAfterSeconds: Math.max(1, data.retry_after_seconds || windowSeconds),
     token,
   }
 }
 
 async function release(key: string, token: string): Promise<void> {
-  await redis.eval(releaseScript, [key], [token])
+  const { error } = await supabase.rpc('release_rsvp_rate_limit', {
+    p_bucket: key,
+    p_member: token,
+  })
+  if (error) throw new Error('Could not release rate-limit reservation')
 }
 
 async function lookup(request: LookupRequest, identifier: string): Promise<Response> {
@@ -302,7 +294,12 @@ async function lookup(request: LookupRequest, identifier: string): Promise<Respo
   const failed = await reserve(failedKey, LOOKUP_FAILED_LIMIT, LOOKUP_FAILED_WINDOW_SECONDS)
   if (!failed.allowed) return rateLimited(failed.retryAfterSeconds)
 
-  const { data, error } = await supabase.rpc('lookup_rsvp', { p_code: request.code })
+  // The friendly code is normalized and irreversibly digested at the Edge.
+  // Plaintext codes never reach or live in the database.
+  const digest = await codeDigest(request.code)
+  const { data, error } = await supabase.rpc('lookup_rsvp', {
+    p_code_digest: digest,
+  })
 
   if (error) {
     await release(failedKey, failed.token)
@@ -328,8 +325,9 @@ async function submit(request: SubmitRequest, identifier: string): Promise<Respo
   )
   if (!submission.allowed) return rateLimited(submission.retryAfterSeconds)
 
+  const digest = await codeDigest(request.code)
   const { data, error } = await supabase.rpc('submit_rsvp', {
-    p_code: request.code,
+    p_code_digest: digest,
     p_responses: request.responses,
   })
 
@@ -377,7 +375,7 @@ Deno.serve(async (req: Request) => {
       ? await lookup(request, identifier)
       : await submit(request, identifier)
   } catch (error) {
-    // Redis errors fail closed: no lookup or submit RPC is attempted without a
+    // Rate-limit errors fail closed: no lookup or submit RPC is attempted without a
     // successful rate-limit reservation. Never log the code, responses, or IP.
     console.error('RSVP protection failed', error instanceof Error ? error.name : 'unknown')
     return serviceUnavailable()

@@ -19,28 +19,42 @@ The Edge Function:
 
 1. validates method, content type, body size, action, code, and response fields;
 2. derives the source IP from the Supabase gateway's `x-forwarded-for` header;
-3. atomically reserves the applicable Upstash Redis rate limits;
-4. calls `public.lookup_rsvp` or `public.submit_rsvp` with a server credential;
-5. returns no-store JSON without exposing any server or Redis credential.
+3. atomically reserves the applicable limits through protected Postgres RPCs;
+4. normalizes and SHA-256 digests the friendly code so plaintext codes never
+   reach the database;
+5. calls `public.lookup_rsvp` or `public.submit_rsvp` with a server credential;
+6. returns no-store JSON without exposing any server credential.
 
 The browser does not call Supabase's Data API and does not carry a publishable,
 secret, or service-role key. The Function is public by design and its custom
-abuse controls fail closed if Redis is unavailable.
+abuse controls fail closed if the protected database rate limiter is unavailable.
 
 ## Database boundary
 
-- `public.invites`: one row per household or party.
-- `public.guests`: one row per reserved seat.
+- `public.invites`: one row per household or party, addressed by a code digest
+  and opaque UUID. Plaintext codes are not stored.
+- `public.guests`: one row per reserved seat, associated through `invite_id`.
+  Submitted name, attendance, diet, and per-row submission time live here.
+- `public.rsvp_submissions`: a protected admin view with one row per submitted
+  guest slot and no access-code field.
+- `public.rsvp_rate_limit_events`: short-lived, salted-IP rate-limit reservations
+  accessible only through server-role RPCs.
 - RLS is enabled and `anon`/`authenticated` have no direct table privileges.
 - `anon`, `authenticated`, and `PUBLIC` cannot execute either RSVP RPC.
 - `service_role` alone receives explicit `EXECUTE` grants for the two RPCs.
 - Both RPCs are `SECURITY DEFINER` with an empty `search_path` and fully
   qualified object references.
 
-The friendly RSVP code selects one invitation, but it is intentionally treated
-as guessable. The protection boundary is the Edge Function plus rate limiter;
-stronger assurance requires CAPTCHA and/or a second high-entropy invitation
-secret.
+The ignored guest-list CSV is processed only by the local seed generator. It
+normalizes names with NFKC, collapsed whitespace, and case folding, counts each
+normalized name once per normalized code, and emits only code digests plus slot
+counts. Guest-list names are neither migrated nor returned by the API. A group
+can retrieve only the RSVP values it previously submitted using the same code.
+
+The friendly RSVP code remains a guessable shared credential even though the
+database stores only its digest. The protection boundary is the Edge Function
+plus rate limiter; stronger assurance requires CAPTCHA and/or a second
+high-entropy invitation secret.
 
 Production schema changes live in `supabase/migrations/`. Edge Function code
 and its public configuration live in `supabase/functions/rsvp/` and
