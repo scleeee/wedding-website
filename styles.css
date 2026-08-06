@@ -915,6 +915,11 @@ h3 {
   margin-bottom: 0.75rem;
 }
 
+.secondary-sponsor-pair .entourage-pair {
+  align-items: center;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .role-label {
   font-size: 0.95rem;
   font-style: italic;
@@ -923,11 +928,15 @@ h3 {
 
 .name-list {
   letter-spacing: 0.06em;
-  line-height: 1.9;
+  line-height: 1.55;
   list-style: none;
   margin: 0;
   padding: 0;
   text-transform: uppercase;
+}
+
+.name-list li {
+  overflow-wrap: anywhere;
 }
 
 /* Full-bleed so the flower branches can dock to the page edges; the grid
@@ -1235,7 +1244,7 @@ h3 {
 
 @media (max-width: 720px) {
   .section {
-    padding: 3.2rem 1rem;
+    padding: 2.9rem 0.9rem;
   }
 
   .parents,
@@ -1274,12 +1283,23 @@ h3 {
   }
 
   .top-nav {
-    gap: 0.5rem 1.4rem;
-    padding-block: 0.75rem;
+    flex-wrap: nowrap;
+    gap: 0.65rem;
+    justify-content: flex-start;
+    letter-spacing: 0.055em;
+    overflow-x: auto;
+    padding: 0.72rem 0.65rem;
+    scrollbar-width: none;
+    white-space: nowrap;
+  }
+
+  .top-nav::-webkit-scrollbar {
+    display: none;
   }
 
   .top-nav a {
-    font-size: 0.67rem;
+    flex: 0 0 auto;
+    font-size: 0.64rem;
   }
 
   /* Cropped to a slim full-height column so the pillars frame the copy
@@ -1371,6 +1391,12 @@ h3 {
     row-gap: 2.2rem;
   }
 
+  .secondary-sponsor-pair .entourage-pair {
+    column-gap: 0.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 0;
+  }
+
   /* The sponsors' two columns share one label, so stacked they should
      read as a single uninterrupted list. */
   .entourage-block > .entourage-pair {
@@ -1388,6 +1414,21 @@ h3 {
   .role-label,
   .name-list {
     font-size: 0.95em;
+  }
+
+  .name-list {
+    letter-spacing: 0.045em;
+    line-height: 1.45;
+  }
+
+  .rsvp-card {
+    padding-inline: 1rem;
+  }
+
+  .form-input,
+  .attendance-choice,
+  .rsvp-actions .btn {
+    min-width: 0;
   }
 
   .entourage .side-tree {
