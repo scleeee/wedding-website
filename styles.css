@@ -25,7 +25,7 @@ body {
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 2rem;
+  scroll-padding-top: 4.5rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -615,15 +615,20 @@ body.envelope-holding .hero > :not(.pillar) {
 
 .top-nav {
   align-items: center;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem 3.25rem;
   justify-content: center;
   letter-spacing: 0.1em;
-  margin: 2rem auto 0;
-  max-width: var(--max-width);
-  padding: 0 1.25rem;
+  margin: 0;
+  padding: 0.9rem 1.25rem;
+  position: sticky;
+  top: 0;
   text-transform: uppercase;
+  width: 100%;
+  z-index: 20;
 }
 
 .top-nav a {
@@ -817,6 +822,24 @@ h3 {
   letter-spacing: 0.05em;
 }
 
+/* Keep the information-heavy portions of the invitation comfortably legible.
+   This applies from the Timeline through the RSVP section. */
+.timeline,
+.entourage,
+.attire,
+.gifts,
+.rsvp {
+  font-size: 1.14rem;
+}
+
+.timeline h3,
+.entourage h3,
+.attire h3,
+.gifts h3,
+.rsvp > h3 {
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+}
+
 .accent-left {
   bottom: 0.5rem;
   left: 0.45rem;
@@ -877,6 +900,19 @@ h3 {
 .entourage-roles-three {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   max-width: 620px;
+}
+
+.secondary-sponsors {
+  max-width: 680px;
+}
+
+.secondary-sponsor-list {
+  display: grid;
+  gap: 2.5rem;
+}
+
+.secondary-sponsor-pair .role-label {
+  margin-bottom: 0.75rem;
 }
 
 .role-label {
@@ -945,6 +981,7 @@ h3 {
 }
 
 .attire-card p {
+  font-size: 1em;
   letter-spacing: 0.05em;
   margin: 0;
   text-transform: uppercase;
@@ -998,6 +1035,18 @@ h3 {
   max-width: none;
 }
 
+.rsvp .form-label {
+  font-size: 0.82em;
+}
+
+.rsvp .btn {
+  font-size: 0.8em;
+}
+
+.rsvp .form-error {
+  font-size: 0.9em;
+}
+
 .rsvp-welcome,
 .rsvp-submitted-banner,
 .rsvp-closed {
@@ -1036,7 +1085,7 @@ h3 {
 
 .guest-row-header {
   color: var(--accent);
-  font-size: 0.75rem;
+  font-size: 0.84em;
   font-weight: 700;
   letter-spacing: 0.1em;
   margin-bottom: 0.9rem;
@@ -1068,7 +1117,7 @@ h3 {
   border: 1px solid var(--border);
   cursor: pointer;
   display: flex;
-  font-size: 0.88rem;
+  font-size: 0.95em;
   font-weight: 700;
   gap: 0.6rem;
   min-height: 48px;
@@ -1120,7 +1169,7 @@ h3 {
 
 .review-item p {
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 0.96em;
   margin: 0.25rem 0 0;
 }
 
@@ -1141,7 +1190,7 @@ h3 {
 .rsvp-help {
   border-top: 1px solid var(--border);
   color: var(--text-muted);
-  font-size: 0.88rem;
+  font-size: 0.96em;
   margin-top: 1.75rem !important;
   padding-top: 1.25rem;
   text-align: center;
@@ -1220,13 +1269,13 @@ h3 {
 
   .timeline-list li {
     column-gap: 0.85rem;
-    font-size: 0.85rem;
+    font-size: 0.95em;
     grid-template-columns: 3.9rem 9px auto;
   }
 
   .top-nav {
     gap: 0.5rem 1.4rem;
-    margin-top: 1.3rem;
+    padding-block: 0.75rem;
   }
 
   .top-nav a {
@@ -1338,7 +1387,7 @@ h3 {
   .entourage-intro,
   .role-label,
   .name-list {
-    font-size: 0.85rem;
+    font-size: 0.95em;
   }
 
   .entourage .side-tree {
