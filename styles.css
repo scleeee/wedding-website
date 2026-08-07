@@ -370,10 +370,43 @@ body.envelope-active {
   z-index: 1;
 }
 
-.env-letter-card img {
+.env-letter-brand {
+  position: relative;
+  width: 100%;
+}
+
+.env-letter-logo {
   display: block;
   height: auto;
+  margin-inline: auto;
   max-width: 78%;
+  position: relative;
+  width: 100%;
+  z-index: 2;
+}
+
+.env-letter-scene {
+  aspect-ratio: 2 / 1;
+  left: 50%;
+  mask-image: linear-gradient(to bottom, #000 0%, #000 82%, transparent 100%);
+  opacity: 0.96;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  top: 100%;
+  transform: translateX(-50%);
+  transform-origin: top center;
+  transition: opacity 0.4s ease, transform 0.45s ease;
+  width: min(100%, 520px);
+  will-change: opacity;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 82%, transparent 100%);
+  z-index: 1;
+}
+
+.env-letter-scene img {
+  display: block;
+  height: auto;
+  transform: translateY(-10%);
   width: 100%;
 }
 
@@ -392,7 +425,9 @@ body.envelope-active {
   font-size: clamp(0.55rem, 1.6vw, 0.78rem);
   letter-spacing: 0.22em;
   margin: 0.4rem 0 0;
+  position: relative;
   text-transform: uppercase;
+  z-index: 2;
 }
 
 .env-expanded-only,
@@ -434,7 +469,7 @@ body.envelope-active {
   display: block;
 }
 
-.env-letter-card.expanded img {
+.env-letter-card.expanded .env-letter-logo {
   margin: 0 auto;
   max-width: none;
   width: 100%;
@@ -446,6 +481,13 @@ body.envelope-active {
 
 .env-letter-card.expanded .env-expanded-details {
   display: block;
+  position: relative;
+  z-index: 2;
+}
+
+.env-overlay.fade-out .env-letter-scene {
+  opacity: 0;
+  transform: translateX(-50%) translateY(1rem) scale(0.985);
 }
 
 .env-expanded-invitation {
@@ -568,7 +610,8 @@ body.envelope-holding .hero > :not(.pillar) {
   .env-backdrop,
   .env-body-wrap,
   .env-flap-wrap,
-  .env-letter-card {
+  .env-letter-card,
+  .env-letter-scene {
     transition-duration: 0.16s !important;
   }
 
@@ -592,14 +635,13 @@ body.envelope-holding .hero > :not(.pillar) {
 
 .page::before {
   background: url("assets/Sunset.png") center 32% / cover no-repeat;
+  bottom: 0;
   content: "";
-  height: clamp(760px, 115vh, 1100px);
-  height: clamp(760px, 115svh, 1100px);
   left: 0;
   mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.92) 42%, transparent 100%);
   opacity: 0.48;
   pointer-events: none;
-  position: absolute;
+  position: fixed;
   right: 0;
   top: 0;
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.92) 42%, transparent 100%);
@@ -822,24 +864,6 @@ h3 {
   letter-spacing: 0.05em;
 }
 
-/* Keep the information-heavy portions of the invitation comfortably legible.
-   This applies from the Timeline through the RSVP section. */
-.timeline,
-.entourage,
-.attire,
-.gifts,
-.rsvp {
-  font-size: 1.14rem;
-}
-
-.timeline h3,
-.entourage h3,
-.attire h3,
-.gifts h3,
-.rsvp > h3 {
-  font-size: clamp(1.6rem, 4vw, 2.2rem);
-}
-
 .accent-left {
   bottom: 0.5rem;
   left: 0.45rem;
@@ -990,7 +1014,6 @@ h3 {
 }
 
 .attire-card p {
-  font-size: 1em;
   letter-spacing: 0.05em;
   margin: 0;
   text-transform: uppercase;
@@ -1044,18 +1067,6 @@ h3 {
   max-width: none;
 }
 
-.rsvp .form-label {
-  font-size: 0.82em;
-}
-
-.rsvp .btn {
-  font-size: 0.8em;
-}
-
-.rsvp .form-error {
-  font-size: 0.9em;
-}
-
 .rsvp-welcome,
 .rsvp-submitted-banner,
 .rsvp-closed {
@@ -1094,7 +1105,7 @@ h3 {
 
 .guest-row-header {
   color: var(--accent);
-  font-size: 0.84em;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   margin-bottom: 0.9rem;
@@ -1126,7 +1137,7 @@ h3 {
   border: 1px solid var(--border);
   cursor: pointer;
   display: flex;
-  font-size: 0.95em;
+  font-size: 0.88rem;
   font-weight: 700;
   gap: 0.6rem;
   min-height: 48px;
@@ -1178,7 +1189,7 @@ h3 {
 
 .review-item p {
   color: var(--text-muted);
-  font-size: 0.96em;
+  font-size: 0.9rem;
   margin: 0.25rem 0 0;
 }
 
@@ -1199,7 +1210,7 @@ h3 {
 .rsvp-help {
   border-top: 1px solid var(--border);
   color: var(--text-muted);
-  font-size: 0.96em;
+  font-size: 0.88rem;
   margin-top: 1.75rem !important;
   padding-top: 1.25rem;
   text-align: center;
@@ -1278,7 +1289,7 @@ h3 {
 
   .timeline-list li {
     column-gap: 0.85rem;
-    font-size: 0.95em;
+    font-size: 0.85rem;
     grid-template-columns: 3.9rem 9px auto;
   }
 
@@ -1413,7 +1424,7 @@ h3 {
   .entourage-intro,
   .role-label,
   .name-list {
-    font-size: 0.95em;
+    font-size: 0.85rem;
   }
 
   .name-list {
