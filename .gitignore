@@ -5,6 +5,7 @@ prompt_notes.txt
 index_old.html
 .claude/
 .cache/
+supabase/*_private.sql
 
 # OS files
 .DS_Store

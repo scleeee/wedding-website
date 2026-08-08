@@ -144,16 +144,42 @@ $$;
 """
 
 
+def render_admin_import(counts: dict[str, int], source_name: str) -> str:
+    values = [f"  ('{code}', {count})" for code, count in sorted(counts.items())]
+
+    return f"""-- Generated from {source_name}; keep this file private.
+-- Run after the rsvp_invite_admin migration to make dashboard codes readable.
+-- It contains plaintext invitation codes and must not be committed.
+
+insert into public.rsvp_invite_admin (invite_code, reserved_seats)
+values
+{',\n'.join(values)}
+on conflict (invite_code) do update
+set reserved_seats = excluded.reserved_seats,
+    access_enabled = true;
+"""
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--admin-output",
+        type=Path,
+        help="optional private SQL import for the readable dashboard table",
+    )
     args = parser.parse_args()
 
     counts = load_groups(args.input)
     output = render_seed(counts, args.input.name)
     args.output.write_text(output, encoding="utf-8")
     print(f"wrote {len(counts)} digest-only guest groups to {args.output}")
+
+    if args.admin_output:
+        admin_output = render_admin_import(counts, args.input.name)
+        args.admin_output.write_text(admin_output, encoding="utf-8")
+        print(f"wrote {len(counts)} private dashboard groups to {args.admin_output}")
 
 
 if __name__ == "__main__":

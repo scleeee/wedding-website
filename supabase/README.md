@@ -5,8 +5,10 @@ The static site calls one public Supabase Edge Function at
 per-IP limits through protected Postgres RPCs, normalizes and SHA-256 digests the access code,
 and only then calls `lookup_rsvp` or `submit_rsvp` with a server-side Supabase
 credential. Browser roles cannot execute either RPC or access `invites`,
-`guests`, or the `rsvp_submissions` admin view directly. Plaintext access codes
-never reach or live in the database.
+`guests`, `rsvp_invite_admin`, or the `rsvp_submissions` admin view directly.
+Plaintext codes never reach the API-facing RSVP tables; the protected,
+dashboard-only `rsvp_invite_admin` table intentionally keeps a readable copy
+for host administration.
 
 The function is intentionally public (`verify_jwt = false` in `config.toml`),
 so its database rate-limit checks are part of the security boundary. It fails
@@ -103,6 +105,38 @@ python3 supabase/scripts/generate_guest_group_seed.py \
   --output supabase/migrations/YYYYMMDDHHMMSS_guest_group_seed.sql
 ```
 
+## Dashboard invite administration
+
+Use `public.rsvp_invite_admin` in the Supabase Table Editor for day-to-day
+invite management. It is the one intentionally human-readable table: edit
+`invite_code`, `reserved_seats`, or `access_enabled` there. For example,
+changing `reserved_seats` from `2` to `3` immediately creates a third blank
+RSVP slot for that code. Do not edit `public.invites` directly; it remains the
+API-facing, digest-only table.
+
+The readable table is intentionally empty after the migration because the
+existing SHA-256 digests cannot be reversed. Generate a private one-time import
+from the ignored guest list, then paste its contents into the Supabase SQL
+Editor after `supabase db push`:
+
+```sh
+python3 supabase/scripts/generate_guest_group_seed.py \
+  --input .cache/guestlist_csv.csv \
+  --output /tmp/guest_group_seed.sql \
+  --admin-output .cache/rsvp_invite_admin_import.sql
+```
+
+`rsvp_invite_admin_import.sql` contains plaintext invitation codes. Keep it in
+`.cache/` (which is gitignored) and do not commit or share it. The import
+matches the existing digest-only rows by SHA-256 digest, so it preserves RSVP
+history while making codes readable in the dashboard. Thereafter, make quick
+seat-count and code changes directly in `rsvp_invite_admin`; there is no need
+to regenerate or run the private import for those edits.
+
+Reducing `reserved_seats` removes RSVP slots above the new number, including
+any responses in those slots. Check the submission history before reducing a
+seat count.
+
 Name uniqueness is deterministic: Unicode NFKC normalization, collapsed
 whitespace, and case folding are applied before counting. Codes are normalized
 to uppercase ASCII letters/digits after separators are removed. The generator
@@ -168,10 +202,10 @@ test consumes a failure slot for the tester's IP.
 ## Friendly code limitations
 
 A memorable RSVP code is a guessable shared credential, not a strong secret.
-Digesting prevents routine plaintext exposure in Supabase but does not add
-entropy to the original code. Rate limiting makes online enumeration materially
-harder but cannot stop distributed attacks across many IPs, and shared networks
-can cause guests to share a limit.
+Digesting keeps the public RSVP API path separate from the readable host table,
+but does not add entropy to the original code. Rate limiting makes online
+enumeration materially harder but cannot stop distributed attacks across many
+IPs, and shared networks can cause guests to share a limit.
 For stronger protection, require a server-validated CAPTCHA such as Cloudflare
 Turnstile after several failures and/or print a separate high-entropy invitation
 secret in addition to the friendly code. Supabase provides an official

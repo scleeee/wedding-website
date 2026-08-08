@@ -3,6 +3,7 @@ begin;
 do $$
 declare
   v_digest constant text := '3cfa2a01ab1c877fcd6e520b78a295a0083baa0e08a6fe911654e868bb8c073c';
+  v_admin_id uuid;
   v_invite_id uuid;
   v_lookup jsonb;
   v_count integer;
@@ -75,6 +76,42 @@ begin
 
   if public.lookup_rsvp(repeat('0', 64)) is not null then
     raise exception 'invalid digest unexpectedly resolved';
+  end if;
+
+  insert into public.rsvp_invite_admin (invite_code, reserved_seats)
+  values ('RSVPTESTADMIN', 1)
+  returning id into v_admin_id;
+
+  insert into public.rsvp_invite_admin (invite_code, reserved_seats)
+  values ('RSVPTESTADMIN', 2)
+  on conflict (invite_code) do update
+  set reserved_seats = excluded.reserved_seats;
+
+  update public.rsvp_invite_admin
+     set reserved_seats = 3,
+         invite_code = 'rsvp-test-admin-2'
+   where id = v_admin_id;
+
+  select count(*) into v_count
+  from public.guests
+  where invite_id = v_admin_id;
+  if v_count <> 3 then
+    raise exception 'dashboard seat change must reconcile RSVP slots';
+  end if;
+
+  if not exists (
+    select 1
+    from public.invites
+    where id = v_admin_id
+      and code_digest = encode(extensions.digest('RSVPTESTADMIN2', 'sha256'), 'hex')
+      and num_seats = 3
+  ) then
+    raise exception 'dashboard code change must synchronize API digest';
+  end if;
+
+  delete from public.rsvp_invite_admin where id = v_admin_id;
+  if exists (select 1 from public.invites where id = v_admin_id) then
+    raise exception 'deleting an admin invite must retire its API invitation';
   end if;
 end;
 $$;
