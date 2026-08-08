@@ -737,9 +737,15 @@ body.envelope-holding .hero > :not(.pillar) {
 }
 
 .top-nav {
+  --nav-background-opacity: 0;
+  --nav-border-opacity: 0;
+  --nav-shadow-opacity: 0;
+  --nav-blur: 0px;
   align-items: center;
-  background: transparent;
-  border-bottom: 1px solid transparent;
+  background: rgb(249 246 241 / var(--nav-background-opacity));
+  border-bottom: 1px solid rgb(222 213 200 / var(--nav-border-opacity));
+  box-shadow: 0 8px 24px rgb(67 55 42 / var(--nav-shadow-opacity));
+  backdrop-filter: blur(var(--nav-blur));
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem 3.25rem;
@@ -750,16 +756,8 @@ body.envelope-holding .hero > :not(.pillar) {
   position: sticky;
   top: 0;
   text-transform: uppercase;
-  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
   width: 100%;
   z-index: 20;
-}
-
-.top-nav.is-scrolled {
-  background: rgba(249, 246, 241, 0.92);
-  border-bottom-color: var(--border);
-  box-shadow: 0 8px 24px rgba(67, 55, 42, 0.06);
-  backdrop-filter: blur(10px);
 }
 
 .top-nav a {
