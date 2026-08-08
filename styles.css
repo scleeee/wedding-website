@@ -35,7 +35,12 @@ html {
 }
 
 body {
-  background: var(--bg);
+  background:
+    radial-gradient(circle at 0% 22%, rgba(242, 94, 55, 0.11), transparent 30rem),
+    radial-gradient(circle at 100% 38%, rgba(242, 94, 55, 0.095), transparent 28rem),
+    radial-gradient(circle at 0% 78%, rgba(242, 94, 55, 0.09), transparent 32rem),
+    radial-gradient(circle at 100% 90%, rgba(242, 94, 55, 0.105), transparent 26rem),
+    var(--bg);
   color: var(--text);
   font-family: "Baskerville", "Times New Roman", serif;
   line-height: 1.55;
@@ -65,20 +70,70 @@ body.envelope-active {
 }
 
 .access-card {
-  background: rgba(255, 253, 249, 0.96);
-  border: 1px solid var(--border);
-  box-shadow: 0 20px 60px rgba(67, 55, 42, 0.13);
+  --rsvp-radius: 6px;
+  background: #fff;
+  border: 1px solid rgba(222, 213, 200, 0.9);
+  border-radius: 16px;
+  box-shadow: 0 14px 40px rgba(67, 55, 42, 0.08);
+  font-family: "Baskerville", "Times New Roman", serif;
   max-width: 470px;
   padding: clamp(1.75rem, 6vw, 3rem);
   text-align: center;
   width: 100%;
 }
 
+.access-card .form-label {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  margin-bottom: 0.55rem;
+  text-transform: none;
+}
+
+.access-card .form-input {
+  border: 1px solid var(--border);
+  border-radius: var(--rsvp-radius);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: 0;
+  min-height: 50px;
+  transition: border-color 160ms ease;
+}
+
+.access-card .form-input:focus {
+  border-color: var(--accent);
+  box-shadow: none;
+  outline: none;
+}
+
+.access-card .form-input::placeholder {
+  color: #a39b92;
+  font-family: inherit;
+  font-style: normal;
+}
+
+.access-card .form-error {
+  border-radius: var(--rsvp-radius);
+}
+
+.access-card .btn {
+  font-family: "Baskerville", "Times New Roman", serif;
+  font-weight: 700;
+}
+
+.access-card .form-group {
+  margin-bottom: 1.65rem;
+}
+
 .access-logo {
   display: block;
   margin: 0 auto 1.5rem;
-  max-width: 300px;
-  width: 80%;
+  max-width: 380px;
+  width: 92%;
 }
 
 .access-kicker {
@@ -199,8 +254,7 @@ body.envelope-active {
   background: #f0ece6;
 }
 
-.btn:focus-visible,
-.attendance-choice:focus-within {
+.btn:focus-visible {
   outline: 3px solid rgba(242, 94, 55, 0.22);
   outline-offset: 2px;
 }
@@ -223,6 +277,12 @@ body.envelope-active {
   isolation: isolate;
   justify-content: center;
   overflow: hidden;
+  /* Keep the envelope clear of notches / home indicators. */
+  padding:
+    max(1.25rem, env(safe-area-inset-top))
+    max(1.25rem, env(safe-area-inset-right))
+    max(1.25rem, env(safe-area-inset-bottom))
+    max(1.25rem, env(safe-area-inset-left));
   position: fixed;
   transition: opacity 0.45s ease;
   z-index: 3000;
@@ -251,6 +311,18 @@ body.envelope-active {
   opacity: 0;
 }
 
+/* During the scale morph, only quote + logo should read — no paper card. */
+.env-overlay.morphing .env-letter-card.expanded {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.env-letter-card.expanded::before,
+.env-overlay.morphing .env-letter-card::before {
+  opacity: 0;
+}
+
 @keyframes envEntrance {
   from {
     opacity: 0;
@@ -275,12 +347,13 @@ body.envelope-active {
 
 .env-scene {
   animation: envEntrance 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
-  aspect-ratio: 100 / 87;
+  /* Tall enough for the flap seal + "Open invitation" label, short enough
+     that the closed envelope itself reads as centered in the viewport. */
+  aspect-ratio: 340 / 265;
   cursor: pointer;
   outline: none;
   position: relative;
-  width: min(520px, 88vw, 82vh);
-  width: min(520px, 88vw, 82svh);
+  width: min(460px, 86vw, 64svh);
   z-index: 1;
 }
 
@@ -297,11 +370,14 @@ body.envelope-active {
 }
 
 .env-body-wrap {
-  bottom: 0;
-  height: 55%;
+  /* Centered in the scene (was bottom-anchored, which made the closed
+     envelope sit too low on screen). */
+  height: 68%;
   left: 0;
+  overflow: visible;
   position: absolute;
   right: 0;
+  top: 14%;
   transform-style: preserve-3d;
   transition: opacity 0.65s ease, transform 0.65s ease;
   z-index: 2;
@@ -317,12 +393,14 @@ body.envelope-active {
 .env-flap-wrap svg {
   display: block;
   height: 100%;
+  overflow: visible;
   width: 100%;
 }
 
 .env-flap-wrap {
   height: 58%;
   left: 0;
+  overflow: visible;
   position: absolute;
   right: 0;
   top: 0;
@@ -343,9 +421,7 @@ body.envelope-active {
 
 .env-letter-card {
   align-items: center;
-  background:
-    linear-gradient(rgba(255, 252, 246, 0.58), rgba(255, 248, 238, 0.68)),
-    url("assets/Sunset.png") center 42% / cover no-repeat;
+  background: #f9f6f1;
   border-top: 3px solid #c9506a;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
   display: flex;
@@ -358,7 +434,8 @@ body.envelope-active {
   padding: clamp(0.9rem, 4vw, 1.5rem);
   pointer-events: none;
   position: absolute;
-  top: 53%;
+  /* Tracks the centered body-wrap so the card still rises from inside it. */
+  top: 28%;
   transform: translateX(-50%) translateY(0);
   transform-origin: center;
   transition:
@@ -367,6 +444,21 @@ body.envelope-active {
     box-shadow 0.7s ease;
   width: 76%;
   will-change: transform, opacity;
+  z-index: 1;
+}
+
+.env-letter-card::before {
+  background: url("assets/Sunset landscape opacity transition.png") center top / cover no-repeat;
+  content: "";
+  inset: 0;
+  opacity: 0.75;
+  pointer-events: none;
+  position: absolute;
+  z-index: 0;
+}
+
+.env-letter-card > * {
+  position: relative;
   z-index: 1;
 }
 
@@ -383,31 +475,6 @@ body.envelope-active {
   position: relative;
   width: 100%;
   z-index: 2;
-}
-
-.env-letter-scene {
-  aspect-ratio: 2 / 1;
-  left: 50%;
-  mask-image: linear-gradient(to bottom, #000 0%, #000 82%, transparent 100%);
-  opacity: 0.96;
-  overflow: hidden;
-  pointer-events: none;
-  position: absolute;
-  top: 100%;
-  transform: translateX(-50%);
-  transform-origin: top center;
-  transition: opacity 0.4s ease, transform 0.45s ease;
-  width: min(100%, 520px);
-  will-change: opacity;
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 82%, transparent 100%);
-  z-index: 1;
-}
-
-.env-letter-scene img {
-  display: block;
-  height: auto;
-  transform: translateY(-10%);
-  width: 100%;
 }
 
 .env-letter-quote {
@@ -449,45 +516,43 @@ body.envelope-active {
 
 .env-letter-card.expanded {
   background: transparent;
-  border-top-color: transparent;
+  border: none;
   box-shadow: none;
   display: block;
   overflow: visible;
   padding: 0;
+  pointer-events: none;
   text-align: center;
 }
 
+/* Match the live hero top so the morph lands on the real page, not a
+   fake intermediate layout. */
 .env-letter-card.expanded .env-letter-quote {
   color: var(--text);
   font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+  letter-spacing: 0.02em;
   line-height: 1.6;
   margin: 0 auto 1.8rem;
   max-width: 640px;
 }
 
 .env-letter-card.expanded .env-expanded-only {
-  display: block;
+  display: inline;
 }
 
 .env-letter-card.expanded .env-letter-logo {
-  margin: 0 auto;
-  max-width: none;
+  margin: 0 auto 2rem;
+  max-width: min(84vw, 700px);
   width: 100%;
 }
 
-.env-letter-card.expanded .env-letter-date {
+.env-letter-card.expanded .env-letter-date,
+.env-letter-card.expanded .env-expanded-details {
   display: none;
 }
 
-.env-letter-card.expanded .env-expanded-details {
-  display: block;
-  position: relative;
-  z-index: 2;
-}
-
-.env-overlay.fade-out .env-letter-scene {
+.env-overlay.fade-out .env-letter-card {
   opacity: 0;
-  transform: translateX(-50%) translateY(1rem) scale(0.985);
 }
 
 .env-expanded-invitation {
@@ -508,18 +573,19 @@ body.envelope-active {
 }
 
 .env-prompt {
-  bottom: -2.75rem;
-  color: rgba(255, 255, 255, 0.55);
-  font-family: Arial, sans-serif;
-  font-size: 0.68rem;
-  font-weight: 700;
+  bottom: -0.65rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: "Baskerville", "Times New Roman", serif;
+  font-size: 1.15rem;
+  font-style: italic;
+  font-weight: 400;
   left: 50%;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.04em;
   margin: 0;
   opacity: 0;
   pointer-events: none;
   position: absolute;
-  text-transform: uppercase;
+  text-transform: none;
   transform: translateX(-50%);
   transition: opacity 0.5s ease, color 0.2s ease;
   white-space: nowrap;
@@ -587,15 +653,32 @@ body.envelope-holding .hero > :not(.pillar) {
 
 @media (min-width: 1400px) {
   .env-scene {
-    width: min(680px, 60vw, 82vh);
-    width: min(680px, 60vw, 82svh);
+    width: min(560px, 48vw, 62svh);
   }
 }
 
 @media (min-width: 1900px) {
   .env-scene {
-    width: min(820px, 50vw, 82vh);
-    width: min(820px, 50vw, 82svh);
+    width: min(620px, 42vw, 60svh);
+  }
+}
+
+/* Phones / short viewports: keep the envelope centered and fully on-screen
+   with room for the prompt underneath. */
+@media (max-width: 720px), (max-height: 720px) {
+  .env-scene {
+    aspect-ratio: 340 / 270;
+    width: min(400px, 88vw, 58svh);
+  }
+
+  .env-prompt {
+    bottom: -0.5rem;
+    font-size: 1.05rem;
+  }
+
+  #skip-intro {
+    bottom: max(0.9rem, env(safe-area-inset-bottom));
+    right: max(0.9rem, env(safe-area-inset-right));
   }
 }
 
@@ -610,8 +693,7 @@ body.envelope-holding .hero > :not(.pillar) {
   .env-backdrop,
   .env-body-wrap,
   .env-flap-wrap,
-  .env-letter-card,
-  .env-letter-scene {
+  .env-letter-card {
     transition-duration: 0.16s !important;
   }
 
@@ -634,17 +716,16 @@ body.envelope-holding .hero > :not(.pillar) {
 }
 
 .page::before {
-  background: url("assets/Sunset.png") center 32% / cover no-repeat;
-  bottom: 0;
+  aspect-ratio: 1584 / 672;
+  background: url("assets/Sunset landscape opacity transition.png") center top / 100% 100% no-repeat;
   content: "";
   left: 0;
-  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.92) 42%, transparent 100%);
-  opacity: 0.48;
+  opacity: 0.6;
   pointer-events: none;
-  position: fixed;
+  position: absolute;
   right: 0;
   top: 0;
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.92) 42%, transparent 100%);
+  width: 100%;
   z-index: -2;
 }
 
@@ -657,8 +738,8 @@ body.envelope-holding .hero > :not(.pillar) {
 
 .top-nav {
   align-items: center;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
+  background: transparent;
+  border-bottom: 1px solid transparent;
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem 3.25rem;
@@ -669,8 +750,16 @@ body.envelope-holding .hero > :not(.pillar) {
   position: sticky;
   top: 0;
   text-transform: uppercase;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
   width: 100%;
   z-index: 20;
+}
+
+.top-nav.is-scrolled {
+  background: rgba(249, 246, 241, 0.92);
+  border-bottom-color: var(--border);
+  box-shadow: 0 8px 24px rgba(67, 55, 42, 0.06);
+  backdrop-filter: blur(10px);
 }
 
 .top-nav a {
@@ -714,6 +803,111 @@ body.envelope-holding .hero > :not(.pillar) {
   font-size: clamp(0.95rem, 1.3vw, 1.15rem);
   font-style: italic;
   margin: 0 0 1.4rem;
+}
+
+/* After the morph lands on quote + logo, everything below trickles in. */
+body:not(.site-content-live) .top-nav,
+body:not(.site-content-live) .hero > .hero-kicker,
+body:not(.site-content-live) .hero > .parents,
+body:not(.site-content-live) .hero > .invitation-copy,
+body:not(.site-content-live) .hero > h2,
+body:not(.site-content-live) .hero > .address,
+body:not(.site-content-live) .page > .section:not(.hero) {
+  opacity: 0;
+  transform: translateY(1.1rem);
+}
+
+body.site-content-live .top-nav,
+body.site-content-live .hero > .hero-kicker,
+body.site-content-live .hero > .parents,
+body.site-content-live .hero > .invitation-copy,
+body.site-content-live .hero > h2,
+body.site-content-live .hero > .address,
+body.site-content-live .page > .section:not(.hero) {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.85s ease,
+    transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body.site-content-live .top-nav {
+  transition-delay: 0.05s;
+}
+
+body.site-content-live .hero > .hero-kicker {
+  transition-delay: 0.12s;
+}
+
+body.site-content-live .hero > .parents {
+  transition-delay: 0.26s;
+}
+
+body.site-content-live .hero > .invitation-copy:nth-child(7) {
+  transition-delay: 0.4s;
+}
+
+body.site-content-live .hero > h2:nth-child(8) {
+  transition-delay: 0.52s;
+}
+
+body.site-content-live .hero > .address:nth-child(9) {
+  transition-delay: 0.62s;
+}
+
+body.site-content-live .hero > .invitation-copy:nth-child(10) {
+  transition-delay: 0.76s;
+}
+
+body.site-content-live .hero > h2:nth-child(11) {
+  transition-delay: 0.88s;
+}
+
+body.site-content-live .hero > .address:nth-child(12) {
+  transition-delay: 0.98s;
+}
+
+body.site-content-live .page > .section:not(.hero):nth-of-type(2) {
+  transition-delay: 1.12s;
+}
+
+body.site-content-live .page > .section:not(.hero):nth-of-type(3) {
+  transition-delay: 1.28s;
+}
+
+body.site-content-live .page > .section:not(.hero):nth-of-type(4) {
+  transition-delay: 1.44s;
+}
+
+body.site-content-live .page > .section:not(.hero):nth-of-type(5) {
+  transition-delay: 1.6s;
+}
+
+body.site-content-live .page > .section:not(.hero):nth-of-type(6) {
+  transition-delay: 1.76s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body:not(.site-content-live) .top-nav,
+  body:not(.site-content-live) .hero > .hero-kicker,
+  body:not(.site-content-live) .hero > .parents,
+  body:not(.site-content-live) .hero > .invitation-copy,
+  body:not(.site-content-live) .hero > h2,
+  body:not(.site-content-live) .hero > .address,
+  body:not(.site-content-live) .page > .section:not(.hero) {
+    opacity: 1;
+    transform: none;
+  }
+
+  body.site-content-live .top-nav,
+  body.site-content-live .hero > .hero-kicker,
+  body.site-content-live .hero > .parents,
+  body.site-content-live .hero > .invitation-copy,
+  body.site-content-live .hero > h2,
+  body.site-content-live .hero > .address,
+  body.site-content-live .page > .section:not(.hero) {
+    transition: none;
+  }
 }
 
 .parents {
@@ -927,12 +1121,14 @@ h3 {
 }
 
 .secondary-sponsors {
-  max-width: 680px;
+  max-width: min(1180px, 100%);
 }
 
 .secondary-sponsor-list {
+  column-gap: 1.25rem;
   display: grid;
-  gap: 2.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  row-gap: 2.5rem;
 }
 
 .secondary-sponsor-pair .role-label {
@@ -940,8 +1136,8 @@ h3 {
 }
 
 .secondary-sponsor-pair .entourage-pair {
-  align-items: center;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
+  row-gap: 0.85rem;
 }
 
 .role-label {
@@ -1032,11 +1228,13 @@ h3 {
   width: 100%;
 }
 
-/* Cypresses docked to the page edges; each section sets its own vertical
-   anchor. */
+/* Palm clusters docked to the page edges; each section sets its own
+   vertical anchor. Wider than the old cypresses for the new art. */
 .side-tree {
-  max-width: min(12.5vw, 155px);
+  height: auto;
+  max-width: min(16vw, 190px);
   position: absolute;
+  width: auto;
 }
 
 .side-tree-left {
@@ -1054,12 +1252,15 @@ h3 {
 }
 
 .rsvp-card {
-  background: var(--paper);
-  border: 1px solid var(--border);
-  box-shadow: 0 18px 50px rgba(67, 55, 42, 0.1);
+  --rsvp-radius: 6px;
+  background: #fff;
+  border: 1px solid rgba(222, 213, 200, 0.9);
+  border-radius: 16px;
+  box-shadow: 0 14px 40px rgba(67, 55, 42, 0.08);
+  font-family: "Baskerville", "Times New Roman", serif;
   margin: 2rem auto 0;
   max-width: 680px;
-  padding: clamp(1.25rem, 4vw, 2.25rem);
+  padding: clamp(1.4rem, 4vw, 2.35rem);
   text-align: left;
 }
 
@@ -1067,10 +1268,68 @@ h3 {
   max-width: none;
 }
 
+/* Field labels inside the RSVP card (not section headers). */
+.rsvp-card .form-label {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  margin-bottom: 0.55rem;
+  text-transform: none;
+}
+
+.rsvp-card .form-input {
+  border: 1px solid var(--border);
+  border-radius: var(--rsvp-radius);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: 0;
+  min-height: 50px;
+  transition: border-color 160ms ease;
+}
+
+.rsvp-card .form-input:focus {
+  border-color: var(--accent);
+  box-shadow: none;
+  outline: none;
+}
+
+.rsvp-card .form-input::placeholder {
+  color: #a39b92;
+  font-family: inherit;
+  font-style: normal;
+}
+
+/* Section headers: party legend + reserved-seat legends. */
+.rsvp-card #party-attendance > legend.form-label,
+.rsvp-card .guest-row-header {
+  color: var(--text);
+  font-size: 0.95rem;
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.95rem;
+  padding: 0;
+  text-transform: uppercase;
+}
+
+/* Keep seat legends inside the box so the border isn’t tight against the title. */
+.rsvp-card .guest-row-header {
+  box-sizing: border-box;
+  float: left;
+  margin-bottom: 1.15rem;
+  padding-inline: 0.2rem;
+  width: 100%;
+}
+
 .rsvp-welcome,
 .rsvp-submitted-banner,
 .rsvp-closed {
   border-left: 3px solid var(--accent);
+  border-radius: var(--rsvp-radius);
   margin-bottom: 1.5rem;
   padding: 0.85rem 1rem;
 }
@@ -1091,84 +1350,137 @@ h3 {
   border-color: #bd8b20;
 }
 
+.rsvp-card #party-attendance {
+  margin: 0 0 1.5rem;
+}
+
+#guest-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .guest-row {
-  background: #faf7f2;
-  border: 1px solid var(--border);
-  margin: 0 0 1rem;
-  padding: 1.15rem;
+  background: #f9f6f1;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  margin: 0;
+  padding: 1.35rem 1.5rem;
+}
+
+.guest-row::after {
+  clear: both;
+  content: "";
+  display: table;
 }
 
 .guest-row.has-error {
-  border-color: #b44031;
-  box-shadow: 0 0 0 2px rgba(180, 64, 49, 0.12);
-}
-
-.guest-row-header {
-  color: var(--accent);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  margin-bottom: 0.9rem;
-  padding: 0 0.25rem;
-  text-transform: uppercase;
+  border-color: var(--accent);
+  box-shadow: none;
 }
 
 .attendance-group {
   border: 0;
-  margin: 0 0 1rem;
+  margin: 0 0 1.15rem;
   padding: 0;
 }
 
 .attendance-options,
 .party-attendance-options {
   display: grid;
-  gap: 0.65rem;
+  gap: 0.7rem;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .party-attendance-options {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
 }
 
-.attendance-choice {
+.rsvp-card .attendance-choice {
   align-items: center;
   background: #fff;
   border: 1px solid var(--border);
+  border-radius: var(--rsvp-radius);
+  color: var(--text);
   cursor: pointer;
   display: flex;
-  font-size: 0.88rem;
-  font-weight: 700;
-  gap: 0.6rem;
-  min-height: 48px;
-  padding: 0.65rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-style: normal;
+  font-weight: 400;
+  gap: 0.65rem;
+  min-height: 50px;
+  padding: 0.7rem 1rem;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
 }
 
-.attendance-choice:has(input:checked) {
+.rsvp-card .attendance-choice:has(input:checked) {
   background: #fff2ed;
   border-color: var(--accent);
 }
 
-.attendance-choice input {
+.rsvp-card .attendance-choice:focus,
+.rsvp-card .attendance-choice:focus-within {
+  outline: none;
+}
+
+.rsvp-card .attendance-choice input:focus {
+  outline: none;
+}
+
+.rsvp-card .attendance-choice input {
   accent-color: var(--accent);
   flex: 0 0 auto;
-  height: 1.15rem;
-  width: 1.15rem;
+  height: 1.1rem;
+  width: 1.1rem;
 }
 
 .guest-dietary {
   margin-top: 1rem;
 }
 
+/* Equal gaps: seat cards ↔ error ↔ CTAs (and when no error, seats ↔ CTAs). */
+.rsvp-card .form-error {
+  border-radius: var(--rsvp-radius);
+  margin-top: 1.5rem;
+}
+
 .rsvp-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 1.25rem;
+  gap: 0.85rem;
+  margin-top: 1.5rem;
 }
 
 .rsvp-actions .btn {
+  border-radius: 999px;
   flex: 1 1 180px;
+  font-family: "Baskerville", "Times New Roman", serif;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.rsvp-card .btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.rsvp-card .btn-primary:hover {
+  background: #d84d29;
+  border-color: #d84d29;
+}
+
+.rsvp-card .btn-secondary {
+  background: #fff;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.rsvp-card .btn-secondary:hover {
+  background: #fff2ed;
 }
 
 .review-list {
@@ -1178,8 +1490,9 @@ h3 {
 }
 
 .review-item {
-  background: #faf7f2;
+  background: #fff;
   border: 1px solid var(--border);
+  border-radius: 6px;
   padding: 1rem;
 }
 
@@ -1296,7 +1609,8 @@ h3 {
   .top-nav {
     flex-wrap: nowrap;
     gap: 0.65rem;
-    justify-content: flex-start;
+    justify-content: center;
+    justify-content: safe center;
     letter-spacing: 0.055em;
     overflow-x: auto;
     padding: 0.72rem 0.65rem;
@@ -1349,13 +1663,9 @@ h3 {
     margin-bottom: 1.2rem;
   }
 
-  .env-expanded-invitation,
-  .env-expanded-details h2 {
-    font-size: 0.8rem;
-  }
-
-  .env-expanded-invitation {
-    margin: 1.4rem auto 0.9rem;
+  .env-letter-card.expanded .env-letter-logo {
+    margin-bottom: 1.5rem;
+    max-width: 94%;
   }
 
   .env-hold-status {
@@ -1402,10 +1712,8 @@ h3 {
     row-gap: 2.2rem;
   }
 
-  .secondary-sponsor-pair .entourage-pair {
-    column-gap: 0.75rem;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    row-gap: 0;
+  .secondary-sponsor-list {
+    grid-template-columns: 1fr;
   }
 
   /* The sponsors' two columns share one label, so stacked they should
@@ -1444,7 +1752,7 @@ h3 {
 
   .entourage .side-tree {
     bottom: 0;
-    max-width: 20vw;
+    max-width: 26vw;
     top: auto;
   }
 

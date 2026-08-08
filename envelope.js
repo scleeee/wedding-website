@@ -13,17 +13,16 @@
     skip: document.getElementById('skip-intro'),
     replay: document.getElementById('replay-intro'),
     heroQuote: document.querySelector('.hero-quote'),
-    heroLogo: document.querySelector('.hero-logo')
+    heroLogo: document.querySelector('.hero-logo'),
+    letterQuote: document.querySelector('#env-letter .env-letter-quote'),
+    letterLogo: document.querySelector('#env-letter .env-letter-logo')
   };
 
-  const HOLD_DURATION_MS = 20 * 1000;
-  const COUNTDOWN_SECONDS = 10;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let phase = 'idle';
   let runId = 0;
   let timers = new Set();
   let completionCallback = null;
-  let holdDeadline = 0;
 
   function clearTimers() {
     runId += 1;
@@ -84,97 +83,85 @@
     elements.scene.setAttribute('tabindex', '-1');
     elements.skip.hidden = true;
     elements.holdStatus.hidden = true;
+    document.body.classList.remove('envelope-holding');
+    document.body.classList.add('site-content-live');
     elements.overlay.classList.add('fade-out');
     later(complete, reducedMotion.matches ? 160 : 460);
   }
 
-  function expandedTargetRect() {
-    const quoteRect = elements.heroQuote.getBoundingClientRect();
-    const logoRect = elements.heroLogo.getBoundingClientRect();
-    return {
-      left: logoRect.left,
-      top: quoteRect.top,
-      width: logoRect.width
-    };
-  }
-
-  function updateCountdown() {
-    if (phase !== 'holding') return;
-    const secondsRemaining = Math.max(0, Math.ceil((holdDeadline - Date.now()) / 1000));
-    if (secondsRemaining < 1) return;
-    elements.holdStatus.textContent = `Closing in ${secondsRemaining} second${secondsRemaining === 1 ? '' : 's'} · Click to continue`;
-    later(updateCountdown, 1000);
-  }
-
-  function alignExpandedLetter() {
-    const targetRect = expandedTargetRect();
-    elements.letter.style.transition = [
-      'left 280ms ease',
-      'top 280ms ease',
-      'width 280ms ease'
-    ].join(', ');
-    elements.letter.style.left = `${targetRect.left}px`;
-    elements.letter.style.top = `${targetRect.top}px`;
-    elements.letter.style.width = `${targetRect.width}px`;
-  }
-
-  function beginHold() {
-    if (phase !== 'expanding') return;
-    phase = 'holding';
-    alignExpandedLetter();
-    holdDeadline = Date.now() + HOLD_DURATION_MS;
-    elements.skip.hidden = true;
-    elements.holdStatus.textContent = 'Click anywhere to continue';
-    elements.holdStatus.hidden = false;
-    elements.overlay.focus({ preventScroll: true });
-    later(updateCountdown, HOLD_DURATION_MS - (COUNTDOWN_SECONDS * 1000));
-    later(skip, HOLD_DURATION_MS);
-  }
-
   function expandLetter(duration) {
     if (phase !== 'opening') return;
+    if (!elements.heroQuote || !elements.heroLogo || !elements.letterLogo) {
+      later(skip, 80);
+      return;
+    }
+
     const firstRect = elements.letter.getBoundingClientRect();
-    const targetRect = expandedTargetRect();
-    const initialStyle = window.getComputedStyle(elements.letter);
-    const initialBackground = initialStyle.background;
-    const initialBorderColor = initialStyle.borderTopColor;
-    const initialBoxShadow = initialStyle.boxShadow;
-    const scale = firstRect.width / targetRect.width;
-    const translateX = firstRect.left - targetRect.left;
-    const translateY = firstRect.top - targetRect.top;
+    const heroLogoRect = elements.heroLogo.getBoundingClientRect();
+    const heroQuoteRect = elements.heroQuote.getBoundingClientRect();
+    if (!firstRect.width || !heroLogoRect.width) {
+      later(skip, 80);
+      return;
+    }
+
     const activeRun = runId;
 
     phase = 'expanding';
     document.body.classList.add('envelope-holding');
     elements.overlay.classList.add('morphing');
+    elements.skip.hidden = true;
     elements.letter.classList.add('flight', 'expanded');
     elements.letter.setAttribute('aria-hidden', 'false');
-    elements.letter.style.left = `${targetRect.left}px`;
-    elements.letter.style.top = `${targetRect.top}px`;
-    elements.letter.style.width = `${targetRect.width}px`;
+
+    // Lay out the expanded letter on the hero, then nudge so the morph logo
+    // lands on the exact hero-logo box (avoids a post-handoff jump).
+    // Drop paper fill/shadow immediately — animating those backgrounds leaves
+    // a visible rectangle over the real site during the scale.
     elements.letter.style.transition = 'none';
     elements.letter.style.transformOrigin = 'top left';
-    elements.letter.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
+    elements.letter.style.transform = 'none';
+    elements.letter.style.left = `${heroLogoRect.left}px`;
+    elements.letter.style.top = `${heroQuoteRect.top}px`;
+    elements.letter.style.width = `${heroLogoRect.width}px`;
     elements.letter.style.opacity = '1';
-    elements.letter.style.background = initialBackground;
-    elements.letter.style.borderTopColor = initialBorderColor;
-    elements.letter.style.boxShadow = initialBoxShadow;
+    elements.letter.style.background = 'transparent';
+    elements.letter.style.border = 'none';
+    elements.letter.style.boxShadow = 'none';
+    void elements.letter.offsetWidth;
+
+    const letterLogoRect = elements.letterLogo.getBoundingClientRect();
+    const deltaX = heroLogoRect.left - letterLogoRect.left;
+    const deltaY = heroLogoRect.top - letterLogoRect.top;
+    const finalLeft = heroLogoRect.left + deltaX;
+    const finalTop = heroQuoteRect.top + deltaY;
+    elements.letter.style.left = `${finalLeft}px`;
+    elements.letter.style.top = `${finalTop}px`;
+    void elements.letter.offsetWidth;
+
+    const lastRect = elements.letter.getBoundingClientRect();
+    const scale = firstRect.width / lastRect.width;
+    const translateX = firstRect.left - lastRect.left;
+    const translateY = firstRect.top - lastRect.top;
+    elements.letter.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
     void elements.letter.offsetWidth;
 
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
         if (activeRun !== runId || phase !== 'expanding') return;
-        elements.letter.style.transition = [
-          `transform ${duration}ms cubic-bezier(0.22, 1, 0.36, 1)`,
-          `background ${duration}ms ease`,
-          `box-shadow ${duration}ms ease`,
-          `border-color ${duration}ms ease`
-        ].join(', ');
+        elements.letter.style.transition =
+          `transform ${duration}ms cubic-bezier(0.22, 1, 0.36, 1)`;
         elements.letter.style.transform = 'translate3d(0, 0, 0) scale(1)';
-        elements.letter.style.background = 'transparent';
-        elements.letter.style.borderTopColor = 'transparent';
-        elements.letter.style.boxShadow = 'none';
-        later(beginHold, duration + 60);
+        // Atomic handoff: hide the morph letter in the same frame the real
+        // hero is revealed so quote/logo never double on screen.
+        later(() => {
+          elements.letter.style.transition = 'none';
+          elements.letter.style.opacity = '0';
+          elements.letter.style.visibility = 'hidden';
+          void elements.letter.offsetWidth;
+          document.body.classList.remove('envelope-holding');
+          document.body.classList.add('site-content-live');
+          skip();
+        }, duration + 40);
       });
     });
   }
@@ -198,7 +185,7 @@
       elements.flap.classList.add('open');
       later(() => elements.letter.classList.add('rising'), 60);
       later(() => elements.body.classList.add('hidden'), 140);
-      later(() => expandLetter(160), 220);
+      later(() => expandLetter(180), 220);
       return;
     }
 
@@ -218,6 +205,7 @@
     elements.skip.hidden = false;
     elements.replay.hidden = true;
     document.body.classList.add('envelope-active');
+    document.body.classList.remove('site-content-live');
     elements.scene.focus({ preventScroll: true });
 
     later(() => {
@@ -233,7 +221,7 @@
     elements.overlay.hidden = true;
     elements.overlay.setAttribute('aria-hidden', 'true');
     elements.replay.hidden = true;
-    document.body.classList.remove('envelope-active', 'envelope-holding');
+    document.body.classList.remove('envelope-active', 'envelope-holding', 'site-content-live');
   }
 
   elements.scene.addEventListener('click', openEnvelope);
@@ -246,22 +234,9 @@
     event.stopPropagation();
     skip();
   });
-  elements.overlay.addEventListener('click', () => {
-    if (phase === 'holding') skip();
-  });
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && phase !== 'idle') {
-      skip();
-      return;
-    }
-    if (phase === 'holding' && (event.key === 'Enter' || event.key === ' ')) {
-      event.preventDefault();
-      skip();
-    }
+    if (event.key === 'Escape' && phase !== 'idle') skip();
   });
-  window.addEventListener('resize', () => {
-    if (phase === 'holding') alignExpandedLetter();
-  }, { passive: true });
 
   window.WeddingEnvelope = Object.freeze({ play, cancel });
 })();
