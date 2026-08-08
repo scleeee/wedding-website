@@ -1251,6 +1251,20 @@ h3 {
   max-width: 760px;
 }
 
+.rsvp {
+  padding-top: 2rem;
+}
+
+.rsvp-bahay {
+  display: block;
+  height: auto;
+  margin: 0 auto 2.35rem;
+  max-width: min(96vw, 640px);
+  pointer-events: none;
+  user-select: none;
+  width: 100%;
+}
+
 .rsvp-card {
   --rsvp-radius: 6px;
   background: #fff;
@@ -1742,6 +1756,15 @@ h3 {
 
   .rsvp-card {
     padding-inline: 1rem;
+  }
+
+  .rsvp {
+    padding-top: 1.5rem;
+  }
+
+  .rsvp-bahay {
+    margin-bottom: 1.85rem;
+    max-width: min(92vw, 440px);
   }
 
   .form-input,
