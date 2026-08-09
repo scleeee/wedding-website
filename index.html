@@ -10,7 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Great+Vibes&amp;display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=57" />
+    <link rel="stylesheet" href="styles.css?v=106" />
   </head>
   <body class="site-locked">
     <div class="access-gate" id="access-gate">
@@ -74,14 +74,11 @@
         <div class="env-letter-card" id="env-letter" aria-hidden="true">
           <p class="env-letter-quote">
             Home is where our hearts intertwine and love grows.<br />
-            We found a home in each other.
+            We found a home in each other.<br />
             <span class="env-expanded-only">And now, we...</span>
           </p>
           <div class="env-letter-brand">
             <img class="env-letter-logo" src="assets/Logo.png" alt="" />
-            <div class="env-letter-scene" aria-hidden="true">
-              <img src="assets/Background scene.png" alt="" />
-            </div>
           </div>
           <p class="env-letter-date">January 5, 2027</p>
           <div class="env-expanded-details">
@@ -102,12 +99,13 @@
           </svg>
 
           <div class="env-flap-wrap" id="env-flap">
-            <svg viewBox="0 0 340 128" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <svg viewBox="0 0 340 128" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" overflow="visible">
               <polygon points="0,0 340,0 170,128" fill="#e2d9c6" stroke="#d4c9b0" stroke-width="1.5" />
               <line x1="1" y1="1" x2="170" y2="127" stroke="#c8bea8" stroke-width="0.7" opacity="0.5" />
               <line x1="339" y1="1" x2="170" y2="127" stroke="#c8bea8" stroke-width="0.7" opacity="0.5" />
+              <!-- Centered on the flap tip so it reads as a full wax seal on the seam. -->
               <g id="env-seal">
-                <circle cx="170" cy="112" r="19" fill="#c9506a" />
+                <circle cx="170" cy="128" r="19" fill="#c9506a" />
               </g>
             </svg>
           </div>
@@ -215,8 +213,8 @@
       </section>
 
       <section id="entourage" class="section entourage">
-        <img class="side-tree side-tree-left" src="assets/Tree left.png" alt="" />
-        <img class="side-tree side-tree-right" src="assets/Tree Right.png" alt="" />
+        <img class="side-tree side-tree-left" src="assets/Tree%20left.png?v=2" alt="" />
+        <img class="side-tree side-tree-right" src="assets/Tree%20Right.png?v=2" alt="" />
         <h3>Entourage</h3>
         <p class="entourage-intro">
           Home is built not only by two hearts, but by the people who help shape them.<br />
@@ -371,6 +369,13 @@
       </section>
 
       <section id="rsvp" class="section rsvp" aria-label="RSVP">
+        <img
+          class="rsvp-bahay"
+          src="assets/Bahay%20kubo.png?v=3"
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+        />
         <h3>RSVP</h3>
         <p id="rsvp-seat-copy">We reserved 1 seat for you.</p>
         <p>
@@ -441,8 +446,8 @@
       </footer>
     </main>
     <script src="rsvp-config.js"></script>
-    <script src="envelope.js?v=4"></script>
-    <script src="rsvp.js?v=5"></script>
+    <script src="envelope.js?v=11"></script>
+    <script src="rsvp.js?v=15"></script>
     <script>
       document.querySelectorAll('.top-nav a[href^="#"]').forEach((link) => {
         link.addEventListener("click", (event) => {
@@ -453,6 +458,15 @@
           history.replaceState(null, "", link.getAttribute("href"));
         });
       });
+
+      const topNav = document.querySelector(".top-nav");
+      if (topNav) {
+        const syncNavBackground = () => {
+          topNav.classList.toggle("is-scrolled", window.scrollY > 12);
+        };
+        syncNavBackground();
+        window.addEventListener("scroll", syncNavBackground, { passive: true });
+      }
     </script>
   </body>
 </html>

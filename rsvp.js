@@ -1,6 +1,32 @@
 (function () {
   'use strict';
 
+  // TEMP: skip the invitation-code gate while designing the site.
+  // Set back to false before sharing / launch.
+  const BYPASS_INVITE_CODE = false;
+
+  // Fake party used only when BYPASS_INVITE_CODE is on, so the RSVP UI is visible.
+  const DEMO_INVITATION = {
+    reserved_seats: 2,
+    submitted: false,
+    closed: false,
+    deadline: '2026-09-14',
+    guests: [
+      {
+        seat_number: 1,
+        name: '',
+        attending: null,
+        dietary_requirements: ''
+      },
+      {
+        seat_number: 2,
+        name: '',
+        attending: null,
+        dietary_requirements: ''
+      }
+    ]
+  };
+
   const config = window.WEDDING_CONFIG || {};
   const state = { code: '', invitation: null, pendingResponses: null };
 
@@ -148,6 +174,13 @@
     return `We reserved ${invitation.reserved_seats} ${seatWord} for you.`;
   }
 
+  function startContentCascade() {
+    if (document.body.classList.contains('site-content-live')) return;
+    window.requestAnimationFrame(() => {
+      document.body.classList.add('site-content-live');
+    });
+  }
+
   function unlockSite() {
     elements.gate.hidden = true;
     elements.site.hidden = false;
@@ -155,6 +188,7 @@
     elements.site.setAttribute('aria-hidden', 'false');
     document.body.classList.remove('site-locked');
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    startContentCascade();
 
     elements.site.setAttribute('tabindex', '-1');
     elements.site.focus({ preventScroll: true });
@@ -167,6 +201,7 @@
     elements.site.setAttribute('inert', '');
     elements.site.setAttribute('aria-hidden', 'true');
     document.body.classList.add('site-locked');
+    document.body.classList.remove('site-content-live');
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
 
     if (window.WeddingEnvelope) {
@@ -186,7 +221,7 @@
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }
 
-  function renderInvitation(invitation) {
+  function renderInvitation(invitation, options = {}) {
     const unlockingSite = elements.site.hidden;
     state.invitation = invitation;
     state.pendingResponses = null;
@@ -210,7 +245,7 @@
 
     if (unlockingSite) {
       playEnvelopeIntro();
-    } else {
+    } else if (options.scroll !== false) {
       elements.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
       elements.form.setAttribute('tabindex', '-1');
       elements.form.focus({ preventScroll: true });
@@ -359,9 +394,13 @@
       const attending = selected ? selected.value === 'true' : null;
       const name = nameInput.value.trim();
 
-      if (attending === null || (attending && !name)) {
+      if (attending === null || !name) {
         card.classList.add('has-error');
-        if (!firstInvalid) firstInvalid = attending === null ? card.querySelector('input[type="radio"]') : nameInput;
+        if (!firstInvalid) {
+          firstInvalid = attending === null
+            ? card.querySelector('input[type="radio"]')
+            : nameInput;
+        }
       }
 
       return {
@@ -381,8 +420,11 @@
     }
 
     if (firstInvalid) {
-      showError(elements.formError, 'Please choose attending or not attending for every seat, and add a name for each attending guest.');
-      firstInvalid.focus();
+      showError(
+        elements.formError,
+        'Please choose attending or not attending for every seat, and add a name for each reserved seat.'
+      );
+      firstInvalid.focus({ preventScroll: true });
       return null;
     }
 
@@ -417,7 +459,6 @@
     clearError(elements.submitError);
     elements.form.hidden = true;
     elements.review.hidden = false;
-    elements.review.scrollIntoView({ behavior: 'smooth', block: 'start' });
     elements.reviewHeading.setAttribute('tabindex', '-1');
     elements.reviewHeading.focus({ preventScroll: true });
   }
@@ -425,7 +466,7 @@
   async function submitRsvp() {
     if (!state.pendingResponses) return;
     clearError(elements.submitError);
-    setButtonBusy(elements.submitButton, true, 'Saving…', 'Submit RSVP ✓');
+    setButtonBusy(elements.submitButton, true, 'Saving…', 'Submit RSVP');
 
     try {
       const invitation = await callRsvpApi('submit', {
@@ -437,11 +478,11 @@
       elements.success.hidden = false;
       elements.successMessage.textContent = 'Thank you. Your party’s response has been saved. You can return with the same code to review or update it before the deadline.';
       elements.editButton.hidden = invitation.closed;
-      elements.success.focus();
+      elements.success.focus({ preventScroll: true });
     } catch (error) {
       showError(elements.submitError, submitErrorMessage(error));
     } finally {
-      setButtonBusy(elements.submitButton, false, 'Saving…', 'Submit RSVP ✓');
+      setButtonBusy(elements.submitButton, false, 'Saving…', 'Submit RSVP');
     }
   }
 
@@ -510,10 +551,11 @@
   elements.backButton.addEventListener('click', () => {
     elements.review.hidden = true;
     elements.form.hidden = false;
-    elements.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
   elements.submitButton.addEventListener('click', submitRsvp);
-  elements.editButton.addEventListener('click', () => renderInvitation(state.invitation));
+  elements.editButton.addEventListener('click', () => {
+    renderInvitation(state.invitation, { scroll: false });
+  });
   elements.useAnother.addEventListener('click', resetToLogin);
   elements.successAnother.addEventListener('click', resetToLogin);
   elements.replayIntro.addEventListener('click', playEnvelopeIntro);
@@ -523,4 +565,10 @@
       showError(elements.lookupError, 'You appear to be offline. Reconnect to verify your invitation code.');
     }
   });
+
+  if (BYPASS_INVITE_CODE) {
+    unlockSite();
+    elements.replayIntro.hidden = false;
+    renderInvitation(DEMO_INVITATION, { scroll: false });
+  }
 })();
