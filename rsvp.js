@@ -424,7 +424,7 @@
         elements.formError,
         'Please choose attending or not attending for every seat, and add a name for each reserved seat.'
       );
-      firstInvalid.focus();
+      firstInvalid.focus({ preventScroll: true });
       return null;
     }
 
@@ -459,7 +459,6 @@
     clearError(elements.submitError);
     elements.form.hidden = true;
     elements.review.hidden = false;
-    elements.review.scrollIntoView({ behavior: 'smooth', block: 'start' });
     elements.reviewHeading.setAttribute('tabindex', '-1');
     elements.reviewHeading.focus({ preventScroll: true });
   }
@@ -479,7 +478,7 @@
       elements.success.hidden = false;
       elements.successMessage.textContent = 'Thank you. Your party’s response has been saved. You can return with the same code to review or update it before the deadline.';
       elements.editButton.hidden = invitation.closed;
-      elements.success.focus();
+      elements.success.focus({ preventScroll: true });
     } catch (error) {
       showError(elements.submitError, submitErrorMessage(error));
     } finally {
@@ -552,10 +551,11 @@
   elements.backButton.addEventListener('click', () => {
     elements.review.hidden = true;
     elements.form.hidden = false;
-    elements.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
   elements.submitButton.addEventListener('click', submitRsvp);
-  elements.editButton.addEventListener('click', () => renderInvitation(state.invitation));
+  elements.editButton.addEventListener('click', () => {
+    renderInvitation(state.invitation, { scroll: false });
+  });
   elements.useAnother.addEventListener('click', resetToLogin);
   elements.successAnother.addEventListener('click', resetToLogin);
   elements.replayIntro.addEventListener('click', playEnvelopeIntro);
