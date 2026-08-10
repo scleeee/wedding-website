@@ -319,7 +319,7 @@ body.envelope-active {
 }
 
 .env-backdrop::after {
-  background: var(--page-splotches), var(--bg);
+  background: var(--bg) url("assets/Sunset landscape opacity transition.png") center top / cover no-repeat;
   content: "";
   inset: 0;
   opacity: 1;
@@ -480,10 +480,10 @@ body.envelope-active {
 }
 
 .env-letter-card::before {
-  background: url("assets/Sunset landscape opacity transition.png") center top / cover no-repeat;
+  background: var(--page-splotches), var(--bg);
   content: "";
   inset: 0;
-  opacity: 0.75;
+  opacity: 1;
   pointer-events: none;
   position: absolute;
   z-index: 0;
