@@ -1645,6 +1645,17 @@ h3 {
   .accent-left {
     left: 0.35rem;
   }
+
+  /* Candle / Cord / Veil stack so long names get full width. */
+  .secondary-sponsor-list {
+    grid-template-columns: 1fr;
+    row-gap: 2rem;
+  }
+
+  .secondary-sponsor-pair .entourage-pair {
+    grid-template-columns: 1fr;
+    row-gap: 0.65rem;
+  }
 }
 
 @media (max-width: 720px) {
