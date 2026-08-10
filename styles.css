@@ -1720,7 +1720,19 @@ h3 {
 }
 
 .guide-page .page {
+  background: var(--bg);
   min-height: 100dvh;
+}
+
+/* The sunset artwork already fades to the site's paper tone. Removing the
+   global peach splotches here lets that fade continue cleanly into the page. */
+.guide-page {
+  background: var(--bg);
+}
+
+.guide-page .page::before {
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 58%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 58%, transparent 100%);
 }
 
 .guide-placeholder {
