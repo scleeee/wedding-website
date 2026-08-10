@@ -308,7 +308,7 @@ body.envelope-active {
 
 .env-backdrop::before {
   aspect-ratio: 1926 / 816;
-  background: url("assets/Preserve Trees transparent.png") center bottom / contain no-repeat;
+  background: url("assets/Bahay kubo.png") center bottom / contain no-repeat;
   /* Sit the tree line below the centered envelope while keeping a modest,
      responsive amount of artwork cropped past the viewport edge. */
   bottom: clamp(-4.5rem, -5svh, -2rem);
