@@ -829,15 +829,34 @@ body.envelope-holding .hero > :not(.pillar) {
 }
 
 .page-sidebar {
-  left: clamp(0.75rem, 2vw, 2rem);
+  bottom: max(0.8rem, env(safe-area-inset-bottom));
+  left: max(0.8rem, env(safe-area-inset-left));
   position: fixed;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 19;
+  top: auto;
+  transform: none;
+  z-index: 30;
 }
 
 .page-sidebar-toggle {
-  display: none;
+  align-items: center;
+  backdrop-filter: blur(10px);
+  background: rgba(249, 246, 241, 0.94);
+  border: 1px solid rgba(222, 213, 200, 0.92);
+  border-radius: 999px;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  font: 700 0.64rem "Baskerville", "Times New Roman", serif;
+  gap: 0.6rem;
+  letter-spacing: 0.1em;
+  padding: 0.65rem 0.85rem;
+  text-transform: uppercase;
+}
+
+.page-sidebar-toggle-mark {
+  font-size: 1rem;
+  line-height: 0.8;
+  transition: transform 160ms ease;
 }
 
 .page-sidebar-links {
@@ -846,9 +865,12 @@ body.envelope-holding .hero > :not(.pillar) {
   border: 1px solid rgba(222, 213, 200, 0.88);
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(67, 55, 42, 0.06);
-  display: grid;
+  bottom: calc(100% + 0.55rem);
+  display: none;
   gap: 0.15rem;
+  left: 0;
   padding: 0.65rem;
+  position: absolute;
   width: 9.5rem;
 }
 
@@ -877,6 +899,14 @@ body.envelope-holding .hero > :not(.pillar) {
   background: rgba(242, 94, 55, 0.09);
   color: var(--accent);
   outline: none;
+}
+
+.page-sidebar.is-open .page-sidebar-links {
+  display: grid;
+}
+
+.page-sidebar.is-open .page-sidebar-toggle-mark {
+  transform: rotate(45deg);
 }
 
 .hero {
@@ -1776,53 +1806,6 @@ h3 {
   .secondary-sponsor-pair .entourage-pair {
     grid-template-columns: 1fr;
     row-gap: 0.65rem;
-  }
-}
-
-@media (max-width: 1100px) {
-  .page-sidebar {
-    bottom: max(0.8rem, env(safe-area-inset-bottom));
-    left: max(0.8rem, env(safe-area-inset-left));
-    top: auto;
-    transform: none;
-    z-index: 30;
-  }
-
-  .page-sidebar-toggle {
-    align-items: center;
-    backdrop-filter: blur(10px);
-    background: rgba(249, 246, 241, 0.94);
-    border: 1px solid rgba(222, 213, 200, 0.92);
-    border-radius: 999px;
-    color: inherit;
-    cursor: pointer;
-    display: flex;
-    font: 700 0.64rem "Baskerville", "Times New Roman", serif;
-    gap: 0.6rem;
-    letter-spacing: 0.1em;
-    padding: 0.65rem 0.85rem;
-    text-transform: uppercase;
-  }
-
-  .page-sidebar-toggle-mark {
-    font-size: 1rem;
-    line-height: 0.8;
-    transition: transform 160ms ease;
-  }
-
-  .page-sidebar-links {
-    bottom: calc(100% + 0.55rem);
-    display: none;
-    left: 0;
-    position: absolute;
-  }
-
-  .page-sidebar.is-open .page-sidebar-links {
-    display: grid;
-  }
-
-  .page-sidebar.is-open .page-sidebar-toggle-mark {
-    transform: rotate(45deg);
   }
 }
 
