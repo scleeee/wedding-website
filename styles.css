@@ -1130,17 +1130,17 @@ h3 {
 }
 
 .accent-left {
-  bottom: 0.5rem;
+  bottom: 1.5rem;
   left: 0.45rem;
-  max-width: min(19vw, 185px);
+  max-width: min(12vw, 176px);
   position: absolute;
 }
 
 .accent-right {
-  max-width: min(13vw, 130px);
+  bottom: 2.5rem;
   position: absolute;
   right: 0;
-  top: 52%;
+  width: clamp(110px, 12vw, 220px);
 }
 
 /* Full-bleed for the docked cypresses; the inline padding keeps every
@@ -1152,8 +1152,22 @@ h3 {
   width: 100%;
 }
 
-.entourage .side-tree {
-  top: 44%;
+.entourage-desktop-flower {
+  height: auto;
+  max-width: min(11vw, 135px);
+  pointer-events: none;
+  position: absolute;
+  user-select: none;
+}
+
+.entourage-desktop-flower-left {
+  left: -1.25rem;
+  top: 62%;
+}
+
+.entourage-desktop-flower-right {
+  right: -1.25rem;
+  top: 31%;
 }
 
 .entourage-intro {
@@ -1234,8 +1248,8 @@ h3 {
   overflow-wrap: anywhere;
 }
 
-/* Full-bleed so the flower branches can dock to the page edges; the grid
-   keeps the original centred width. */
+/* Full-bleed so the trees can dock to the page edges; the grid keeps the
+   original centred width. */
 .attire {
   max-width: none;
   position: relative;
@@ -1250,20 +1264,21 @@ h3 {
   max-width: var(--max-width);
 }
 
-.attire-flower {
+.attire-desktop-tree {
+  height: auto;
+  max-width: min(14vw, 175px);
+  pointer-events: none;
   position: absolute;
+  top: -7.5rem;
+  user-select: none;
 }
 
-.attire-flower-left {
-  bottom: 3rem;
-  left: -1.5rem;
-  max-width: min(20vw, 240px);
+.attire-desktop-tree-left {
+  left: 0.5rem;
 }
 
-.attire-flower-right {
-  max-width: min(21vw, 260px);
-  right: -1.5rem;
-  top: 1.5rem;
+.attire-desktop-tree-right {
+  right: 0.5rem;
 }
 
 .attire-card {
@@ -1284,18 +1299,10 @@ h3 {
   width: auto;
 }
 
-.attire-card img.mobile-only-decor {
-  display: none;
-}
-
 .attire-card p {
   letter-spacing: 0.05em;
   margin: 0;
   text-transform: uppercase;
-}
-
-.attire-barong-caption {
-  display: contents;
 }
 
 .attire-card span {
@@ -1688,7 +1695,8 @@ h3 {
     height: 68vw;
   }
 
-  .attire-flower {
+  .entourage-desktop-flower,
+  .attire-desktop-tree {
     display: none;
   }
 
@@ -1838,26 +1846,18 @@ h3 {
     display: block;
   }
 
-  /* Give the two branches deliberate pockets of white space between the
-     requested Entourage groups, then dock each one to its page edge. */
+  /* Dock each branch into the natural gap beside the following text block.
+     Absolute positioning keeps the decorations out of the text flow. */
   .entourage-principal,
   .entourage-wedding-party {
     position: relative;
-  }
-
-  .entourage-principal {
-    margin-bottom: 10rem;
-  }
-
-  .entourage-wedding-party {
-    margin-bottom: 10rem;
   }
 
   .entourage-mobile-flower {
     height: auto;
     pointer-events: none;
     position: absolute;
-    top: calc(100% + 1.1rem);
+    top: calc(100% + 0.35rem);
     user-select: none;
     width: min(24vw, 96px);
   }
@@ -1870,31 +1870,23 @@ h3 {
     left: -1rem;
   }
 
-  /* On phones the trees frame the Barong label itself instead of leaving
-     an empty decorative band beneath Entourage. */
-  .attire-barong-caption {
-    align-items: end;
-    display: grid;
-    gap: 0.45rem;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    margin-top: -0.5rem;
-    width: 100%;
-  }
-
-  .attire-card img.attire-mobile-tree {
-    display: block;
+  /* The trees sit in the Entourage-to-Attire transition without changing
+     either section's vertical rhythm. */
+  .attire-mobile-tree {
     height: auto;
-    max-width: 88px;
     pointer-events: none;
+    position: absolute;
+    top: -3.5rem;
     width: 21vw;
+    z-index: 0;
   }
 
   .attire-mobile-tree-left {
-    justify-self: start;
+    left: -0.15rem;
   }
 
   .attire-mobile-tree-right {
-    justify-self: end;
+    right: -0.15rem;
   }
 
   .rsvp-card {
@@ -1914,10 +1906,6 @@ h3 {
   .attendance-choice,
   .rsvp-actions .btn {
     min-width: 0;
-  }
-
-  .entourage .side-tree {
-    display: none;
   }
 
   .gift-flower {
@@ -1957,7 +1945,7 @@ h3 {
     top: 50%;
     transform: translateY(-50%);
     user-select: none;
-    width: min(21vw, 88px);
+    width: clamp(78px, 26vw, 135px);
   }
 
   .timeline-church {
