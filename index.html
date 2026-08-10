@@ -10,7 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Great+Vibes&amp;display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=114" />
+    <link rel="stylesheet" href="styles.css?v=115" />
   </head>
   <body class="site-locked">
     <div class="access-gate" id="access-gate">
@@ -123,13 +123,30 @@
     </button>
 
     <main class="page" id="site-content" aria-hidden="true" inert hidden>
-      <header class="top-nav">
-        <a href="#details">Wedding Details</a>
-        <a href="#timeline">Timeline</a>
-        <a href="#attire">Attire</a>
-        <a href="#gifts">Gifts</a>
-        <a href="#rsvp">RSVP</a>
+      <header class="top-nav" aria-label="Site navigation">
+        <a href="index.html" aria-current="page">Wedding</a>
+        <a href="guide-to-manila.html">Guide to Manila</a>
       </header>
+
+      <nav class="page-sidebar" aria-label="On this page">
+        <button
+          class="page-sidebar-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="page-sidebar-links"
+        >
+          <span>On this page</span>
+          <span class="page-sidebar-toggle-mark" aria-hidden="true">+</span>
+        </button>
+        <div class="page-sidebar-links" id="page-sidebar-links">
+          <a href="#details">Wedding Details</a>
+          <a href="#timeline">Timeline</a>
+          <a href="#entourage">Entourage</a>
+          <a href="#attire">Attire</a>
+          <a href="#gifts">Gifts</a>
+          <a href="#rsvp">RSVP</a>
+        </div>
+      </nav>
 
       <section class="section hero">
         <img
@@ -491,40 +508,6 @@
     <script src="rsvp-config.js"></script>
     <script src="envelope.js?v=12"></script>
     <script src="rsvp.js?v=17"></script>
-    <script>
-      document.querySelectorAll('.top-nav a[href^="#"]').forEach((link) => {
-        link.addEventListener("click", (event) => {
-          const target = document.querySelector(link.getAttribute("href"));
-          if (!target) return;
-          event.preventDefault();
-          target.scrollIntoView({ behavior: "smooth", block: "start" });
-          history.replaceState(null, "", link.getAttribute("href"));
-        });
-      });
-
-      const topNav = document.querySelector(".top-nav");
-      if (topNav) {
-        const navFadeDistance = 160;
-        let navAnimationFrame;
-
-        const syncNavBackground = () => {
-          navAnimationFrame = undefined;
-          const progress = Math.min(window.scrollY / navFadeDistance, 1);
-          topNav.style.setProperty("--nav-background-opacity", (progress * 0.92).toFixed(3));
-          topNav.style.setProperty("--nav-border-opacity", progress.toFixed(3));
-          topNav.style.setProperty("--nav-shadow-opacity", (progress * 0.06).toFixed(3));
-          topNav.style.setProperty("--nav-blur", `${(progress * 10).toFixed(2)}px`);
-        };
-
-        const requestNavBackgroundSync = () => {
-          if (!navAnimationFrame) {
-            navAnimationFrame = window.requestAnimationFrame(syncNavBackground);
-          }
-        };
-
-        syncNavBackground();
-        window.addEventListener("scroll", requestNavBackgroundSync, { passive: true });
-      }
-    </script>
+    <script src="site-nav.js?v=1"></script>
   </body>
 </html>
