@@ -7,6 +7,11 @@
   --paper: #fffdf9;
   --success: #2e6d46;
   --max-width: 920px;
+  --page-splotches:
+    radial-gradient(circle at 0% 22%, rgba(242, 94, 55, 0.11), transparent 30rem),
+    radial-gradient(circle at 100% 38%, rgba(242, 94, 55, 0.095), transparent 28rem),
+    radial-gradient(circle at 0% 78%, rgba(242, 94, 55, 0.09), transparent 32rem),
+    radial-gradient(circle at 100% 90%, rgba(242, 94, 55, 0.105), transparent 26rem);
 }
 
 * {
@@ -35,12 +40,7 @@ html {
 }
 
 body {
-  background:
-    radial-gradient(circle at 0% 22%, rgba(242, 94, 55, 0.11), transparent 30rem),
-    radial-gradient(circle at 100% 38%, rgba(242, 94, 55, 0.095), transparent 28rem),
-    radial-gradient(circle at 0% 78%, rgba(242, 94, 55, 0.09), transparent 32rem),
-    radial-gradient(circle at 100% 90%, rgba(242, 94, 55, 0.105), transparent 26rem),
-    var(--bg);
+  background: var(--page-splotches), var(--bg);
   color: var(--text);
   font-family: "Baskerville", "Times New Roman", serif;
   line-height: 1.55;
@@ -294,17 +294,25 @@ body.envelope-active {
 }
 
 .env-backdrop {
-  --env-backdrop-art: url("assets/Sunset landscape.png");
-  background:
-    linear-gradient(180deg, rgba(45, 26, 26, 0.45), rgba(14, 8, 8, 0.65)),
-    var(--env-backdrop-art) center top / cover no-repeat;
-  background-color: #2d1a1a;
+  background: var(--page-splotches), var(--bg);
   inset: 0;
   opacity: 1;
+  overflow: hidden;
   pointer-events: none;
   position: absolute;
   transition: opacity 0.95s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 0;
+}
+
+.env-backdrop::before {
+  aspect-ratio: 1926 / 816;
+  background: url("assets/Preserve Trees transparent.png") center bottom / contain no-repeat;
+  bottom: 0;
+  content: "";
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%);
+  width: clamp(46rem, 44vw, 72rem);
 }
 
 .env-overlay.morphing {
@@ -313,14 +321,6 @@ body.envelope-active {
 
 .env-overlay.morphing .env-backdrop {
   opacity: 0;
-}
-
-/* Use the matching portrait crop when the landscape artwork would lose most
-   of its width. Both sources retain their natural proportions via `cover`. */
-@media (max-aspect-ratio: 6 / 5) {
-  .env-backdrop {
-    --env-backdrop-art: url("assets/Sunset.png");
-  }
 }
 
 /* During the scale morph, only quote + logo should read — no paper card. */
@@ -374,7 +374,9 @@ body.envelope-active {
 }
 
 .env-scene:focus-visible .env-prompt {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text);
+  outline: 3px solid rgba(242, 94, 55, 0.55);
+  outline-offset: 3px;
 }
 
 .env-scene[aria-disabled="true"] {
@@ -585,8 +587,12 @@ body.envelope-active {
 }
 
 .env-prompt {
+  backdrop-filter: blur(6px);
+  background: rgba(249, 246, 241, 0.82);
+  border: 1px solid rgba(45, 45, 45, 0.14);
+  border-radius: 999px;
   bottom: -0.65rem;
-  color: rgba(255, 255, 255, 0.94);
+  color: var(--text);
   font-family: "Baskerville", "Times New Roman", serif;
   font-size: 1.15rem;
   font-style: italic;
@@ -595,9 +601,9 @@ body.envelope-active {
   letter-spacing: 0.04em;
   margin: 0;
   opacity: 0;
+  padding: 0.3rem 0.75rem;
   pointer-events: none;
   position: absolute;
-  text-shadow: 0 1px 8px rgba(14, 8, 8, 0.9);
   text-transform: none;
   transform: translateX(-50%);
   transition: opacity 0.5s ease, color 0.2s ease;
@@ -614,7 +620,7 @@ body.envelope-active {
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 999px;
   bottom: 1.5rem;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(255, 255, 255, 0.94);
   font: 700 0.64rem Arial, sans-serif;
   left: 50%;
   letter-spacing: 0.1em;
