@@ -288,12 +288,17 @@ body.envelope-active {
   z-index: 3000;
 }
 
+.env-overlay.handoff {
+  transition-duration: 0.8s;
+}
+
 .env-overlay.fade-out {
   opacity: 0;
   pointer-events: none;
 }
 
 .env-backdrop {
+  background: var(--page-splotches), var(--bg);
   inset: 0;
   overflow: hidden;
   pointer-events: none;
@@ -304,7 +309,9 @@ body.envelope-active {
 .env-backdrop::before {
   aspect-ratio: 1926 / 816;
   background: url("assets/Preserve Trees transparent.png") center bottom / contain no-repeat;
-  bottom: 0;
+  /* Sit the tree line below the centered envelope while keeping a modest,
+     responsive amount of artwork cropped past the viewport edge. */
+  bottom: clamp(-4.5rem, -5svh, -2rem);
   content: "";
   left: 50%;
   opacity: 1;
@@ -319,10 +326,10 @@ body.envelope-active {
 }
 
 .env-backdrop::after {
-  background: var(--bg) url("assets/Sunset landscape opacity transition.png") center top / cover no-repeat;
+  background: url("assets/Sunset landscape opacity transition.png") center top / cover no-repeat;
   content: "";
   inset: 0;
-  opacity: 1;
+  opacity: 0.6;
   position: absolute;
   transition: opacity 0.95s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 0;
@@ -330,10 +337,6 @@ body.envelope-active {
 
 .env-overlay.morphing {
   cursor: pointer;
-}
-
-.env-overlay.morphing .env-backdrop::after {
-  opacity: 0;
 }
 
 .env-overlay.morphing .env-backdrop::before {
@@ -453,7 +456,7 @@ body.envelope-active {
 
 .env-letter-card {
   align-items: center;
-  background: #f9f6f1;
+  background: var(--bg);
   border-top: 3px solid #c9506a;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
   display: flex;
@@ -480,7 +483,7 @@ body.envelope-active {
 }
 
 .env-letter-card::before {
-  background: var(--page-splotches), var(--bg);
+  background: var(--bg);
   content: "";
   inset: 0;
   opacity: 1;
@@ -700,6 +703,18 @@ body.envelope-holding .hero > :not(.pillar) {
   }
 }
 
+/* Preserve the current phone composition while giving wide screens the
+   homepage sunset proportions and a fuller tree line. */
+@media (min-width: 900px) {
+  .env-backdrop::before {
+    width: clamp(46rem, 84vw, 132rem);
+  }
+
+  .env-backdrop::after {
+    background-size: 100% auto;
+  }
+}
+
 /* Phones / short viewports: keep the envelope centered and fully on-screen
    with room for the prompt underneath. */
 @media (max-width: 720px), (max-height: 720px) {
@@ -845,8 +860,10 @@ body.envelope-holding .hero > :not(.pillar) {
   margin: 0 0 1.4rem;
 }
 
-/* After the morph lands on quote + logo, everything below trickles in. */
+/* After the morph lands on quote + logo, the pillars rise while the
+   remaining homepage content trickles in. */
 body:not(.site-content-live) .top-nav,
+body:not(.site-content-live) .hero > .pillar,
 body:not(.site-content-live) .hero > .hero-kicker,
 body:not(.site-content-live) .hero > .parents,
 body:not(.site-content-live) .hero > .invitation-copy,
@@ -855,6 +872,10 @@ body:not(.site-content-live) .hero > .address,
 body:not(.site-content-live) .page > .section:not(.hero) {
   opacity: 0;
   transform: translateY(1.1rem);
+}
+
+body:not(.site-content-live) .hero > .pillar {
+  transform: translateY(clamp(14rem, 55dvh, 34rem));
 }
 
 body.site-content-live .top-nav,
@@ -929,6 +950,7 @@ body.site-content-live .page > .section:not(.hero):nth-of-type(6) {
 
 @media (prefers-reduced-motion: reduce) {
   body:not(.site-content-live) .top-nav,
+  body:not(.site-content-live) .hero > .pillar,
   body:not(.site-content-live) .hero > .hero-kicker,
   body:not(.site-content-live) .hero > .parents,
   body:not(.site-content-live) .hero > .invitation-copy,
@@ -940,6 +962,7 @@ body.site-content-live .page > .section:not(.hero):nth-of-type(6) {
   }
 
   body.site-content-live .top-nav,
+  body.site-content-live .hero > .pillar,
   body.site-content-live .hero > .hero-kicker,
   body.site-content-live .hero > .parents,
   body.site-content-live .hero > .invitation-copy,
@@ -993,8 +1016,12 @@ h2 {
 /* Sized off the artwork's 1:4.7 aspect so the pillars span the hero text
    block rather than bleeding into the sections below. */
 .pillar {
+  height: auto;
   position: absolute;
   top: 5.5rem;
+  transition:
+    opacity 1.1s ease,
+    transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
   width: min(14.5vw, 165px);
   z-index: -1;
 }

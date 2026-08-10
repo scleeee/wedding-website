@@ -40,7 +40,7 @@
   }
 
   function resetEnvelope() {
-    elements.overlay.classList.remove('fade-out', 'morphing');
+    elements.overlay.classList.remove('fade-out', 'handoff', 'morphing');
     elements.flap.classList.remove('open');
     elements.seal.classList.remove('cracking');
     elements.letter.classList.remove('rising', 'flight', 'expanded');
@@ -75,7 +75,7 @@
     if (callback) callback();
   }
 
-  function skip() {
+  function skip({ handoff = false } = {}) {
     if (phase === 'idle') return;
     clearTimers();
     phase = 'closing';
@@ -85,8 +85,9 @@
     elements.holdStatus.hidden = true;
     document.body.classList.remove('envelope-holding');
     document.body.classList.add('site-content-live');
+    elements.overlay.classList.toggle('handoff', handoff);
     elements.overlay.classList.add('fade-out');
-    later(complete, reducedMotion.matches ? 160 : 460);
+    later(complete, reducedMotion.matches ? 160 : handoff ? 820 : 460);
   }
 
   function expandLetter(duration) {
@@ -151,16 +152,13 @@
         elements.letter.style.transition =
           `transform ${duration}ms cubic-bezier(0.22, 1, 0.36, 1)`;
         elements.letter.style.transform = 'translate3d(0, 0, 0) scale(1)';
-        // Atomic handoff: hide the morph letter in the same frame the real
-        // hero is revealed so quote/logo never double on screen.
+        // Keep the matched quote/logo visible while the overlay crossfades
+        // into the live hero. The real pillars and remaining copy rise into
+        // place underneath, avoiding a blank frame between intro and page.
         later(() => {
           elements.letter.style.transition = 'none';
-          elements.letter.style.opacity = '0';
-          elements.letter.style.visibility = 'hidden';
           void elements.letter.offsetWidth;
-          document.body.classList.remove('envelope-holding');
-          document.body.classList.add('site-content-live');
-          skip();
+          skip({ handoff: true });
         }, duration + 40);
       });
     });
