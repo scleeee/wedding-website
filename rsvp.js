@@ -208,9 +208,15 @@
       ));
   }
 
-  function seatReservationText(invitation) {
+  function renderSeatReservationText(invitation) {
     const seatWord = invitation.reserved_seats === 1 ? 'seat' : 'seats';
-    return `We reserved ${invitation.reserved_seats} ${seatWord} for you.`;
+    const seatCount = document.createElement('strong');
+    seatCount.textContent = `${invitation.reserved_seats} ${seatWord}`;
+    elements.seatCopy.replaceChildren(
+      document.createTextNode('We reserved '),
+      seatCount,
+      document.createTextNode(' for you.')
+    );
   }
 
   function startContentCascade() {
@@ -273,7 +279,7 @@
     elements.closed.hidden = !invitation.closed;
     elements.partyAttendance.hidden = invitation.reserved_seats < 2 || invitation.closed;
     elements.reviewButton.hidden = invitation.closed;
-    elements.seatCopy.textContent = seatReservationText(invitation);
+    renderSeatReservationText(invitation);
     clearError(elements.formError);
     updateDeadline(invitation);
     renderGuests(invitation);
