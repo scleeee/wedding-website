@@ -1111,6 +1111,10 @@ h3 {
   grid-area: 1 / 3;
 }
 
+.timeline-after-party {
+  position: relative;
+}
+
 /* Trim the line so it runs between the first and last dots only. */
 .timeline-list li:first-child::before {
   background-position: 50% 0, 50% calc(var(--row-pad) + var(--dot-y));
@@ -1167,6 +1171,10 @@ h3 {
 
 .entourage-block:last-child {
   margin-bottom: 0;
+}
+
+.mobile-only-decor {
+  display: none;
 }
 
 .entourage-pair {
@@ -1276,10 +1284,18 @@ h3 {
   width: auto;
 }
 
+.attire-card img.mobile-only-decor {
+  display: none;
+}
+
 .attire-card p {
   letter-spacing: 0.05em;
   margin: 0;
   text-transform: uppercase;
+}
+
+.attire-barong-caption {
+  display: contents;
 }
 
 .attire-card span {
@@ -1672,19 +1688,8 @@ h3 {
     height: 68vw;
   }
 
-  /* Stacked cards leave narrow side margins, so the branches tuck beside
-     the barong and the gown's bodice rather than flanking the section. */
-  .attire-flower-left {
-    bottom: auto;
-    left: -1.2rem;
-    max-width: 26vw;
-    top: 52%;
-  }
-
-  .attire-flower-right {
-    max-width: 26vw;
-    right: -1.2rem;
-    top: 12%;
+  .attire-flower {
+    display: none;
   }
 
   /* Narrower rail and gaps so the list clears the docked accents. */
@@ -1790,10 +1795,7 @@ h3 {
     font-size: 0.75rem;
   }
 
-  /* The trees move to a band under the content on phones, which frees the
-     full width for the long names. */
   .entourage {
-    padding-bottom: 12rem;
     padding-inline: 1rem;
   }
 
@@ -1832,6 +1834,69 @@ h3 {
     line-height: 1.45;
   }
 
+  .mobile-only-decor {
+    display: block;
+  }
+
+  /* Give the two branches deliberate pockets of white space between the
+     requested Entourage groups, then dock each one to its page edge. */
+  .entourage-principal,
+  .entourage-wedding-party {
+    position: relative;
+  }
+
+  .entourage-principal {
+    margin-bottom: 10rem;
+  }
+
+  .entourage-wedding-party {
+    margin-bottom: 10rem;
+  }
+
+  .entourage-mobile-flower {
+    height: auto;
+    pointer-events: none;
+    position: absolute;
+    top: calc(100% + 1.1rem);
+    user-select: none;
+    width: min(24vw, 96px);
+  }
+
+  .entourage-mobile-flower-right {
+    right: -1rem;
+  }
+
+  .entourage-mobile-flower-left {
+    left: -1rem;
+  }
+
+  /* On phones the trees frame the Barong label itself instead of leaving
+     an empty decorative band beneath Entourage. */
+  .attire-barong-caption {
+    align-items: end;
+    display: grid;
+    gap: 0.45rem;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    margin-top: -0.5rem;
+    width: 100%;
+  }
+
+  .attire-card img.attire-mobile-tree {
+    display: block;
+    height: auto;
+    max-width: 88px;
+    pointer-events: none;
+    width: 21vw;
+  }
+
+  .attire-mobile-tree-left {
+    justify-self: start;
+  }
+
+  .attire-mobile-tree-right {
+    justify-self: end;
+  }
+
   .rsvp-card {
     padding-inline: 1rem;
   }
@@ -1852,9 +1917,7 @@ h3 {
   }
 
   .entourage .side-tree {
-    bottom: 0;
-    max-width: 26vw;
-    top: auto;
+    display: none;
   }
 
   .gift-flower {
@@ -1874,24 +1937,27 @@ h3 {
     grid-template-columns: 1fr;
   }
 
-  /* No room to flank the list on a phone, so the accents move into a band
-     below it, still docked to their own edges. */
-  .timeline {
-    padding-bottom: 13rem;
-  }
-
   .accent-left {
-    bottom: 0;
-    left: 0.3rem;
-    max-width: 110px;
+    display: none;
   }
 
   .accent-right {
-    bottom: 1.2rem;
-    left: auto;
-    max-width: 76px;
-    right: -0.6rem;
-    top: auto;
+    display: none;
+  }
+
+  .timeline-list {
+    width: 100%;
+  }
+
+  .timeline-mobile-accent-right {
+    height: auto;
+    pointer-events: none;
+    position: absolute;
+    right: -0.9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    user-select: none;
+    width: min(21vw, 88px);
   }
 
   .timeline-church {
