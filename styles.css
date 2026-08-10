@@ -294,13 +294,10 @@ body.envelope-active {
 }
 
 .env-backdrop {
-  background: var(--page-splotches), var(--bg);
   inset: 0;
-  opacity: 1;
   overflow: hidden;
   pointer-events: none;
   position: absolute;
-  transition: opacity 0.95s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 0;
 }
 
@@ -310,17 +307,38 @@ body.envelope-active {
   bottom: 0;
   content: "";
   left: 50%;
+  opacity: 1;
   position: absolute;
-  transform: translateX(-50%);
+  transform: translate3d(-50%, 0, 0);
+  transition:
+    opacity 1.35s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 1.35s cubic-bezier(0.4, 0, 0.7, 1);
+  will-change: opacity, transform;
   width: clamp(46rem, 44vw, 72rem);
+  z-index: 1;
+}
+
+.env-backdrop::after {
+  background: var(--page-splotches), var(--bg);
+  content: "";
+  inset: 0;
+  opacity: 1;
+  position: absolute;
+  transition: opacity 0.95s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
 }
 
 .env-overlay.morphing {
   cursor: pointer;
 }
 
-.env-overlay.morphing .env-backdrop {
+.env-overlay.morphing .env-backdrop::after {
   opacity: 0;
+}
+
+.env-overlay.morphing .env-backdrop::before {
+  opacity: 0;
+  transform: translate3d(-50%, 105%, 0);
 }
 
 /* During the scale morph, only quote + logo should read — no paper card. */
@@ -709,7 +727,8 @@ body.envelope-holding .hero > :not(.pillar) {
   }
 
   .env-overlay,
-  .env-backdrop,
+  .env-backdrop::before,
+  .env-backdrop::after,
   .env-body-wrap,
   .env-flap-wrap,
   .env-letter-card {
@@ -723,6 +742,10 @@ body.envelope-holding .hero > :not(.pillar) {
 
   .env-letter-card.rising {
     transform: translateX(-50%) translateY(-35%);
+  }
+
+  .env-overlay.morphing .env-backdrop::before {
+    transform: translate3d(-50%, 0, 0);
   }
 
 }
