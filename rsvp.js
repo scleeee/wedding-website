@@ -4,6 +4,7 @@
   // TEMP: skip the invitation-code gate while designing the site.
   // Set back to false before sharing / launch.
   const BYPASS_INVITE_CODE = false;
+  const SESSION_CODE_KEY = 'shawn-lizzy-rsvp-code';
 
   // Fake party used only when BYPASS_INVITE_CODE is on, so the RSVP UI is visible.
   const DEMO_INVITATION = {
@@ -128,6 +129,30 @@
     element.classList.remove('visible');
   }
 
+  function savedSessionCode() {
+    try {
+      return window.sessionStorage.getItem(SESSION_CODE_KEY) || '';
+    } catch {
+      return '';
+    }
+  }
+
+  function saveSessionCode(code) {
+    try {
+      window.sessionStorage.setItem(SESSION_CODE_KEY, code);
+    } catch {
+      // The invitation still works when browser storage is unavailable.
+    }
+  }
+
+  function clearSessionCode() {
+    try {
+      window.sessionStorage.removeItem(SESSION_CODE_KEY);
+    } catch {
+      // Nothing else is needed when browser storage is unavailable.
+    }
+  }
+
   function setButtonBusy(button, busy, busyText, normalText) {
     button.disabled = busy;
     button.textContent = busy ? busyText : normalText;
@@ -167,6 +192,20 @@
   function updateDeadline(invitation) {
     const deadline = formatDeadline(invitation.deadline);
     elements.deadlineHeading.textContent = deadline || defaultDeadlineText;
+  }
+
+  function hasValidInvitationSeats(invitation) {
+    return invitation
+      && Number.isInteger(invitation.reserved_seats)
+      && invitation.reserved_seats >= 1
+      && invitation.reserved_seats <= 50
+      && Array.isArray(invitation.guests)
+      && invitation.guests.length === invitation.reserved_seats
+      && invitation.guests.every((guest, index) => (
+        guest
+        && Number.isInteger(guest.seat_number)
+        && guest.seat_number === index + 1
+      ));
   }
 
   function seatReservationText(invitation) {
@@ -244,7 +283,11 @@
     }
 
     if (unlockingSite) {
-      playEnvelopeIntro();
+      if (options.skipIntro) {
+        unlockSite();
+      } else {
+        playEnvelopeIntro();
+      }
     } else if (options.scroll !== false) {
       elements.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
       elements.form.setAttribute('tabindex', '-1');
@@ -490,6 +533,7 @@
     state.code = '';
     state.invitation = null;
     state.pendingResponses = null;
+    clearSessionCode();
     elements.form.hidden = true;
     elements.review.hidden = true;
     elements.success.hidden = true;
@@ -519,21 +563,11 @@
         elements.codeInput.focus();
         return;
       }
-      const validSeats = invitation
-        && Number.isInteger(invitation.reserved_seats)
-        && invitation.reserved_seats >= 1
-        && invitation.reserved_seats <= 50
-        && Array.isArray(invitation.guests)
-        && invitation.guests.length === invitation.reserved_seats
-        && invitation.guests.every((guest, index) => (
-          guest
-          && Number.isInteger(guest.seat_number)
-          && guest.seat_number === index + 1
-        ));
-      if (!validSeats) {
+      if (!hasValidInvitationSeats(invitation)) {
         throw new RsvpApiError('Invitation seats are incomplete.', 'DATA');
       }
       state.code = code;
+      saveSessionCode(code);
       renderInvitation(invitation);
     } catch (error) {
       showError(elements.lookupError, lookupErrorMessage(error));
@@ -566,9 +600,34 @@
     }
   });
 
+  async function restoreSession() {
+    const code = savedSessionCode();
+    if (!code) return;
+
+    elements.codeInput.disabled = true;
+    setButtonBusy(elements.lookupButton, true, 'Opening…', 'Enter website');
+
+    try {
+      const invitation = await callRsvpApi('lookup', { code });
+      if (!invitation || !hasValidInvitationSeats(invitation)) {
+        clearSessionCode();
+        return;
+      }
+      state.code = code;
+      renderInvitation(invitation, { scroll: false, skipIntro: true });
+    } catch {
+      // Keep the session value for a later retry if the network is unavailable.
+    } finally {
+      elements.codeInput.disabled = false;
+      setButtonBusy(elements.lookupButton, false, 'Opening…', 'Enter website');
+    }
+  }
+
   if (BYPASS_INVITE_CODE) {
     unlockSite();
     elements.replayIntro.hidden = false;
     renderInvitation(DEMO_INVITATION, { scroll: false });
+  } else {
+    restoreSession();
   }
 })();
