@@ -4,13 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Shawn &amp; Lizzy - Wedding Invitation</title>
+    <link rel="preload" as="image" href="assets/Bahay%20kubo.png" fetchpriority="high" />
+    <link
+      rel="preload"
+      as="image"
+      href="assets/Sunset%20landscape%20opacity%20transition.png"
+      fetchpriority="high"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Great+Vibes&amp;display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=116" />
+    <link rel="stylesheet" href="styles.css?v=119" />
   </head>
   <body class="site-locked">
     <div class="access-gate" id="access-gate">
@@ -80,7 +87,7 @@
           <div class="env-letter-brand">
             <img class="env-letter-logo" src="assets/Logo.png" alt="" />
           </div>
-          <p class="env-letter-date">January 5, 2027</p>
+          <!-- <p class="env-letter-date">January 5, 2027</p> -->
           <div class="env-expanded-details">
             <p class="env-expanded-invitation">
               Joyfully invite you to celebrate our wedding on
@@ -210,7 +217,7 @@
           </li>
           <li>
             <span class="time">5:00 PM</span>
-            <span class="event">Cocktail hour</span>
+            <span class="event">Cocktail hour at Blue Leaf Events Pavilion</span>
           </li>
           <li>
             <span class="time">6:00 PM</span>
@@ -288,7 +295,7 @@
             <p class="role-label">Best Men</p>
             <ul class="name-list">
               <li>Matthew Darrell C. Lee</li>
-              <li>Mark Angelo B. Bernaldez</li>
+              <li>Mark Angelo P. Bernaldez</li>
             </ul>
           </div>
           <div>
@@ -405,7 +412,9 @@
               src="assets/Outfit Left.png"
               alt="Barong Tagalog attire reference"
             />
-            <p>Barong Tagalog</p>
+            <p>Barong Tagalog<br />
+              <span>in long sleeves, paired with dress pants</span>
+            </p>
           </article>
           <article class="attire-card">
             <img
@@ -414,7 +423,7 @@
             />
             <p>
               Floor-length gown or formal dress<br />
-              <span>in any shade from our color palette</span>
+              <span>in any shade from the color palette</span>
             </p>
           </article>
         </div>
@@ -433,14 +442,14 @@
       <section id="rsvp" class="section rsvp" aria-label="RSVP">
         <img
           class="rsvp-bahay"
-          src="assets/Bahay%20kubo.png?v=4"
+          src="assets/Bahay%20kubo.png"
           alt=""
           aria-hidden="true"
           loading="lazy"
         />
         <h3>RSVP</h3>
-        <p id="rsvp-seat-copy">We reserved 1 seat for you.</p>
-        <p>
+        <p id="rsvp-seat-copy">We reserved <strong>1 seat</strong> for you.</p>
+        <p class="rsvp-deadline-copy">
           The favor of a reply is requested on or before
           <strong id="rsvp-deadline-heading">September 14, 2026</strong>.
         </p>
@@ -507,7 +516,7 @@
     </main>
     <script src="rsvp-config.js"></script>
     <script src="envelope.js?v=12"></script>
-    <script src="rsvp.js?v=17"></script>
+    <script src="rsvp.js?v=19"></script>
     <script src="site-nav.js?v=1"></script>
   </body>
 </html>
