@@ -2,3 +2,8 @@
 # This invitation-code endpoint is intentionally public. Authentication and
 # abuse controls are implemented in the function before either RPC is called.
 verify_jwt = false
+
+[functions.rsvp-sheet-export]
+# This server-to-server endpoint uses a high-entropy token sent by the owner's
+# Google Apps Script. It deliberately does not accept browser JWTs.
+verify_jwt = false

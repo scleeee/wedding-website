@@ -250,6 +250,25 @@ The audit table is readable by the host dashboard but blocks application-level
 inserts, updates, and deletes. Every future `submit_rsvp` call creates its
 snapshot automatically through the database trigger.
 
+### Google Sheets RSVP export
+
+`rsvp-sheet-export` is a token-protected Edge Function for the owner's Google
+Apps Script. It returns only `invite_code`, `seat_number`, `submitted_name`,
+`attending`, `dietary_requirements`, `submitted_at`, and `updated_at` from the
+private RSVP reporting view. The token is stored only as a SHA-256 digest in
+the database; keep its plaintext value in Google Apps Script Script Properties,
+not in the spreadsheet, source code, or Git.
+
+Set these Script Properties before running the Apps Script sync:
+
+```text
+RSVP_EXPORT_URL=https://ehyoweasqwahqpdzftgt.supabase.co/functions/v1/rsvp-sheet-export
+RSVP_SHEET_TOKEN=<owner-provided secret>
+```
+
+The function accepts only `GET` requests with the `X-RSVP-SHEET-TOKEN` header.
+It returns `401` for missing or invalid tokens and disables HTTP caching.
+
 The deprecated `expected_name` and `party_name` planning fields are removed.
 Submissions always store only the visitor-entered values. Keep all guest-list
 exports and the ignored `.cache` directory out of Git.
