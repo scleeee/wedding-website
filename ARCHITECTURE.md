@@ -40,6 +40,9 @@ abuse controls fail closed if the protected database rate limiter is unavailable
   Submitted name, attendance, diet, and per-row submission time live here.
 - `public.rsvp_submissions`: a protected admin view with one row per submitted
   guest slot and no access-code field.
+- `public.rsvp_submission_audit`: append-only, protected snapshots of every
+  full-party RSVP revision. It stores no readable invite code and prevents
+  updates or deletes at the application boundary.
 - `public.rsvp_rate_limit_events`: short-lived, salted-IP rate-limit reservations
   accessible only through server-role RPCs.
 - RLS is enabled and `anon`/`authenticated` have no direct table privileges.

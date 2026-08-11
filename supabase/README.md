@@ -135,7 +135,9 @@ to regenerate or run the private import for those edits.
 
 Reducing `reserved_seats` removes RSVP slots above the new number, including
 any responses in those slots. Check the submission history before reducing a
-seat count.
+seat count. Once an invite has RSVP history, disable it with
+`access_enabled = false` instead of deleting it: its audit records deliberately
+prevent a destructive invite deletion.
 
 Name uniqueness is deterministic: Unicode NFKC normalization, collapsed
 whitespace, and case folding are applied before counting. Codes are normalized
@@ -218,6 +220,32 @@ each submitted row with that group; `name`, `attending`,
 `dietary_requirements`, and `submitted_at` are the guest-entered values. The
 Supabase dashboard can use `public.rsvp_submissions` for a concise one-row-per-
 submitted-guest view. It intentionally contains no access-code digest.
+
+### RSVP revision history
+
+`public.rsvp_submission_audit` keeps an append-only snapshot for every complete
+RSVP submission. Each row has the opaque `invite_id`, `revision`, submission
+timestamp, and a JSON `snapshot` containing the reserved-seat count and ordered
+guest responses. Existing submissions were seeded with a single current-state
+baseline when audit logging was introduced; edits made before then cannot be
+reconstructed.
+
+Use the SQL Editor to join readable host codes when reviewing history:
+
+```sql
+select
+  admin.invite_code,
+  audit.revision,
+  audit.submitted_at,
+  audit.snapshot
+from public.rsvp_submission_audit as audit
+join public.rsvp_invite_admin as admin on admin.id = audit.invite_id
+order by audit.submitted_at desc, audit.revision desc;
+```
+
+The audit table is readable by the host dashboard but blocks application-level
+inserts, updates, and deletes. Every future `submit_rsvp` call creates its
+snapshot automatically through the database trigger.
 
 The deprecated `expected_name` and `party_name` planning fields are removed.
 Submissions always store only the visitor-entered values. Keep all guest-list
