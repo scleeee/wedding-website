@@ -3089,3 +3089,92 @@ h3 {
   .guide-page .guide-hero h1 { font-size: clamp(2.45rem, 12vw, 3.5rem); }
   .guide-page .guide-section { padding-top: 4.4rem; }
 }
+
+/* Give the guide's section names and numbered markers a clearer hierarchy. */
+.guide-page .guide-card-number {
+  font-size: 0.88rem;
+  letter-spacing: 0.14em;
+}
+
+.guide-page .guide-story-heading .guide-card-number {
+  display: block;
+  font-size: clamp(1.3rem, 2.7vw, 1.75rem);
+  letter-spacing: 0.08em;
+  line-height: 1;
+  margin-bottom: 0.8rem;
+}
+
+.guide-page .guide-section-heading .guide-eyebrow {
+  color: var(--text);
+  font-size: clamp(1.5rem, 3.1vw, 2.35rem);
+  font-style: italic;
+  letter-spacing: 0.015em;
+  line-height: 1.15;
+  margin-bottom: 0.45rem;
+  text-transform: none;
+}
+
+.guide-page .guide-section-heading h2 {
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-style: normal;
+  letter-spacing: 0.16em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.guide-page .guide-section-heading > p:last-child {
+  margin-top: 1.1rem;
+}
+
+.guide-pronunciation {
+  color: var(--text-muted);
+  font-family: "Baskerville", "Times New Roman", serif;
+  font-size: 0.76rem;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .guide-page .guide-section-heading .guide-eyebrow {
+    font-size: clamp(1.55rem, 8vw, 2rem);
+  }
+}
+
+.guide-bonus-links-label {
+  color: var(--accent) !important;
+  font-size: 0.68rem !important;
+  letter-spacing: 0.14em;
+  margin-top: 1.5rem !important;
+  text-transform: uppercase;
+}
+
+.guide-bonus-card .guide-bonus-social-links {
+  grid-template-columns: 1fr;
+  margin-top: 0.65rem;
+}
+
+.guide-bonus-card .guide-bonus-social-links a,
+.guide-bonus-card .guide-bonus-social-links a:nth-child(odd) {
+  margin-right: 0;
+}
+
+@media (max-width: 720px) {
+  .guide-bonus-card .guide-bonus-social-links {
+    display: grid;
+    margin: 0.65rem 0 0;
+    overflow: visible;
+    padding: 0;
+  }
+
+  .guide-bonus-card .guide-bonus-social-links a,
+  .guide-bonus-card .guide-bonus-social-links a:nth-child(odd) {
+    border-inline: 0;
+    flex: initial;
+    margin: 0;
+    padding-inline: 0;
+  }
+}
