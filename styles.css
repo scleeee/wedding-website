@@ -1797,29 +1797,376 @@ h3 {
   mask-image: linear-gradient(to bottom, #000 0%, #000 58%, transparent 100%);
 }
 
-.guide-placeholder {
+.guide-hero {
   align-items: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: calc(100dvh - 3.5rem);
+  min-height: min(42rem, calc(100dvh - 3.5rem));
+  padding-bottom: 5.5rem;
+  padding-top: 7rem;
 }
 
-.guide-placeholder h1 {
-  font-size: clamp(2rem, 6vw, 4rem);
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: 0.04em;
+.guide-eyebrow {
+  color: var(--accent);
+  font-size: 0.68rem;
+  letter-spacing: 0.17em;
   margin: 0 0 1rem;
   text-transform: uppercase;
 }
 
-.guide-placeholder p {
+.guide-hero h1 {
+  font-size: clamp(2rem, 6vw, 4.2rem);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.05;
+  margin: 0;
+  max-width: 11ch;
+}
+
+.guide-lede {
   color: var(--text-muted);
-  font-size: 0.82rem;
-  letter-spacing: 0.16em;
+  font-size: clamp(1rem, 2vw, 1.13rem);
+  line-height: 1.75;
+  margin: 1.5rem auto 0;
+  max-width: 40rem;
+}
+
+.guide-quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.guide-quick-links a {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  padding: 0.55rem 0.78rem;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.guide-quick-links a:hover,
+.guide-quick-links a:focus-visible {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  outline: none;
+}
+
+.guide-section {
+  padding-top: 5.25rem;
+}
+
+.guide-section-heading {
+  margin: 0 auto 2.2rem;
+  max-width: 43rem;
+}
+
+.guide-section-heading h2 {
+  font-size: clamp(1.75rem, 4vw, 2.55rem);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.16;
+  margin: 0;
+}
+
+.guide-section-heading > p:last-child {
+  color: var(--text-muted);
+  font-size: 0.98rem;
+  line-height: 1.7;
+  margin: 0.8rem auto 0;
+}
+
+.guide-card-grid {
+  display: grid;
+  gap: 1rem;
+  text-align: left;
+}
+
+.guide-card-grid--three {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.guide-card {
+  background: rgba(255, 253, 249, 0.72);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: clamp(1.25rem, 3vw, 1.8rem);
+  position: relative;
+  text-align: left;
+}
+
+.guide-card-number,
+.guide-place-label,
+.guide-feature-kicker,
+.guide-resource-type {
+  color: var(--accent);
+  font-size: 0.63rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.guide-card h3,
+.guide-feature h3,
+.guide-barong-note h3 {
+  font-size: 1.28rem;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0.85rem 0 0;
+}
+
+.guide-card p {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.68;
+  margin: 0.9rem 0 0;
+}
+
+.guide-text-link {
+  color: var(--text);
+  font-size: 0.77rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-top: auto;
+  padding-top: 1.25rem;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+
+.guide-text-link:hover,
+.guide-text-link:focus-visible {
+  color: var(--accent);
+}
+
+.guide-feature {
+  background: #fffaf4;
+  border: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(14rem, 0.8fr);
+  margin: 0 auto;
+  max-width: 800px;
+  text-align: left;
+}
+
+.guide-feature-copy {
+  padding: clamp(1.45rem, 4vw, 2.6rem);
+}
+
+.guide-feature-copy > p:not(.guide-feature-kicker) {
+  color: var(--text-muted);
+  font-size: 0.96rem;
+  line-height: 1.75;
+  margin: 1rem 0 0;
+}
+
+.guide-tip {
+  border-left: 2px solid var(--accent);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin-top: 1.5rem;
+  padding-left: 0.85rem;
+}
+
+.guide-tip strong {
+  color: var(--text);
+}
+
+.guide-checklist {
+  background: rgba(242, 94, 55, 0.08);
+  border-left: 1px solid var(--border);
+  padding: clamp(1.45rem, 4vw, 2.25rem);
+}
+
+.guide-checklist h4 {
+  font-size: 0.7rem;
+  letter-spacing: 0.13em;
   margin: 0;
   text-transform: uppercase;
+}
+
+.guide-checklist ul {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  list-style: none;
+  margin: 1.15rem 0 0;
+  padding: 0;
+}
+
+.guide-checklist li {
+  border-top: 1px solid rgba(222, 213, 200, 0.9);
+  padding: 0.7rem 0;
+}
+
+.guide-checklist li:last-child {
+  padding-bottom: 0;
+}
+
+.guide-checklist li::before {
+  color: var(--accent);
+  content: "↗";
+  margin-right: 0.45rem;
+}
+
+.guide-resource-row {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(2, 1fr);
+  margin: 1rem auto 0;
+  max-width: 800px;
+  text-align: left;
+}
+
+.guide-resource {
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  display: grid;
+  font-size: 0.78rem;
+  gap: 0.35rem;
+  line-height: 1.5;
+  padding: 1.1rem 0.15rem 1.15rem;
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.guide-resource strong {
+  color: var(--text);
+  font-size: 0.94rem;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.guide-resource:hover,
+.guide-resource:focus-visible,
+.guide-resource:hover strong,
+.guide-resource:focus-visible strong {
+  color: var(--accent);
+}
+
+.guide-barong-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
+  margin: 0 auto;
+  max-width: 800px;
+  text-align: left;
+}
+
+.guide-barong-note {
+  background: #5f6b5b;
+  color: #fffdf9;
+  padding: clamp(1.6rem, 4vw, 2.6rem);
+}
+
+.guide-barong-note .guide-feature-kicker {
+  color: #f5c3b4;
+  margin: 0;
+}
+
+.guide-barong-note p:not(.guide-feature-kicker) {
+  color: rgba(255, 253, 249, 0.84);
+  font-size: 0.93rem;
+  line-height: 1.72;
+  margin: 1rem 0 0;
+}
+
+.guide-barong-steps {
+  background: rgba(255, 253, 249, 0.72);
+  border: 1px solid var(--border);
+  display: grid;
+  padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.guide-barong-steps > div {
+  align-items: start;
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: 1.2rem 1fr;
+}
+
+.guide-barong-steps > div + div {
+  border-top: 1px solid var(--border);
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+}
+
+.guide-barong-steps span {
+  color: var(--accent);
+  font-size: 0.7rem;
+  padding-top: 0.14rem;
+}
+
+.guide-barong-steps p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.guide-barong-steps strong {
+  color: var(--text);
+}
+
+.guide-card--place .guide-place-label {
+  margin: 0;
+}
+
+.guide-reels-section {
+  padding-bottom: 6rem;
+}
+
+.guide-reels-grid {
+  align-items: start;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0 auto;
+  max-width: 720px;
+}
+
+.guide-reel {
+  min-width: 0;
+  text-align: left;
+}
+
+.guide-reel > .guide-place-label {
+  margin: 0 0 0.65rem;
+}
+
+.guide-instagram-embed {
+  background: #fff;
+  border: 1px solid var(--border) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  padding: 1rem !important;
+  width: 100% !important;
+}
+
+.guide-instagram-embed p {
+  margin: 0;
+}
+
+.guide-instagram-embed a {
+  color: var(--text);
+  font-size: 0.85rem;
+}
 }
 
 @media (max-width: 960px) {
@@ -1856,6 +2203,52 @@ h3 {
 @media (max-width: 720px) {
   .section {
     padding: 2.9rem 0.9rem;
+  }
+
+  .guide-hero {
+    min-height: calc(100dvh - 3.5rem);
+    padding-bottom: 4rem;
+    padding-top: 5rem;
+  }
+
+  .guide-hero h1 {
+    font-size: clamp(2.25rem, 12vw, 3.25rem);
+  }
+
+  .guide-section {
+    padding-top: 4rem;
+  }
+
+  .guide-card-grid--three,
+  .guide-feature,
+  .guide-barong-layout,
+  .guide-reels-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .guide-card-grid {
+    gap: 0.75rem;
+  }
+
+  .guide-feature-copy,
+  .guide-checklist,
+  .guide-barong-note,
+  .guide-barong-steps {
+    padding: 1.35rem;
+  }
+
+  .guide-checklist {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .guide-resource-row {
+    grid-template-columns: 1fr;
+    margin-top: 0.75rem;
+  }
+
+  .guide-reels-section {
+    padding-bottom: 4.25rem;
   }
 
   .parents,
