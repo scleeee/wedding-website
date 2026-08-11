@@ -230,7 +230,10 @@ guest responses. Existing submissions were seeded with a single current-state
 baseline when audit logging was introduced; edits made before then cannot be
 reconstructed.
 
-Use the SQL Editor to join readable host codes when reviewing history:
+Use the SQL Editor to query `private.rsvp_submissions_with_codes` for the
+current submission rows and readable invitation codes. The view lives in a
+non-API schema and is not available through the Data API. For revision history,
+join readable host codes as follows:
 
 ```sql
 select
