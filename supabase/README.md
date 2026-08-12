@@ -10,6 +10,16 @@ Plaintext codes never reach the API-facing RSVP tables; the protected,
 dashboard-only `rsvp_invite_admin` table intentionally keeps a readable copy
 for host administration.
 
+After a successful code lookup, the Function returns a 24-hour, HMAC-signed
+session proof. The browser keeps that opaque proof in `sessionStorage`, so it is
+scoped to the current tab and the plaintext invitation code is no longer kept
+there. Returning to the homepage uses the proof through the `resume` action and
+does not repeat the invitation-code lookup. The Function verifies the signature
+and expiry before looking up any RSVP data; a forged client-side “already
+unlocked” value cannot open the page. A valid resume rotates the proof for
+another 24 hours. Existing tabs using the former stored-code format are migrated
+to a signed proof on their next successful visit.
+
 The function is intentionally public (`verify_jwt = false` in `config.toml`),
 so its database rate-limit checks are part of the security boundary. It fails
 closed: if a rate-limit reservation fails, it returns 503 without calling a
@@ -24,6 +34,8 @@ maximum 50-seat RSVP payload while still bounding request memory use.
   valid.
 - All lookups: 20 per source IP per hour.
 - Submissions: 5 per source IP per hour.
+- Signed-session resumes: 120 per source IP per hour. Resume attempts cannot
+  guess invitation codes because they require a valid server signature.
 - Limited requests receive HTTP 429, `Retry-After`, and
   `retry_after_seconds`.
 - Invalid lookup codes all receive the same `200` response with a JSON `null`
@@ -89,6 +101,14 @@ Submission requests use this shape:
     }
   ]
 }
+```
+
+After lookup, new browser clients submit with the returned `session_token`
+instead of retaining or resending the plaintext code. A returning tab resumes
+with this request shape:
+
+```json
+{ "action": "resume", "session_token": "SERVER_SIGNED_VALUE" }
 ```
 
 ## Import guest groups
@@ -163,9 +183,10 @@ supabase db push
 supabase functions deploy rsvp
 ```
 
-Deploy the Function immediately after `db push`, then publish the updated static
-files (`rsvp-config.js` and `rsvp.js`). The browser request format is unchanged,
-so an already-open page works once the new Function is live. Verify a backup
+Deploy the Function before publishing the updated static files (`index.html`,
+`styles.css`, and `rsvp.js`), because the new client uses the Function's
+`resume` action. The Function remains backward-compatible with already-open
+pages that submit using their invitation code. Verify a backup
 before `db push`; the migration deliberately removes stored plaintext codes and
 clears legacy response names that were derived from `expected_name`; the seed
 may also remove slots above a group's imported allowance. Existing attendance

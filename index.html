@@ -4,6 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Shawn &amp; Lizzy - Wedding Invitation</title>
+    <script>
+      // Applied before first paint so a returning tab never flashes the code form.
+      // This is only a visual state: rsvp.js still requires the Edge Function to
+      // verify the stored, server-signed proof before it unlocks any site content.
+      try {
+        if (
+          window.sessionStorage.getItem('shawn-lizzy-rsvp-session')
+          || window.sessionStorage.getItem('shawn-lizzy-rsvp-code')
+        ) {
+          document.documentElement.classList.add('restoring-invite-session');
+        }
+      } catch {
+        // The normal invitation-code form remains visible without browser storage.
+      }
+    </script>
     <link rel="preload" as="image" href="assets/Bahay%20kubo.png" fetchpriority="high" />
     <link
       rel="preload"
@@ -17,7 +32,7 @@
       href="https://fonts.googleapis.com/css2?family=Great+Vibes&amp;display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=119" />
+    <link rel="stylesheet" href="styles.css?v=123" />
   </head>
   <body class="site-locked">
     <div class="access-gate" id="access-gate">
@@ -516,7 +531,7 @@
     </main>
     <script src="rsvp-config.js"></script>
     <script src="envelope.js?v=12"></script>
-    <script src="rsvp.js?v=19"></script>
+    <script src="rsvp.js?v=20"></script>
     <script src="site-nav.js?v=1"></script>
   </body>
 </html>

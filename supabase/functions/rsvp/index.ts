@@ -4,6 +4,7 @@ import { createClient } from 'npm:@supabase/supabase-js@^2'
 // multi-byte dietary text, while still bounding request memory use.
 const MAX_BODY_BYTES = 256 * 1024
 const MAX_CODE_LENGTH = 128
+const MAX_SESSION_TOKEN_LENGTH = 2048
 const MAX_RESPONSES = 50
 const MAX_NAME_LENGTH = 200
 const MAX_DIETARY_LENGTH = 1000
@@ -14,6 +15,9 @@ const LOOKUP_FAILED_LIMIT = 10
 const LOOKUP_FAILED_WINDOW_SECONDS = 5 * 60
 const SUBMIT_LIMIT = 5
 const SUBMIT_WINDOW_SECONDS = 60 * 60
+const RESUME_LIMIT = 120
+const RESUME_WINDOW_SECONDS = 60 * 60
+const SESSION_LIFETIME_SECONDS = 24 * 60 * 60
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -38,6 +42,11 @@ type LookupRequest = {
   code: string
 }
 
+type ResumeRequest = {
+  action: 'resume'
+  session_token: string
+}
+
 type RsvpResponse = {
   seat_number: number
   name: string
@@ -47,11 +56,12 @@ type RsvpResponse = {
 
 type SubmitRequest = {
   action: 'submit'
-  code: string
+  code?: string
+  session_token?: string
   responses: RsvpResponse[]
 }
 
-type RsvpRequest = LookupRequest | SubmitRequest
+type RsvpRequest = LookupRequest | ResumeRequest | SubmitRequest
 
 type Reservation = {
   allowed: boolean
@@ -140,6 +150,13 @@ function validCode(value: unknown): value is string {
     && normalizeCode(value) !== null
 }
 
+function validSessionToken(value: unknown): value is string {
+  return typeof value === 'string'
+    && value.length >= 1
+    && value.length <= MAX_SESSION_TOKEN_LENGTH
+    && /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(value)
+}
+
 function normalizeCode(value: string): string | null {
   const normalized = value.replace(/[^A-Za-z0-9]/g, '').toUpperCase()
   return normalized.length >= 1 && normalized.length <= MAX_CODE_LENGTH
@@ -155,6 +172,83 @@ async function codeDigest(code: string): Promise<string> {
     await crypto.subtle.digest('SHA-256', new TextEncoder().encode(normalized)),
   )
   return Array.from(digest, (byte) => byte.toString(16).padStart(2, '0')).join('')
+}
+
+function base64UrlEncode(value: Uint8Array): string {
+  let binary = ''
+  for (const byte of value) binary += String.fromCharCode(byte)
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '')
+}
+
+function base64UrlDecode(value: string): Uint8Array | null {
+  if (!/^[A-Za-z0-9_-]+$/.test(value)) return null
+  const padding = '='.repeat((4 - value.length % 4) % 4)
+  try {
+    const binary = atob(value.replace(/-/g, '+').replace(/_/g, '/') + padding)
+    return Uint8Array.from(binary, (character) => character.charCodeAt(0))
+  } catch {
+    return null
+  }
+}
+
+let sessionSigningKey: CryptoKey | null = null
+
+async function getSessionSigningKey(): Promise<CryptoKey> {
+  if (sessionSigningKey) return sessionSigningKey
+  sessionSigningKey = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(serverKey),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign', 'verify'],
+  )
+  return sessionSigningKey
+}
+
+async function createSessionToken(digest: string): Promise<string> {
+  const payload = new TextEncoder().encode(JSON.stringify({
+    v: 1,
+    digest,
+    expires_at: Math.floor(Date.now() / 1000) + SESSION_LIFETIME_SECONDS,
+  }))
+  const encodedPayload = base64UrlEncode(payload)
+  const signature = new Uint8Array(await crypto.subtle.sign(
+    'HMAC',
+    await getSessionSigningKey(),
+    new TextEncoder().encode(encodedPayload),
+  ))
+  return `${encodedPayload}.${base64UrlEncode(signature)}`
+}
+
+async function digestFromSessionToken(token: string): Promise<string | null> {
+  if (!validSessionToken(token)) return null
+  const [encodedPayload, encodedSignature] = token.split('.')
+  const signature = base64UrlDecode(encodedSignature)
+  const payloadBytes = base64UrlDecode(encodedPayload)
+  if (!signature || !payloadBytes) return null
+
+  const verified = await crypto.subtle.verify(
+    'HMAC',
+    await getSessionSigningKey(),
+    signature,
+    new TextEncoder().encode(encodedPayload),
+  )
+  if (!verified) return null
+
+  try {
+    const payload = JSON.parse(new TextDecoder().decode(payloadBytes)) as unknown
+    if (!isRecord(payload)
+      || !hasOnlyKeys(payload, ['v', 'digest', 'expires_at'])
+      || payload.v !== 1
+      || typeof payload.digest !== 'string'
+      || !/^[a-f0-9]{64}$/.test(payload.digest)
+      || typeof payload.expires_at !== 'number'
+      || !Number.isInteger(payload.expires_at)
+      || payload.expires_at <= Math.floor(Date.now() / 1000)) return null
+    return payload.digest
+  } catch {
+    return null
+  }
 }
 
 function validResponse(value: unknown): value is RsvpResponse {
@@ -177,23 +271,39 @@ function validResponse(value: unknown): value is RsvpResponse {
 }
 
 function parseRequest(value: unknown): RsvpRequest | null {
-  if (!isRecord(value) || !validCode(value.code)) return null
+  if (!isRecord(value)) return null
 
-  if (value.action === 'lookup' && hasOnlyKeys(value, ['action', 'code'])) {
+  if (value.action === 'lookup'
+    && hasOnlyKeys(value, ['action', 'code'])
+    && validCode(value.code)) {
     return { action: 'lookup', code: value.code }
   }
 
+  if (value.action === 'resume'
+    && hasOnlyKeys(value, ['action', 'session_token'])
+    && validSessionToken(value.session_token)) {
+    return { action: 'resume', session_token: value.session_token }
+  }
+
   if (value.action !== 'submit'
-    || !hasOnlyKeys(value, ['action', 'code', 'responses'])
+    || !hasOnlyKeys(value, ['action', 'code', 'session_token', 'responses'])
     || !Array.isArray(value.responses)
     || value.responses.length < 1
     || value.responses.length > MAX_RESPONSES
     || !value.responses.every(validResponse)) return null
 
+  const code = validCode(value.code) ? value.code : null
+  const sessionToken = validSessionToken(value.session_token) ? value.session_token : null
+  if ((code === null) === (sessionToken === null)) return null
+
   const seatNumbers = value.responses.map((response) => response.seat_number)
   if (new Set(seatNumbers).size !== seatNumbers.length) return null
 
-  return { action: 'submit', code: value.code, responses: value.responses }
+  if (sessionToken) {
+    return { action: 'submit', session_token: sessionToken, responses: value.responses }
+  }
+  if (!code) return null
+  return { action: 'submit', code, responses: value.responses }
 }
 
 async function readJson(req: Request): Promise<unknown> {
@@ -314,7 +424,32 @@ async function lookup(request: LookupRequest, identifier: string): Promise<Respo
   }
 
   await release(failedKey, failed.token)
-  return jsonResponse(data)
+  return isRecord(data)
+    ? jsonResponse({ ...data, session_token: await createSessionToken(digest) })
+    : serviceUnavailable()
+}
+
+async function resume(request: ResumeRequest, identifier: string): Promise<Response> {
+  const reservation = await reserve(
+    `rsvp:v1:resume:${identifier}`,
+    RESUME_LIMIT,
+    RESUME_WINDOW_SECONDS,
+  )
+  if (!reservation.allowed) return rateLimited(reservation.retryAfterSeconds)
+
+  const digest = await digestFromSessionToken(request.session_token)
+  if (!digest) return jsonResponse(null)
+
+  const { data, error } = await supabase.rpc('lookup_rsvp', {
+    p_code_digest: digest,
+  })
+  if (error) {
+    console.error('resume lookup_rsvp failed', error.code ?? 'unknown')
+    return serviceUnavailable()
+  }
+  if (!isRecord(data)) return jsonResponse(null)
+
+  return jsonResponse({ ...data, session_token: await createSessionToken(digest) })
 }
 
 async function submit(request: SubmitRequest, identifier: string): Promise<Response> {
@@ -325,7 +460,17 @@ async function submit(request: SubmitRequest, identifier: string): Promise<Respo
   )
   if (!submission.allowed) return rateLimited(submission.retryAfterSeconds)
 
-  const digest = await codeDigest(request.code)
+  const digest = request.session_token
+    ? await digestFromSessionToken(request.session_token)
+    : request.code
+      ? await codeDigest(request.code)
+      : null
+  if (!digest) {
+    return jsonResponse(
+      { code: 'RSVP_NOT_SAVED', message: 'The RSVP could not be saved.' },
+      400,
+    )
+  }
   const { data, error } = await supabase.rpc('submit_rsvp', {
     p_code_digest: digest,
     p_responses: request.responses,
@@ -371,9 +516,9 @@ Deno.serve(async (req: Request) => {
 
   try {
     const identifier = await ipIdentifier(req)
-    return request.action === 'lookup'
-      ? await lookup(request, identifier)
-      : await submit(request, identifier)
+    if (request.action === 'lookup') return await lookup(request, identifier)
+    if (request.action === 'resume') return await resume(request, identifier)
+    return await submit(request, identifier)
   } catch (error) {
     // Rate-limit errors fail closed: no lookup or submit RPC is attempted without a
     // successful rate-limit reservation. Never log the code, responses, or IP.

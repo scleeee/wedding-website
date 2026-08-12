@@ -4,7 +4,8 @@
   // TEMP: skip the invitation-code gate while designing the site.
   // Set back to false before sharing / launch.
   const BYPASS_INVITE_CODE = false;
-  const SESSION_CODE_KEY = 'shawn-lizzy-rsvp-code';
+  const SESSION_TOKEN_KEY = 'shawn-lizzy-rsvp-session';
+  const LEGACY_SESSION_CODE_KEY = 'shawn-lizzy-rsvp-code';
 
   // Fake party used only when BYPASS_INVITE_CODE is on, so the RSVP UI is visible.
   const DEMO_INVITATION = {
@@ -29,7 +30,7 @@
   };
 
   const config = window.WEDDING_CONFIG || {};
-  const state = { code: '', invitation: null, pendingResponses: null };
+  const state = { code: '', sessionToken: '', invitation: null, pendingResponses: null };
 
   const elements = {
     gate: document.getElementById('access-gate'),
@@ -129,28 +130,44 @@
     element.classList.remove('visible');
   }
 
-  function savedSessionCode() {
+  function savedSessionCredentials() {
     try {
-      return window.sessionStorage.getItem(SESSION_CODE_KEY) || '';
+      return {
+        sessionToken: window.sessionStorage.getItem(SESSION_TOKEN_KEY) || '',
+        legacyCode: window.sessionStorage.getItem(LEGACY_SESSION_CODE_KEY) || ''
+      };
     } catch {
-      return '';
+      return { sessionToken: '', legacyCode: '' };
     }
   }
 
-  function saveSessionCode(code) {
+  function saveSessionToken(token) {
+    if (!token) return;
     try {
-      window.sessionStorage.setItem(SESSION_CODE_KEY, code);
+      window.sessionStorage.setItem(SESSION_TOKEN_KEY, token);
+      window.sessionStorage.removeItem(LEGACY_SESSION_CODE_KEY);
     } catch {
       // The invitation still works when browser storage is unavailable.
     }
   }
 
-  function clearSessionCode() {
+  function clearSessionCredentials() {
     try {
-      window.sessionStorage.removeItem(SESSION_CODE_KEY);
+      window.sessionStorage.removeItem(SESSION_TOKEN_KEY);
+      window.sessionStorage.removeItem(LEGACY_SESSION_CODE_KEY);
     } catch {
       // Nothing else is needed when browser storage is unavailable.
     }
+  }
+
+  function stopRestoringSession() {
+    document.documentElement.classList.remove('restoring-invite-session');
+  }
+
+  function invitationSessionToken(invitation) {
+    return invitation && typeof invitation.session_token === 'string'
+      ? invitation.session_token
+      : '';
   }
 
   function setButtonBusy(button, busy, busyText, normalText) {
@@ -227,6 +244,7 @@
   }
 
   function unlockSite() {
+    stopRestoringSession();
     elements.gate.hidden = true;
     elements.site.hidden = false;
     elements.site.removeAttribute('inert');
@@ -518,8 +536,11 @@
     setButtonBusy(elements.submitButton, true, 'Saving…', 'Submit RSVP');
 
     try {
+      const accessCredential = state.sessionToken
+        ? { session_token: state.sessionToken }
+        : { code: state.code };
       const invitation = await callRsvpApi('submit', {
-        code: state.code,
+        ...accessCredential,
         responses: state.pendingResponses
       });
       state.invitation = invitation;
@@ -537,9 +558,10 @@
 
   function resetToLogin() {
     state.code = '';
+    state.sessionToken = '';
     state.invitation = null;
     state.pendingResponses = null;
-    clearSessionCode();
+    clearSessionCredentials();
     elements.form.hidden = true;
     elements.review.hidden = true;
     elements.success.hidden = true;
@@ -572,8 +594,10 @@
       if (!hasValidInvitationSeats(invitation)) {
         throw new RsvpApiError('Invitation seats are incomplete.', 'DATA');
       }
-      state.code = code;
-      saveSessionCode(code);
+      state.sessionToken = invitationSessionToken(invitation);
+      state.code = state.sessionToken ? '' : code;
+      if (state.sessionToken) elements.codeInput.value = '';
+      saveSessionToken(state.sessionToken);
       renderInvitation(invitation);
     } catch (error) {
       showError(elements.lookupError, lookupErrorMessage(error));
@@ -607,25 +631,34 @@
   });
 
   async function restoreSession() {
-    const code = savedSessionCode();
-    if (!code) return;
+    const { sessionToken, legacyCode } = savedSessionCredentials();
+    if (!sessionToken && !legacyCode) {
+      stopRestoringSession();
+      return;
+    }
 
     elements.codeInput.disabled = true;
     setButtonBusy(elements.lookupButton, true, 'Opening…', 'Enter website');
 
     try {
-      const invitation = await callRsvpApi('lookup', { code });
+      const invitation = sessionToken
+        ? await callRsvpApi('resume', { session_token: sessionToken })
+        : await callRsvpApi('lookup', { code: legacyCode });
       if (!invitation || !hasValidInvitationSeats(invitation)) {
-        clearSessionCode();
+        clearSessionCredentials();
         return;
       }
-      state.code = code;
+      state.sessionToken = invitationSessionToken(invitation);
+      state.code = state.sessionToken ? '' : legacyCode;
+      if (state.sessionToken) elements.codeInput.value = '';
+      saveSessionToken(state.sessionToken);
       renderInvitation(invitation, { scroll: false, skipIntro: true });
-    } catch {
-      // Keep the session value for a later retry if the network is unavailable.
+    } catch (error) {
+      showError(elements.lookupError, lookupErrorMessage(error));
     } finally {
       elements.codeInput.disabled = false;
       setButtonBusy(elements.lookupButton, false, 'Opening…', 'Enter website');
+      if (elements.site.hidden) stopRestoringSession();
     }
   }
 

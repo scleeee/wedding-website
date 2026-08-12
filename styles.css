@@ -610,6 +610,12 @@ body.envelope-active {
   z-index: 1000;
 }
 
+/* A returning tab is verified silently. Keep the gate as an opaque security
+   boundary, but do not flash its invitation-code card while that happens. */
+.restoring-invite-session .access-card {
+  visibility: hidden;
+}
+
 .access-card {
   --rsvp-radius: 6px;
   background: #fff;
