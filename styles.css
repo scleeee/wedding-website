@@ -3071,11 +3071,13 @@ h3 {
   max-width: 12ch;
 }
 
+.guide-title-mobile { display: none; }
+
 .guide-page .guide-lede { max-width: 44rem; }
 .guide-page .guide-section { padding-top: 5.6rem; }
 .guide-page .guide-section-heading { max-width: 47rem; }
 .guide-page .guide-section-heading h2 { font-size: clamp(1.9rem, 4vw, 2.8rem); text-transform: none; }
-.guide-page .guide-tip { margin-top: 0; }
+.guide-page .guide-tip { margin-top: 1.35rem; }
 
 @media (max-width: 720px) {
   .guide-page .guide-hero {
@@ -3086,7 +3088,9 @@ h3 {
     text-align: left;
   }
 
-  .guide-page .guide-hero h1 { font-size: clamp(2.45rem, 12vw, 3.5rem); }
+  .guide-page .guide-hero h1 { font-size: clamp(2.45rem, 12vw, 3.5rem); max-width: none; }
+  .guide-title-desktop { display: none; }
+  .guide-title-mobile { display: inline; }
   .guide-page .guide-section { padding-top: 4.4rem; }
 }
 
@@ -3106,7 +3110,7 @@ h3 {
 
 .guide-page .guide-section-heading .guide-eyebrow {
   color: var(--text);
-  font-size: clamp(1.5rem, 3.1vw, 2.35rem);
+  font-size: clamp(2.05rem, 4vw, 3.35rem);
   font-style: italic;
   letter-spacing: 0.015em;
   line-height: 1.15;
@@ -3130,7 +3134,7 @@ h3 {
 .guide-pronunciation {
   color: var(--text-muted);
   font-family: "Baskerville", "Times New Roman", serif;
-  font-size: 0.76rem;
+  font-size: 0.92rem;
   font-style: italic;
   font-weight: 400;
   letter-spacing: 0;
@@ -3140,8 +3144,14 @@ h3 {
 
 @media (max-width: 720px) {
   .guide-page .guide-section-heading .guide-eyebrow {
-    font-size: clamp(1.55rem, 8vw, 2rem);
+    font-size: clamp(2rem, 10vw, 2.6rem);
   }
+}
+
+.guide-page .guide-phrasebook dd {
+  font-size: 0.96rem;
+  line-height: 1.55;
+  margin-top: 0.35rem;
 }
 
 .guide-bonus-links-label {
